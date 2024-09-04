@@ -95,7 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   width: 63,
                   child: Column(
                     children: [
-                      Icon(Icons.home, color: _selectedIndex == 0 ? AppColors.XanhDuong : Colors.black,),
+                      Icon(Icons.currency_exchange, color: _selectedIndex == 0 ? AppColors.XanhDuong : Colors.black,),
                       Text("Giao dịch", style: TextStyle(
                         color: _selectedIndex == 0 ? AppColors.XanhDuong : Colors.black,
                         fontSize: 12),)
@@ -113,7 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   width: 63,
                   child: Column(
                     children: [
-                      Icon(Icons.home, color: _selectedIndex == 1 ? AppColors.XanhDuong : Colors.black,),
+                      Icon(Icons.pie_chart, color: _selectedIndex == 1 ? AppColors.XanhDuong : Colors.black,),
                       Text("Thống kê", style: TextStyle(
                         color: _selectedIndex == 1 ? AppColors.XanhDuong : Colors.black, fontSize: 12),)
                     ],
@@ -131,7 +131,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   width: 63,
                   child: Column(
                     children: [
-                      Icon(Icons.home, color: _selectedIndex == 2 ? AppColors.XanhDuong : Colors.black,),
+                      Icon(Icons.savings, color: _selectedIndex == 2 ? AppColors.XanhDuong : Colors.black,),
                       Text("Ngân sách", style: TextStyle(color: _selectedIndex == 2 ? AppColors.XanhDuong : Colors.black,
                           fontSize: 12),)
                     ],
@@ -147,7 +147,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   width: 63,
                   child: Column(
                     children: [
-                      Icon(Icons.home, color: _selectedIndex == 3 ? AppColors.XanhDuong : Colors.black,),
+                      Icon(Icons.more_horiz, color: _selectedIndex == 3 ? AppColors.XanhDuong : Colors.black,),
                       Text("Thêm", style: TextStyle(color: _selectedIndex == 3 ? AppColors.XanhDuong : Colors.black,
                           fontSize: 12),)
                     ],
