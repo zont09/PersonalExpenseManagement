@@ -3,7 +3,7 @@ import 'package:personal_expense_management/Screen/Budget/Budget.dart';
 import 'package:personal_expense_management/Screen/More/More.dart';
 import 'package:personal_expense_management/Resources/AppColor.dart';
 import 'package:personal_expense_management/Screen/Statistical/Statistical.dart';
-import 'package:personal_expense_management/Screen/Transaction/Transaction.dart';
+import 'package:personal_expense_management/Screen/Transaction/TransactionScreen.dart';
 void main() {
   runApp(const MyApp());
 }
