@@ -14,6 +14,20 @@ import 'package:personal_expense_management/Screen/Budget/BudgetScreen.dart';
 
 class Initdata {
 
+  static Future<void> addAllSampleData() async {
+    await addCurrency();
+    await addCategory();
+    await addRepeatOption();
+    await addBudget();
+    await addBudgetDetail();
+    await addSaving();
+    await addSavingDetail();
+    await addReminder();
+    await addWallet();
+    await addTransaction();
+    await addParameter();
+  }
+
   static Future<void> addCurrency() async {
     DatabaseHelper db = DatabaseHelper();
     Currency cur1 = Currency(name: "VND", value: 1);
@@ -145,9 +159,11 @@ class Initdata {
     Currency cur1 = Currency(id: 1,name: "VND", value: 1);
     Currency cur2 = Currency(id: 2,name: "USD", value: 25000);
     Currency cur3 = Currency(id: 3,name: "BTC", value: 1400000000);
+    Wallet wal0 = Wallet(id: 0,name: "Tổng", amount: 52000000, currency: cur1, note: "Tổng tiền các ví");
     Wallet wal1 = Wallet(name: "Tiền mặt", amount: 2000000, currency: cur1, note: "Ví này giữ tiền mặt");
     Wallet wal2 = Wallet(name: "Vietcombank", amount: 50000000, currency: cur1, note: "Ví này giữ tiền ở ngần hàng VCB");
     Wallet wal3 = Wallet(name: "BIDV", amount: 20, currency: cur3, note: "Ví này giữ tiền điện tử");
+    await db.insertWallet(wal0);
     await db.insertWallet(wal1);
     await db.insertWallet(wal2);
     int id = await db.insertWallet(wal3);
