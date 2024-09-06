@@ -2,9 +2,9 @@ class Saving {
   int? id;
   String name;
   double target_amount;
-  DateTime target_date;
+  String target_date;
   double current_amount;
-  bool is_finished;
+  int is_finished;
 
   Saving({this.id, required this.name, required this.target_amount, required this.target_date, required this.current_amount, required this.is_finished});
   factory Saving.fromMap(Map<String, dynamic> json) {

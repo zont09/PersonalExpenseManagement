@@ -14,7 +14,7 @@ class Parameter {
 
   Map<String, dynamic> toMap() {
     final data = <String, dynamic>{
-      'currency': currency,
+      'currency': currency.id,
     };
     return data;
   }

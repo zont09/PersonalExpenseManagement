@@ -1,6 +1,6 @@
 class Budget {
   int? id;
-  late DateTime date;
+  late String date;
 
   Budget({this.id, required this.date});
 

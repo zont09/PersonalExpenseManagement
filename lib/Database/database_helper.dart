@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 
 import 'package:personal_expense_management/Model/Budget.dart';
 import 'package:personal_expense_management/Model/BudgetDetail.dart';
@@ -25,7 +26,7 @@ class DatabaseHelper {
   final String _reminderTable = 'Reminder';
   final String _repeatOptionTable = 'RepeatOption';
   final String _parameterTable = 'Parameter';
-  final String _transactionTable = 'Transaction';
+  final String _transactionTable = 'TransactionTB';
   final String _budgetTable = 'Budget';
   final String _budgetDetailTable = 'BudgetDetail';
   final String _savingTable = 'Saving';
@@ -53,13 +54,11 @@ class DatabaseHelper {
   }
 
   Future<String> _getDatabasePath() async {
-    // Lấy đường dẫn đến thư mục lưu trữ cơ sở dữ liệu
     Directory directory = await getApplicationDocumentsDirectory();
     String path = join(directory.path, _databaseName);
     if (!await Directory(directory.path).exists()) {
       await Directory(directory.path).create(recursive: true);
     }
-
     return path;
   }
 
@@ -78,6 +77,21 @@ class DatabaseHelper {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT,
         value REAL
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE $_repeatOptionTable (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        option_name TEXT
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE $_categoryTable (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        type INTEGER
       )
     ''');
 
@@ -102,12 +116,7 @@ class DatabaseHelper {
       )
     ''');
 
-    await db.execute('''
-      CREATE TABLE $_repeatOptionTable (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        option_name TEXT,
-      )
-    ''');
+
 
     await db.execute('''
       CREATE TABLE $_transactionTable (
@@ -119,8 +128,8 @@ class DatabaseHelper {
         note TEXT,
         description TEXT,
         repeat_option INTEGER,
-        FOREIGN KEY (wallet) REFERENCES $_walletTable (id) ON DELETE SET NULL ON UPDATE CASCADE
-        FOREIGN KEY (category) REFERENCES $_categoryTable (id) ON DELETE SET NULL ON UPDATE CASCADE
+        FOREIGN KEY (wallet) REFERENCES $_walletTable (id) ON DELETE SET NULL ON UPDATE CASCADE,
+        FOREIGN KEY (category) REFERENCES $_categoryTable (id) ON DELETE SET NULL ON UPDATE CASCADE,
         FOREIGN KEY (repeat_option) REFERENCES $_repeatOptionTable (id) ON DELETE SET NULL ON UPDATE CASCADE
       )
     ''');
@@ -128,7 +137,7 @@ class DatabaseHelper {
     await db.execute('''
       CREATE TABLE $_budgetTable (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        date TEXT,
+        date TEXT
         )
     ''');
 
@@ -138,7 +147,7 @@ class DatabaseHelper {
         id_budget INTEGER,
         category INTEGER,
         amount REAL,
-        FOREIGN KEY (category) REFERENCES $_categoryTable (id) ON DELETE SET NULL ON UPDATE CASCADE
+        FOREIGN KEY (category) REFERENCES $_categoryTable (id) ON DELETE SET NULL ON UPDATE CASCADE,
         FOREIGN KEY (id_budget) REFERENCES $_budgetTable (id) ON DELETE SET NULL ON UPDATE CASCADE
       )
     ''');
@@ -161,18 +170,12 @@ class DatabaseHelper {
         amount REAL,
         wallet INTEGER,
         note TEXT,
-        FOREIGN KEY (id_saving) REFERENCES $_savingTable (id) ON DELETE SET NULL ON UPDATE CASCADE
+        FOREIGN KEY (id_saving) REFERENCES $_savingTable (id) ON DELETE SET NULL ON UPDATE CASCADE,
         FOREIGN KEY (wallet) REFERENCES $_walletTable (id) ON DELETE SET NULL ON UPDATE CASCADE
       )
     ''');
 
-    await db.execute('''
-      CREATE TABLE $_categoryTable (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT,
-        type INTEGER,
-      )
-    ''');
+
 
     await db.execute('''
       CREATE TABLE $_parameterTable (
@@ -330,7 +333,7 @@ class DatabaseHelper {
           id: maps[i]['Zid'],
           date: maps[i]['date'],
           description: maps[i]['description'],
-          repeat_type: repeat_option
+          repeat_option: repeat_option
       );
     });
   }
@@ -365,27 +368,30 @@ class DatabaseHelper {
     final db = await database;
 
     final List<Map<String, dynamic>> maps = await db.rawQuery('''
-      SELECT z.id as Zid, z.date, z.amount, z.wallet, z.category, z.note as ZNote, z.description, z.repeat_option, 
+      SELECT z.id as Zid, z.wallet, z.category, z.note as ZNote, z.repeat_option, z.amount as ZAmount, z.description, z.date,
             q.id as Qid, q.option_name as QName,
-            w.id as Wid, w.name as WName, w.note as WNote
-            e.id as Eid, e.name as EName
-      FROM $_transactionTable z 
+            w.id as Wid, w.name as WName, w.note as WNote, w.amount as WAmount, w.currency,
+            e.id as Eid, e.name as EName, e.type,
+            r.id as Rid, r.name as RName, r.value
+      FROM $_transactionTable z
       INNER JOIN $_repeatOptionTable q ON z.repeat_option = q.id
       INNER JOIN $_walletTable w ON z.wallet = w.id
       INNER JOIN $_categoryTable e ON z.category = e.id
+      INNER JOIN $_currencyTable r ON w.currency = r.id
     ''');
-
     return List.generate(maps.length, (i) {
       final repeat_option = RepeatOption(
-        id: maps[i]['Qid'],
+        id: maps[i]['Qid'] as int?,
         option_name: maps[i]['QName'],
       );
+
+      final currency = Currency(name: maps[i]['RName'], value: maps[i]['value']);
 
       final wallet = Wallet(
         id: maps[i]['Wid'],
         name: maps[i]['WName'],
-        amount: maps[i]['amount'],
-        currency: maps[i]['currency'],
+        amount: maps[i]['WAmount'],
+        currency: currency,
         note: maps[i]['WNote'],
       );
 
@@ -398,12 +404,12 @@ class DatabaseHelper {
       return TransactionModel(
           id: maps[i]['Zid'],
           date: maps[i]['date'],
-          amount: maps[i]['description'],
+          amount: maps[i]['ZAmount'],
           wallet: wallet,
           category: category,
           note: maps[i]['ZNote'],
           description: maps[i]['description'],
-          repeat_type: repeat_option,
+          repeat_option: repeat_option,
       );
     });
   }
@@ -472,9 +478,9 @@ class DatabaseHelper {
     final db = await database;
 
     final List<Map<String, dynamic>> maps = await db.rawQuery('''
-      SELECT z.id as Zid, z.id_budget, z.category,
-            q.id as Qid,
-            w.id as Wid
+      SELECT z.id as Zid, z.id_budget, z.category, z.amount,
+            q.id as Qid, q.date,
+            w.id as Wid, w.name, w.type
       FROM $_budgetDetailTable z 
       INNER JOIN $_budgetTable q ON z.id_budget = q.id
       INNER JOIN $_categoryTable w ON z.category = w.id
@@ -482,16 +488,19 @@ class DatabaseHelper {
 
     return List.generate(maps.length, (i) {
       final category = Category(
-        id: maps[i]['Qid'],
+        id: maps[i]['Wid'],
         name: maps[i]['date'],
         type: maps[i]['type'],
       );
-
+      final budget = Budget(
+        id: maps[i]['Qid'],
+        date: maps[i]['date']
+      );
       return BudgetDetail(
         id: maps[i]['Zid'],
         amount: maps[i]['amount'],
         category: category,
-        id_budget: maps[i]['id_budget']
+        id_budget: budget
       );
     });
   }
@@ -560,10 +569,10 @@ class DatabaseHelper {
     final db = await database;
 
     final List<Map<String, dynamic>> maps = await db.rawQuery('''
-      SELECT z.id as Zid, z.id_saving, z.wallet, z.amount as ZAmount,
-            q.id as Qid, q.name as QName,
-            w.id as Wid, w.name as WName, w.amount as WAmount, w.currency,
-            e.id as Eid, e.name as EName
+      SELECT z.id as Zid, z.id_saving, z.wallet, z.amount as ZAmount, z.note as ZNote,
+            q.id as Qid, q.name as QName, q.target_amount, q.target_date, q.current_amount, q.is_finished,
+            w.id as Wid, w.name as WName, w.amount as WAmount, w.currency, w.note as WNote,
+            e.id as Eid, e.name as EName, e.value
       FROM $_savingDetailTable z 
       INNER JOIN $_savingTable q ON z.id_saving = q.id
       INNER JOIN $_walletTable w ON z.wallet = w.id
@@ -577,20 +586,29 @@ class DatabaseHelper {
           value: maps[i]['value']
       );
 
+      final saving = Saving(
+          id: maps[i]['Qid'],
+          name: maps[i]['QName'],
+          target_amount: maps[i]['target_amount'],
+          target_date: maps[i]['target_date'],
+          current_amount: maps[i]['current_amount'],
+          is_finished: maps[i]['is_finished']
+      );
+
       final wallet = Wallet(
-        id: maps[i]['Qid'],
-        name: maps[i]['name'],
-        amount: maps[i]['type'],
+        id: maps[i]['Wid'],
+        name: maps[i]['WName'],
+        amount: maps[i]['WAmount'],
         currency: currency,
-        note: maps[i]['note']
+        note: maps[i]['WNote']
       );
 
       return SavingDetail(
           id: maps[i]['Zid'],
-          id_saving: maps[i]['id_saving'],
-          amount: maps[i]['amount'],
+          id_saving: saving,
+          amount: maps[i]['ZAmount'],
           wallet: wallet,
-          note: maps[i]['note']
+          note: maps[i]['ZNote']
       );
     });
   }
@@ -660,7 +678,7 @@ class DatabaseHelper {
 
     final List<Map<String, dynamic>> maps = await db.rawQuery('''
       SELECT z.currency,
-            q.id
+            q.id, q.name, q.value
       FROM $_parameterTable z 
       INNER JOIN $_currencyTable q ON z.currency = q.id
     ''');

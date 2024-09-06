@@ -1,7 +1,7 @@
 class Category {
   int? id;
   late String name;
-  late String type;
+  late int type;
 
   Category({this.id, required this.name, required this.type});
 
@@ -9,7 +9,7 @@ class Category {
     return Category(
       id: json['id'],
       name: json['name'],
-      type: json['value'],
+      type: json['type'],
     );
   }
 

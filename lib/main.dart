@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:personal_expense_management/Screen/Budget/Budget.dart';
+import 'package:personal_expense_management/Screen/Budget/BudgetScreen.dart';
 import 'package:personal_expense_management/Screen/More/More.dart';
 import 'package:personal_expense_management/Resources/AppColor.dart';
 import 'package:personal_expense_management/Screen/Statistical/Statistical.dart';
@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
       routes: {
         Routes.Transaction: (context) => Transaction(),
         Routes.Statistical: (context) => Statistical(),
-        Routes.Budget: (context) => Budget(),
+        Routes.Budget: (context) => BudgetScreen(),
         Routes.More: (context) => More(),
       },
     );
@@ -51,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> _pages = [
     Transaction(),
     Statistical(),
-    Budget(),
+    BudgetScreen(),
     More(),
   ];
   void _onItemTapped(int index) {
