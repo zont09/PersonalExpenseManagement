@@ -21,6 +21,8 @@ import 'package:personal_expense_management/bloc/wallet_bloc/wallet_event.dart';
 import 'package:personal_expense_management/bloc/wallet_bloc/wallet_state.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:month_year_picker/month_year_picker.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 class Transaction extends StatefulWidget {
   const Transaction({super.key});
@@ -45,17 +47,36 @@ class _TransactionState extends State<Transaction> {
     listWallet = dbHelper.getWallet();
   }
 
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? pickedDate = await showDatePicker(
+  Future<void> _selectDate(BuildContext context, String? locale,) async {
+    final localeObj = locale != null ? Locale(locale) : null;
+    final selected = await showMonthYearPicker(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(1900),
-      lastDate: DateTime(2100),
+      initialDate: dateTransaction ?? DateTime.now(),
+      firstDate: DateTime(2019),
+      lastDate: DateTime(2030),
+      locale: localeObj,
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            textTheme: TextTheme(
+              bodyLarge: TextStyle(fontSize: 12, ), // Center text
+              titleLarge: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),
+            ),
+          ),
+          child: Center(
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.8,
+              height: MediaQuery.of(context).size.height * 0.6,
+              child: child,
+            ),
+          ),
+        );
+      },
     );
 
-    if (pickedDate != null) {
+    if (selected != null) {
       setState(() {
-        dateTransaction = pickedDate;
+        dateTransaction = selected;
       });
     }
   }
@@ -190,8 +211,7 @@ class _TransactionState extends State<Transaction> {
                             elevation: 0,
                           ),
                           onPressed: () => {
-                            _selectDate(context)
-
+                            _selectDate(context, 'vi')
                           },
                           child: Text(
                             "Thg ${dateTransaction.month} ${dateTransaction.year}",

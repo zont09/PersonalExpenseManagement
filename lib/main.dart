@@ -4,7 +4,13 @@ import 'package:personal_expense_management/Screen/More/More.dart';
 import 'package:personal_expense_management/Resources/AppColor.dart';
 import 'package:personal_expense_management/Screen/Statistical/Statistical.dart';
 import 'package:personal_expense_management/Screen/Transaction/TransactionScreen.dart';
+import 'package:intl/intl.dart';  // Nhập thư viện intl
+import 'package:intl/date_symbol_data_local.dart';  // Nhập để sử dụng hàm initializeDateFormatting
+import 'package:month_year_picker/month_year_picker.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 void main() {
+  Intl.defaultLocale = 'vi_VN'; // Hoặc locale khác nếu cần
+  initializeDateFormatting(Intl.defaultLocale);
   runApp(const MyApp());
 }
 
@@ -37,6 +43,16 @@ class MyApp extends StatelessWidget {
         Routes.Budget: (context) => BudgetScreen(),
         Routes.More: (context) => More(),
       },
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        MonthYearPickerLocalizations.delegate,  // Thêm dòng này
+      ],
+      supportedLocales: [
+        const Locale('vi', 'VN'),
+        const Locale('en', ''), // Hoặc các locale khác mà bạn hỗ trợ
+      ],
     );
   }
 }
