@@ -242,12 +242,93 @@ class _TransactionState extends State<Transaction> {
                         ),
                       ],
                     ),
-                  )
-                  // Expanded(
-                  //     child: SingleChildScrollView(
-                  //
-                  //   ),
-                  // )
+                  ),
+                  SizedBox(height: 10,),
+                  Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            Column(
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.only(left: 10),
+                                  height: 30,
+                                  color: AppColors.Nen,
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      Text("8", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),)
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(height: 5,),
+                                Container(
+                                  height: 60,
+                                  color: AppColors.Nen,
+                                  child: InkWell(
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          flex: 1,
+                                          child: Container(
+                                            padding: EdgeInsets.only(left: 10),
+                                            child: Text('Ăn uống', style: TextStyle(fontSize: 16 , color: Color(0xff787878),)),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          flex: 2,
+                                          child: Container(
+                                            child: Column(
+                                              children: [
+                                                Container(
+                                                  height: 30,
+                                                  child: Align(
+                                                    alignment: Alignment.centerLeft,
+                                                    child: Text("Ăn tối bún bò huế", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                                      overflow: TextOverflow.ellipsis,
+                                                      maxLines: 1,),
+                                                  ),
+                                                ),
+                                                Container(
+                                                  height: 30,
+                                                  child: Align(
+                                                    alignment: Alignment.centerLeft,
+                                                    child: Text("Tiền mặt", style: TextStyle(fontSize: 16 , color: Color(0xff787878)),
+                                                      overflow: TextOverflow.ellipsis,
+                                                      maxLines: 1,),
+                                                  ),
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          flex: 1, // Third column takes 1/4 of the available width
+                                          child: Container(
+                                            padding: EdgeInsets.only(right: 5),
+                                            child: Align(
+                                              alignment: Alignment.centerRight,
+                                              child: FittedBox(
+                                                fit: BoxFit.scaleDown,
+                                                child: Text(
+                                                  '+50.000.000 VND',
+                                                  style: TextStyle(fontWeight: FontWeight.bold,color: AppColors.XanhLaDam),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+
+                                      ],
+                                    ),
+                                  ),
+                                )
+                              ],
+                            )
+                          ],
+                        ),
+                    ),
+                  ),
                 ],
               ),
             ),
