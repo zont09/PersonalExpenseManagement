@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:personal_expense_management/Components/dropdown.dart';
 import 'package:personal_expense_management/Database/database_helper.dart';
 import 'package:personal_expense_management/Database/initdata.dart';
@@ -33,8 +34,10 @@ class Transaction extends StatefulWidget {
 
 class _TransactionState extends State<Transaction> {
   DatabaseHelper dbHelper = DatabaseHelper();
-  Future<List<Wallet>>? listWallet;
+  Future<List<Wallet>>? _listWallet;
+  Future<List<TransactionModel>>? _listTransaction;
   DateTime dateTransaction = DateTime.now();
+
   @override
   void initState() {
     super.initState();
@@ -44,10 +47,14 @@ class _TransactionState extends State<Transaction> {
   Future<void> _initializeData() async {
     // await Initdata.addCurrency();
     // await Initdata.addWallet();
-    listWallet = dbHelper.getWallet();
+    _listWallet = dbHelper.getWallet();
+    _listTransaction = dbHelper.getTransactions();
   }
 
-  Future<void> _selectDate(BuildContext context, String? locale,) async {
+  Future<void> _selectDate(
+    BuildContext context,
+    String? locale,
+  ) async {
     final localeObj = locale != null ? Locale(locale) : null;
     final selected = await showMonthYearPicker(
       context: context,
@@ -59,8 +66,13 @@ class _TransactionState extends State<Transaction> {
         return Theme(
           data: ThemeData.light().copyWith(
             textTheme: TextTheme(
-              bodyLarge: TextStyle(fontSize: 12, ), // Center text
-              titleLarge: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),
+              bodyLarge: TextStyle(
+                fontSize: 12,
+              ), // Center text
+              titleLarge: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           child: Center(
@@ -95,7 +107,7 @@ class _TransactionState extends State<Transaction> {
     final maxW = MediaQuery.of(context).size.width;
     final maxH = MediaQuery.of(context).size.height;
     return FutureBuilder<List<Wallet>>(
-      future: listWallet,
+      future: _listWallet,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(
@@ -111,230 +123,350 @@ class _TransactionState extends State<Transaction> {
             print('Item: ${cur.name}');
           }
 
-          return BlocProvider(
-            create: (context) => WalletBloc(wallets),
-            child: Container(
-              height: maxH,
-              width: maxW,
-              child: Column(
-                children: [
-                  Container(
-                    height: 0.1 * maxH,
-                    color: AppColors.Nen,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        SizedBox(
-                          width: 96,
-                        ),
-                        Column(
-                          children: [
-                            Text("Số dư"),
-                            BlocBuilder<WalletBloc, WalletState>(
-                              builder: (context, state) {
-                                if (state is WalletSelectedState)
-                                  return Text(
-                                    GlobalFunction.formatCurrency(
-                                            state.selectedWallet.amount) +
-                                        " " +
-                                        state.selectedWallet.currency.name,
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: AppColors.XanhDuong),
-                                  );
-                                else
-                                  return Text(
-                                    "0",
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: AppColors.XanhDuong),
-                                  );
-                              },
-                            ),
-                            DropdownWG(
-                                wallets: wallets, maxH: maxH, maxW: maxW),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            IconButton(
-                              onPressed: () => {
-                                // addSampleData()
-                              },
-                              icon: Icon(
-                                Icons.search,
-                                size: 30,
-                              ),
-                            ),
-                            IconButton(
-                              onPressed: () => {
-                                // deleteDB()
-                              },
-                              icon: Icon(Icons.more_vert, size: 32),
-                            )
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 10,),
-                  Container(
-                    height: 0.05 * maxH,
-                    color: AppColors.Nen,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        IconButton(
-                          onPressed: () => {
-                            setState(() {
-                              int mon = dateTransaction.month;
-                              int yea = dateTransaction.year;
-                              mon = mon - 1;
-                              if(mon < 1) {
-                                mon = 12;
-                                yea = yea - 1;
-                              }
-                              dateTransaction = DateTime(yea, mon);
-                            })
-                          },
-                          icon:const Icon(
-                            Icons.keyboard_arrow_left,
-                            size: 30,
-                          ),
-                        ),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.transparent,
-                            shadowColor: Colors.transparent,
-                            elevation: 0,
-                          ),
-                          onPressed: () => {
-                            _selectDate(context, 'vi')
-                          },
-                          child: Text(
-                            "Thg ${dateTransaction.month} ${dateTransaction.year}",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              color: Colors.black
-                            ),
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: () => {
-                            setState(() {
-                              int mon = dateTransaction.month;
-                              int yea = dateTransaction.year;
-                              mon = mon + 1;
-                              if(mon > 12) {
-                                mon = 1;
-                                yea = yea + 1;
-                              }
-                              dateTransaction = DateTime(yea, mon);
-                            })
-                          },
-                          icon: const Icon(
-                            Icons.keyboard_arrow_right,
-                            size: 30,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 10,),
-                  Expanded(
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            Column(
+          return FutureBuilder<List<TransactionModel>>(
+              future: _listTransaction,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(
+                      child: CircularProgressIndicator()); // Loading indicator
+                } else if (snapshot.hasError) {
+                  return Center(
+                      child:
+                          Text("Error: ${snapshot.error}")); // Error handling
+                } else if (snapshot.hasData) {
+                  final transactions = snapshot.data!;
+
+                  // Using for loop to print wallet names
+                  // List<TransactionModel> listTransactionDate = GlobalFunction.getTransactionByDate(transactions, DateTime(2024, 9));
+                  // for (TransactionModel cur in listDate) {
+                  //   print('Item: ${cur.note} - ${cur.date}');
+                  // }
+                  return BlocProvider(
+                    create: (context) => WalletBloc(wallets),
+                    child: Container(
+                      height: maxH,
+                      width: maxW,
+                      child: Column(
+                        children: [
+                          Container(
+                            height: 0.1 * maxH,
+                            color: AppColors.Nen,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Container(
-                                  padding: EdgeInsets.only(left: 10),
-                                  height: 30,
-                                  color: AppColors.Nen,
-                                  child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      Text("8", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),)
-                                    ],
+                                SizedBox(
+                                  width: 96,
+                                ),
+                                Column(
+                                  children: [
+                                    Text("Số dư"),
+                                    BlocBuilder<WalletBloc, WalletState>(
+                                      builder: (context, state) {
+                                        if (state is WalletSelectedState)
+                                          return Text(
+                                            GlobalFunction.formatCurrency(state
+                                                    .selectedWallet.amount) +
+                                                " " +
+                                                state.selectedWallet.currency
+                                                    .name,
+                                            style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                                color: AppColors.XanhDuong),
+                                          );
+                                        else
+                                          return Text(
+                                            "0",
+                                            style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                                color: AppColors.XanhDuong),
+                                          );
+                                      },
+                                    ),
+                                    DropdownWG(
+                                        wallets: wallets,
+                                        maxH: maxH,
+                                        maxW: maxW),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    IconButton(
+                                      onPressed: () => {
+                                        // addSampleData()
+                                      },
+                                      icon: Icon(
+                                        Icons.search,
+                                        size: 30,
+                                      ),
+                                    ),
+                                    IconButton(
+                                      onPressed: () => {
+                                        // deleteDB()
+                                      },
+                                      icon: Icon(Icons.more_vert, size: 32),
+                                    )
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Container(
+                            height: 0.05 * maxH,
+                            color: AppColors.Nen,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                IconButton(
+                                  onPressed: () => {
+                                    setState(() {
+                                      int mon = dateTransaction.month;
+                                      int yea = dateTransaction.year;
+                                      mon = mon - 1;
+                                      if (mon < 1) {
+                                        mon = 12;
+                                        yea = yea - 1;
+                                      }
+                                      dateTransaction = DateTime(yea, mon);
+                                    })
+                                  },
+                                  icon: const Icon(
+                                    Icons.keyboard_arrow_left,
+                                    size: 30,
                                   ),
                                 ),
-                                SizedBox(height: 5,),
-                                Container(
-                                  height: 60,
-                                  color: AppColors.Nen,
-                                  child: InkWell(
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          flex: 1,
-                                          child: Container(
-                                            padding: EdgeInsets.only(left: 10),
-                                            child: Text('Ăn uống', style: TextStyle(fontSize: 16 , color: Color(0xff787878),)),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          flex: 2,
-                                          child: Container(
-                                            child: Column(
-                                              children: [
-                                                Container(
-                                                  height: 30,
-                                                  child: Align(
-                                                    alignment: Alignment.centerLeft,
-                                                    child: Text("Ăn tối bún bò huế", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                                                      overflow: TextOverflow.ellipsis,
-                                                      maxLines: 1,),
-                                                  ),
-                                                ),
-                                                Container(
-                                                  height: 30,
-                                                  child: Align(
-                                                    alignment: Alignment.centerLeft,
-                                                    child: Text("Tiền mặt", style: TextStyle(fontSize: 16 , color: Color(0xff787878)),
-                                                      overflow: TextOverflow.ellipsis,
-                                                      maxLines: 1,),
-                                                  ),
-                                                )
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          flex: 1, // Third column takes 1/4 of the available width
-                                          child: Container(
-                                            padding: EdgeInsets.only(right: 5),
-                                            child: Align(
-                                              alignment: Alignment.centerRight,
-                                              child: FittedBox(
-                                                fit: BoxFit.scaleDown,
-                                                child: Text(
-                                                  '+50.000.000 VND',
-                                                  style: TextStyle(fontWeight: FontWeight.bold,color: AppColors.XanhLaDam),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-
-                                      ],
-                                    ),
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.transparent,
+                                    shadowColor: Colors.transparent,
+                                    elevation: 0,
                                   ),
-                                )
+                                  onPressed: () => {_selectDate(context, 'vi')},
+                                  child: Text(
+                                    "Thg ${dateTransaction.month} ${dateTransaction.year}",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                        color: Colors.black),
+                                  ),
+                                ),
+                                IconButton(
+                                  onPressed: () => {
+                                    setState(() {
+                                      int mon = dateTransaction.month;
+                                      int yea = dateTransaction.year;
+                                      mon = mon + 1;
+                                      if (mon > 12) {
+                                        mon = 1;
+                                        yea = yea + 1;
+                                      }
+                                      dateTransaction = DateTime(yea, mon);
+                                    })
+                                  },
+                                  icon: const Icon(
+                                    Icons.keyboard_arrow_right,
+                                    size: 30,
+                                  ),
+                                ),
                               ],
-                            )
-                          ],
-                        ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Expanded(
+                            child: SingleChildScrollView(
+                              child: BlocBuilder<WalletBloc, WalletState>(
+                              builder: (context, state) {
+                                if(state is WalletSelectedState)
+                                  return Column(
+                                children: List.generate(31, (index) {
+                                  final listDayTransaction =
+                                      GlobalFunction.getTransactionByDate(
+                                          transactions,
+                                          DateTime(
+                                              dateTransaction.year,
+                                              dateTransaction.month,
+                                              31 - index + 1));
+                                  final listTran = GlobalFunction.getTransactionByWallet(listDayTransaction, state.selectedWallet.id!);
+                                  if (listTran.isNotEmpty) {
+                                    return Column(
+                                      children: [
+                                        // Container cho ngày
+                                        SizedBox(
+                                          height: 10,
+                                        ),
+                                        Container(
+                                          padding: EdgeInsets.only(left: 10),
+                                          height: 30,
+                                          color: AppColors.Nen,
+                                          child: Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                (31 - index + 1).toString(),
+                                                // Hiển thị ngày
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 18),
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                        ...listTran
+                                            .map((item) => Column(
+                                              children: [
+                                                SizedBox(height: 2,),
+                                                Container(
+                                                      height: 60,
+                                                      color: AppColors.Nen,
+                                                      child: InkWell(
+                                                        child: Row(
+                                                          children: [
+                                                            Expanded(
+                                                              flex: 1,
+                                                              child: Container(
+                                                                padding:
+                                                                    EdgeInsets.only(
+                                                                        left: 10),
+                                                                child: Text(
+                                                                    item.category
+                                                                        .name,
+                                                                    style:
+                                                                        TextStyle(
+                                                                      fontSize: 16,
+                                                                      color: Color(
+                                                                          0xff787878),
+                                                                    )),
+                                                              ),
+                                                            ),
+                                                            Expanded(
+                                                              flex: 2,
+                                                              child: Container(
+                                                                child: Column(
+                                                                  children: [
+                                                                    Container(
+                                                                      height: 30,
+                                                                      child: Align(
+                                                                        alignment:
+                                                                            Alignment
+                                                                                .centerLeft,
+                                                                        child: Text(
+                                                                          item.note,
+                                                                          style: TextStyle(
+                                                                              fontSize:
+                                                                                  16,
+                                                                              fontWeight:
+                                                                                  FontWeight.bold),
+                                                                          overflow:
+                                                                              TextOverflow
+                                                                                  .ellipsis,
+                                                                          maxLines:
+                                                                              1,
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                    Container(
+                                                                      height: 30,
+                                                                      child: Align(
+                                                                        alignment:
+                                                                            Alignment
+                                                                                .centerLeft,
+                                                                        child: Text(
+                                                                          item.wallet
+                                                                              .name,
+                                                                          style: TextStyle(
+                                                                              fontSize:
+                                                                                  16,
+                                                                              color:
+                                                                                  Color(0xff787878)),
+                                                                          overflow:
+                                                                              TextOverflow
+                                                                                  .ellipsis,
+                                                                          maxLines:
+                                                                              1,
+                                                                        ),
+                                                                      ),
+                                                                    )
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            Expanded(
+                                                              flex: 1,
+                                                              child: Container(
+                                                                padding:
+                                                                    EdgeInsets.only(
+                                                                        right: 5),
+                                                                child: Align(
+                                                                  alignment: Alignment
+                                                                      .centerRight,
+                                                                  child: FittedBox(
+                                                                    fit: BoxFit
+                                                                        .scaleDown,
+                                                                    child: Text(
+                                                                      item.category
+                                                                                  .type ==
+                                                                              0
+                                                                          ? "-" +
+                                                                              GlobalFunction.formatCurrency(item
+                                                                                  .amount)
+                                                                          : "+" +
+                                                                              GlobalFunction.formatCurrency(
+                                                                                  item.amount),
+                                                                      style:
+                                                                          TextStyle(
+                                                                        fontWeight:
+                                                                            FontWeight
+                                                                                .bold,
+                                                                        color: item.category.type ==
+                                                                                0
+                                                                            ? AppColors
+                                                                                .Cam
+                                                                            : AppColors
+                                                                                .XanhLaDam,
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                              ],
+                                            ))
+                                            .toList(),
+                                      ],
+                                    );
+                                  } else {
+                                    // Nếu danh sách trống, trả về SizedBox hoặc widget rỗng
+                                    return SizedBox.shrink();
+                                  }
+                                }).toList(),
+                              );
+                                else
+                                  return Center(child: Text("Không có dữ liệu"),);
+  },
+),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-          );
+                  );
+                } else {
+                  return Center(child: Text("Failed to load Transaction"));
+                }
+              });
         } else {
-          return Center(child: Text("Failed"));
+          return Center(child: Text("Failed to load Wallet"));
         }
       },
     );
