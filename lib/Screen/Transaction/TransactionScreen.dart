@@ -164,27 +164,35 @@ class _TransactionState extends State<Transaction> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Giao dịch thu',
+                    type == 1 ?
+                    'Giao dịch thu' : 'Giao dịch chi',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 10),
-                  ...mapIncome.keys.map((key) {
+                  ...checkboxValues.keys.map((key) {
                     return CheckboxListTile(
                       title: Text(key),
-                      value: mapIncome[key],
+                      value: checkboxValues[key],
                       onChanged: (bool? value) {
                         setState(() {
-                          mapIncome[key] = value!;
+                          checkboxValues[key] = value!;
                           if (key == 'Tất cả') {
                             bool isAllChecked = value;
-                            mapIncome.updateAll((key, value) => isAllChecked);
+                            checkboxValues.updateAll((key, value) => isAllChecked);
+                          }
+                          else {
+                            if(!value)
+                              checkboxValues['Tất cả'] = false;
+                            else {
+                              bool allTrue = checkboxValues.values.skip(1).every((value) => value == true);
+                              if(allTrue) checkboxValues['Tất cả'] = true;
+                            }
+
                           }
                         });
                       },
                     );
                   }).toList(),
-                  // Add similar widgets for mapOutcome if needed
-
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
@@ -197,8 +205,6 @@ class _TransactionState extends State<Transaction> {
                       ),
                       ElevatedButton(
                         onPressed: () {
-                          // Dispatch event to update CategoryMapBloc
-                          // context.read<CategoryMapBloc>().add(UpdateCategoryMapEvent(mapIncome, mapOutcome));
                           Navigator.pop(context);
                           completer.complete();
                         },
@@ -236,10 +242,8 @@ class _TransactionState extends State<Transaction> {
           final List<Parameter> parameters = snapshot.data![2];
           final List<Category> categories = snapshot.data![3];
           final currencyGB = parameters.first.currency;
-          Map<String, bool> mapIncome = { for (var item in categories) if(item.type == 1) item.name : true };
-          Map<String, bool> mapOutcome = { for (var item in categories) if(item.type == 0) item.name : true };
-          mapIncome['Tất cả'] = true;
-          mapOutcome['Tất cả'] = true;
+          Map<String, bool> mapIncome = { 'Tất cả' : true ,for (var item in categories) if(item.type == 1) item.name : true };
+          Map<String, bool> mapOutcome = {'Tất cả' : true, for (var item in categories) if(item.type == 0) item.name : true };
           return MultiBlocProvider(
             providers: [
               BlocProvider(
@@ -310,11 +314,11 @@ class _TransactionState extends State<Transaction> {
                                   icon: Icon(Icons.more_vert), // Thay đổi icon ở đây
                                   onSelected: (value) async {
                                     if (value == 0) {
-                                      await _openBottomSheet(context, mapIncome, mapOutcome, 0);
+                                      await _openBottomSheet(context, mapIncome, mapOutcome, 1);
                                       print("ra 0");
                                       context.read<CategoryMapBloc>().add(UpdateCategoryMapEvent(mapIncome, mapOutcome));
                                     } else if (value == 1) {
-                                      await _openBottomSheet(context, mapOutcome, mapOutcome, 1);
+                                      await _openBottomSheet(context, mapIncome, mapOutcome, 0);
                                       print("ra 1");
                                       context.read<CategoryMapBloc>().add(UpdateCategoryMapEvent(mapIncome, mapOutcome));
                                     }
