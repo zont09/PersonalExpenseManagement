@@ -1,7 +1,21 @@
+import 'package:personal_expense_management/Model/Wallet.dart';
+
 abstract class WalletEvent {}
 
-class SelectWalletEvent extends WalletEvent {
-  final int walletId;
+class AddWalletEvent extends WalletEvent {
+  final Wallet wallet;
 
-  SelectWalletEvent(this.walletId);
+  AddWalletEvent(this.wallet);
+}
+
+class UpdateWalletEvent extends WalletEvent {
+  final Wallet wallet;
+
+  UpdateWalletEvent(this.wallet);
+}
+
+class RemoveWalletEvent extends WalletEvent {
+  final Wallet wallet;
+
+  RemoveWalletEvent(this.wallet);
 }

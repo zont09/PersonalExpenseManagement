@@ -4,8 +4,8 @@ abstract class WalletState {}
 
 class WalletInitialState extends WalletState {}
 
-class WalletSelectedState extends WalletState {
-  final Wallet selectedWallet;
+class WalletUpdatedState extends WalletState {
+  final List<Wallet> updatedWallet;
 
-  WalletSelectedState(this.selectedWallet);
+  WalletUpdatedState(this.updatedWallet);
 }
