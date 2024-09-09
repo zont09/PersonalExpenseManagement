@@ -2,12 +2,12 @@ import 'package:intl/intl.dart';
 import 'package:personal_expense_management/Model/TransactionModel.dart';
 
 class GlobalFunction {
-  static String formatCurrency(double number) {
+  static String formatCurrency(double number, int numDecimal) {
     NumberFormat numberFormat = NumberFormat('#,##0', 'vi');
     String integerPart = numberFormat.format(number.floor());
     String decimalPart = '';
     if (number != number.floor()) {
-      decimalPart = ',' + ((number - number.floor()).toStringAsFixed(2).substring(2));
+      decimalPart = ',' + ((number - number.floor()).toStringAsFixed(numDecimal).substring(numDecimal));
     }
     return integerPart.replaceAll(',', '.') + decimalPart;
   }

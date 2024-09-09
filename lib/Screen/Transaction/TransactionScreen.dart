@@ -331,7 +331,7 @@ class _TransactionState extends State<Transaction> {
                                                         .currency
                                                         .value /
                                                     currencyGB
-                                                        .value) +
+                                                        .value, 2) +
                                                 " " +
                                                 currencyGB.name,
                                             style: TextStyle(
@@ -681,7 +681,7 @@ class _TransactionState extends State<Transaction> {
                                                                                                 .currency
                                                                                                 .value /
                                                                                             currencyGB
-                                                                                                .value) +
+                                                                                                .value, 2) +
                                                                                     " " +
                                                                                     currencyGB
                                                                                         .name
@@ -695,7 +695,7 @@ class _TransactionState extends State<Transaction> {
                                                                                                 .currency
                                                                                                 .value /
                                                                                             currencyGB
-                                                                                                .value) +
+                                                                                                .value, 2) +
                                                                                     " " +
                                                                                     currencyGB
                                                                                         .name,

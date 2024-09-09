@@ -16,6 +16,7 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     });
 
     on<UpdateWalletEvent>((event, emit) async {
+      print("IS CALL ????");
       final index = wallets.indexWhere((wallet) => wallet.id == event.wallet.id);
       if (index != -1) {
         wallets[index] = event.wallet;

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:personal_expense_management/Database/database_helper.dart';
 import 'package:personal_expense_management/Model/Category.dart';
 import 'package:personal_expense_management/Model/Parameter.dart';
+import 'package:personal_expense_management/Model/RepeatOption.dart';
 import 'package:personal_expense_management/Model/TransactionModel.dart';
 import 'package:personal_expense_management/Model/Wallet.dart';
 import 'package:personal_expense_management/Screen/Budget/BudgetScreen.dart';
@@ -15,6 +16,8 @@ import 'package:month_year_picker/month_year_picker.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:personal_expense_management/Screen/Transaction/addTransaction.dart';
+import 'package:personal_expense_management/bloc/category_bloc/category_bloc.dart';
+import 'package:personal_expense_management/bloc/repeat_option_bloc/repeat_option_bloc.dart';
 import 'package:personal_expense_management/bloc/transaction_bloc/transaction_bloc.dart';
 import 'package:personal_expense_management/bloc/wallet_bloc/wallet_bloc.dart';
 import 'package:personal_expense_management/bloc/wallet_select_bloc/wallet_select_bloc.dart';
@@ -30,7 +33,7 @@ class Routes {
   static String Statistical = '/statistical';
   static String Budget = '/budget';
   static String More = '/more';
-// static String Home = '/home';
+  static String AddTransaction = '/addtransaction';
 // static String Home = '/home';
 }
 
@@ -53,6 +56,7 @@ class MyApp extends StatelessWidget {
         Routes.Statistical: (context) => Statistical(),
         Routes.Budget: (context) => BudgetScreen(),
         Routes.More: (context) => More(),
+        Routes.AddTransaction: (context) => Addtransaction(),
       },
       localizationsDelegates: [
         GlobalMaterialLocalizations.delegate,
@@ -60,6 +64,7 @@ class MyApp extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
         MonthYearPickerLocalizations.delegate, // Thêm dòng này
       ],
+
       supportedLocales: [
         const Locale('vi', 'VN'),
         const Locale('en', ''), // Hoặc các locale khác mà bạn hỗ trợ
@@ -99,7 +104,8 @@ class _HomeScreenState extends State<HomeScreen> {
     // await Initdata.addCurrency();
     // await Initdata.addWallet();
     _combinedFuture =
-        Future.wait([dbHelper.getWallet(), dbHelper.getTransactions(), dbHelper.getParameters(), dbHelper.getCategorys()]);
+        Future.wait([dbHelper.getWallet(), dbHelper.getTransactions(), dbHelper.getParameters(), dbHelper.getCategorys(),
+                    dbHelper.getRepeatOptions()]);
   }
 
   @override
@@ -118,7 +124,9 @@ class _HomeScreenState extends State<HomeScreen> {
         final List<TransactionModel> transactions = snapshot.data![1];
         final List<Parameter> parameters = snapshot.data![2];
         final List<Category> categories = snapshot.data![3];
+        final List<RepeatOption> repeat_options = snapshot.data![4];
         final currencyGB = parameters.first.currency;
+        // print("RepeatOption: ${repeat_options.first.id} - ${repeat_options.first.option_name}");
       return MultiBlocProvider(
         providers: [
           BlocProvider(
@@ -130,150 +138,186 @@ class _HomeScreenState extends State<HomeScreen> {
           BlocProvider(
             create: (context) => WalletSelectBloc(wallets),
           ),
+          BlocProvider(
+            create: (context) => CategoryBloc(categories),
+          ),
+          BlocProvider(
+            create: (context) => RepeatOptionBloc(repeat_options),
+          ),
         ],
-        child: Scaffold(
-          body: Center(
-            child: IndexedStack(
-              index: _selectedIndex,
-              children: _pages,
-            ),
-          ),
-          floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => Addtransaction(),
+        child: Builder(
+          builder: (context) {
+            return Scaffold(
+              body: Center(
+                child: IndexedStack(
+                  index: _selectedIndex,
+                  children: _pages,
                 ),
-              );
-            },
-            child: Icon(Icons.add, color: Colors.white),
-            shape: CircleBorder(),
-            backgroundColor: AppColors.XanhDuong,
-          ),
-          floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-          bottomNavigationBar: Padding(
-            padding: const EdgeInsets.all(0.0),
-            child: BottomAppBar(
-              shape: CircularNotchedRectangle(),
-              notchMargin: 8.0,
-              color: AppColors.Nen,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  InkWell(
-                    onTap: () => {_onItemTapped(0)},
-                    child: Container(
-                      width: 63,
-                      child: Column(
-                        children: [
-                          Icon(
-                            Icons.currency_exchange,
-                            color: _selectedIndex == 0
-                                ? AppColors.XanhDuong
-                                : Colors.black,
-                          ),
-                          Text(
-                            "Giao dịch",
-                            style: TextStyle(
+              ),
+              floatingActionButton: AddTransactionButton(),
+              floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+              bottomNavigationBar: Padding(
+                padding: const EdgeInsets.all(0.0),
+                child: BottomAppBar(
+                  shape: CircularNotchedRectangle(),
+                  notchMargin: 8.0,
+                  color: AppColors.Nen,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      InkWell(
+                        onTap: () => {_onItemTapped(0)},
+                        child: Container(
+                          width: 63,
+                          child: Column(
+                            children: [
+                              Icon(
+                                Icons.currency_exchange,
                                 color: _selectedIndex == 0
                                     ? AppColors.XanhDuong
                                     : Colors.black,
-                                fontSize: 12),
-                          )
-                        ],
-                      ),
-                    ),
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                  ),
-                  InkWell(
-                    onTap: () => {_onItemTapped(1)},
-                    child: Container(
-                      width: 63,
-                      child: Column(
-                        children: [
-                          Icon(
-                            Icons.pie_chart,
-                            color: _selectedIndex == 1
-                                ? AppColors.XanhDuong
-                                : Colors.black,
+                              ),
+                              Text(
+                                "Giao dịch",
+                                style: TextStyle(
+                                    color: _selectedIndex == 0
+                                        ? AppColors.XanhDuong
+                                        : Colors.black,
+                                    fontSize: 12),
+                              )
+                            ],
                           ),
-                          Text(
-                            "Thống kê",
-                            style: TextStyle(
+                        ),
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                      InkWell(
+                        onTap: () => {_onItemTapped(1)},
+                        child: Container(
+                          width: 63,
+                          child: Column(
+                            children: [
+                              Icon(
+                                Icons.pie_chart,
                                 color: _selectedIndex == 1
                                     ? AppColors.XanhDuong
                                     : Colors.black,
-                                fontSize: 12),
-                          )
-                        ],
-                      ),
-                    ),
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                  ),
-                  SizedBox(
-                    width: 20,
-                  ),
-                  InkWell(
-                    onTap: () => {_onItemTapped(2)},
-                    child: Container(
-                      width: 63,
-                      child: Column(
-                        children: [
-                          Icon(
-                            Icons.savings,
-                            color: _selectedIndex == 2
-                                ? AppColors.XanhDuong
-                                : Colors.black,
+                              ),
+                              Text(
+                                "Thống kê",
+                                style: TextStyle(
+                                    color: _selectedIndex == 1
+                                        ? AppColors.XanhDuong
+                                        : Colors.black,
+                                    fontSize: 12),
+                              )
+                            ],
                           ),
-                          Text(
-                            "Ngân sách",
-                            style: TextStyle(
+                        ),
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                      SizedBox(
+                        width: 20,
+                      ),
+                      InkWell(
+                        onTap: () => {_onItemTapped(2)},
+                        child: Container(
+                          width: 63,
+                          child: Column(
+                            children: [
+                              Icon(
+                                Icons.savings,
                                 color: _selectedIndex == 2
                                     ? AppColors.XanhDuong
                                     : Colors.black,
-                                fontSize: 12),
-                          )
-                        ],
-                      ),
-                    ),
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                  ),
-                  InkWell(
-                    onTap: () => {_onItemTapped(3)},
-                    child: Container(
-                      width: 63,
-                      child: Column(
-                        children: [
-                          Icon(
-                            Icons.more_horiz,
-                            color: _selectedIndex == 3
-                                ? AppColors.XanhDuong
-                                : Colors.black,
+                              ),
+                              Text(
+                                "Ngân sách",
+                                style: TextStyle(
+                                    color: _selectedIndex == 2
+                                        ? AppColors.XanhDuong
+                                        : Colors.black,
+                                    fontSize: 12),
+                              )
+                            ],
                           ),
-                          Text(
-                            "Thêm",
-                            style: TextStyle(
+                        ),
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                      InkWell(
+                        onTap: () => {_onItemTapped(3)},
+                        child: Container(
+                          width: 63,
+                          child: Column(
+                            children: [
+                              Icon(
+                                Icons.more_horiz,
                                 color: _selectedIndex == 3
                                     ? AppColors.XanhDuong
                                     : Colors.black,
-                                fontSize: 12),
-                          )
-                        ],
+                              ),
+                              Text(
+                                "Thêm",
+                                style: TextStyle(
+                                    color: _selectedIndex == 3
+                                        ? AppColors.XanhDuong
+                                        : Colors.black,
+                                    fontSize: 12),
+                              )
+                            ],
+                          ),
+                        ),
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
                       ),
-                    ),
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
-          ),
+            );
+          }
         ),
       );
           } else {
           return Center(child: Text("Failed to load Main Transaction"));
           }
         },
+    );
+  }
+}
+
+class AddTransactionButton extends StatelessWidget {
+  const AddTransactionButton({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return FloatingActionButton(
+      onPressed: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (newContext) => MultiBlocProvider(
+              providers: [
+                BlocProvider.value(
+                  value: BlocProvider.of<CategoryBloc>(context),
+                ),
+                BlocProvider.value(
+                  value: BlocProvider.of<WalletBloc>(context),
+                ),
+                BlocProvider.value(
+                  value: BlocProvider.of<RepeatOptionBloc>(context),
+                ),
+                BlocProvider.value(
+                  value: BlocProvider.of<TransactionBloc>(context),
+                ),
+              ],
+              child: Addtransaction(),
+            ),
+          ),
+        );
+      },
+      child: Icon(Icons.add, color: Colors.white),
+      shape: CircleBorder(),
+      backgroundColor: AppColors.XanhDuong,
     );
   }
 }
