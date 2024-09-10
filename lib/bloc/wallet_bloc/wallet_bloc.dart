@@ -27,10 +27,10 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
       }
     });
 
-    on<RemoveWalletEvent>((event, emit) async {
-      wallets.removeWhere((wallet) => wallet.id == event.wallet.id);
-      await DatabaseHelper().deleteWallet(event.wallet.id!);
-      emit(WalletUpdatedState(List.from(wallets)));
-    });
+    // on<RemoveWalletEvent>((event, emit) async {
+    //   wallets.removeWhere((wallet) => wallet.id == event.wallet.id);
+    //   await DatabaseHelper().deleteWallet(event.wallet.id!);
+    //   emit(WalletUpdatedState(List.from(wallets)));
+    // });
   }
 }

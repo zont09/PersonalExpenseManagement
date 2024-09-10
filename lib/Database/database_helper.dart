@@ -264,14 +264,14 @@ class DatabaseHelper {
     );
   }
 
-  Future<int> deleteWallet(int id) async {
-    final db = await database;
-    return await db.delete(
-      _walletTable,
-      where: 'id = ?',
-      whereArgs: [id],
-    );
-  }
+  // Future<int> deleteWallet(int id) async {
+  //   final db = await database;
+  //   return await db.delete(
+  //     _walletTable,
+  //     where: 'id = ?',
+  //     whereArgs: [id],
+  //   );
+  // }
 
   //---------REPEATOPTION---------
 

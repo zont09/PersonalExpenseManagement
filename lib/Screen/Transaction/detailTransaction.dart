@@ -88,7 +88,10 @@ class _Detailtransaction extends State<Detailtransaction> {
 
   void onTapCategory(int value) {
     setState(() {
-      if (selectCategory != value) _controllerCategory.text = '';
+      if (selectCategory != value) {
+        _controllerCategory.text = '';
+        _selectCattegoryType = Category(id: -1, name: "", type: 0);
+      }
       selectCategory = value;
     });
   }
@@ -393,88 +396,82 @@ class _Detailtransaction extends State<Detailtransaction> {
   void _saveUpdateTransaction(BuildContext context) async {
     String dateTra = DateFormat('yyyy-MM-dd')
         .format(DateFormat('dd/MM/yyyy').parse(_controllerDate.text));
+
     if (_selectCattegoryType.id == -1) {
       _showErrorDialog(context, "Thiếu thông tin loại giao dịch");
-    } else if (_selectWallet.id == -1) {
+      return;
+    }
+    if (_selectWallet.id == -1) {
       _showErrorDialog(context, "Thiếu thông tin ví");
-    } else {
-      List<Wallet> wallets = await DatabaseHelper().getWallet();
-      _selectWallet = wallets.where((item) => item.id == _selectWallet.id).first;
-      widget.transaction.wallet = wallets.where((item) => item.id == widget.transaction.wallet.id).first;
-      TransactionModel newTran = TransactionModel(
-          id: widget.transaction.id,
-          date: dateTra,
-          amount: double.parse(_inputAmount),
-          wallet: _selectWallet,
-          category: _selectCattegoryType,
-          note: _controllerNote.text ?? "",
-          description: _controllerDescription.text ?? "",
-          repeat_option: _selectRepeat);
-      print(
-          "Tran: ${newTran.date} - ${newTran.amount} - ${newTran.wallet.name} - ${newTran.category.name} - ${newTran.note} - ${newTran.description} - ${newTran.repeat_option.option_name}");
+      return;
+    }
 
+    List<Wallet> wallets = await DatabaseHelper().getWallet();
+    _selectWallet = wallets.where((item) => item.id == _selectWallet.id).first;
+    widget.transaction.wallet = wallets.where((item) => item.id == widget.transaction.wallet.id).first;
+    TransactionModel newTran = TransactionModel(
+        id: widget.transaction.id,
+        date: dateTra,
+        amount: double.parse(_inputAmount),
+        wallet: _selectWallet,
+        category: _selectCattegoryType,
+        note: _controllerNote.text ?? "",
+        description: _controllerDescription.text ?? "",
+        repeat_option: _selectRepeat);
+    print(
+        "Tran: ${newTran.date} - ${newTran.amount} - ${newTran.wallet.name} - ${newTran.category.name} - ${newTran.note} - ${newTran.description} - ${newTran.repeat_option.option_name}");
+
+    WalletBloc walletBloc = context.read<WalletBloc>();
+    TransactionBloc transactionBloc = context.read<TransactionBloc>();
+
+    try {
       if (_selectWallet.id == widget.transaction.wallet.id) {
+        double amountDiff = double.parse(_inputAmount) - widget.transaction.amount;
+        Wallet updWal;
         if (_selectCattegoryType.type == widget.transaction.category.type) {
           if (_selectCattegoryType.type == 0) {
-            double amountDiff =
-                double.parse(_inputAmount) - widget.transaction.amount;
             if (amountDiff > _selectWallet.amount) {
-              _showErrorDialog(
-                  context, "Ví không đủ số dư để thực hiện giao dịch");
+              _showErrorDialog(context, "Ví không đủ số dư để thực hiện giao dịch");
               return;
             }
-            Wallet updWal = Wallet(
+            updWal = Wallet(
                 id: _selectWallet.id,
                 name: _selectWallet.name,
                 amount: _selectWallet.amount - amountDiff,
                 currency: _selectWallet.currency,
                 note: _selectWallet.note);
-            print("Wal = Wal, Cat = Cat = 0, Amount ${amountDiff}");
-            print("Wal ${updWal.name} - ${updWal.amount}");
-            context.read<WalletBloc>().add(UpdateWalletEvent(updWal));
           } else {
-            double amountDiff =
-              double.parse(_inputAmount) - widget.transaction.amount;
-            Wallet updWal = Wallet(
+            updWal = Wallet(
                 id: _selectWallet.id,
                 name: _selectWallet.name,
                 amount: _selectWallet.amount + amountDiff,
                 currency: _selectWallet.currency,
                 note: _selectWallet.note);
-            print("Wal = Wal, Cat = Cat = 1, Amount ${amountDiff}");
-            print("Selected ${_selectWallet.amount}");
-            print("Wal ${updWal.name} - ${updWal.amount}");
-            context.read<WalletBloc>().add(UpdateWalletEvent(updWal));
           }
         } else {
           if (_selectCattegoryType.type == 0) {
-            if (_selectWallet.amount <
-                (widget.transaction.amount + double.parse(_inputAmount))) {
-              _showErrorDialog(
-                  context, "Ví không đủ số dư để thực hiện giao dịch");
+            if (_selectWallet.amount < (widget.transaction.amount + double.parse(_inputAmount))) {
+              _showErrorDialog(context, "Ví không đủ số dư để thực hiện giao dịch");
               return;
             }
-            Wallet updWal = Wallet(
+            updWal = Wallet(
                 id: _selectWallet.id,
                 name: _selectWallet.name,
-                amount: _selectWallet.amount -
-                    widget.transaction.amount -
-                    double.parse(_inputAmount),
+                amount: _selectWallet.amount - widget.transaction.amount - double.parse(_inputAmount),
                 currency: _selectWallet.currency,
                 note: _selectWallet.note);
-            context.read<WalletBloc>().add(UpdateWalletEvent(updWal));
           } else {
-            Wallet updWal = Wallet(
+            updWal = Wallet(
                 id: _selectWallet.id,
                 name: _selectWallet.name,
-                amount: _selectWallet.amount +
-                    widget.transaction.amount +
-                    double.parse(_inputAmount),
+                amount: _selectWallet.amount + widget.transaction.amount + double.parse(_inputAmount),
                 currency: _selectWallet.currency,
                 note: _selectWallet.note);
-            context.read<WalletBloc>().add(UpdateWalletEvent(updWal));
           }
         }
+
+        walletBloc.add(UpdateWalletEvent(updWal));
+
       } else {
         Wallet updWal1 = Wallet(
             id: widget.transaction.wallet.id,
@@ -509,32 +506,21 @@ class _Detailtransaction extends State<Detailtransaction> {
         } else
           updWal2.amount += widget.transaction.amount;
 
-        if (mounted) { // Kiểm tra widget có đang được gắn vào cây widget
-          context.read<WalletBloc>().add(UpdateWalletEvent(updWal1));
-          context.read<WalletBloc>().stream.listen((walletState) {
-            if (walletState is WalletUpdatedState) {
-              context.read<WalletBloc>().add(UpdateWalletEvent(updWal2));
-            }
-          });
-        }
+        walletBloc.add(UpdateWalletEvent(updWal1));
+        await Future.delayed(Duration(milliseconds: 500)); // Chờ một chút để đảm bảo wallet đã được cập nhật
+        walletBloc.add(UpdateWalletEvent(updWal2));
       }
 
+      await Future.delayed(Duration(milliseconds: 500)); // Chờ một chút để đảm bảo wallet đã được cập nhật
+
+      transactionBloc.add(UpdateTransactionEvent(newTran));
+
       if (mounted) {
-        context.read<WalletBloc>().stream.listen((walletState) {
-          if (walletState is WalletUpdatedState) {
-            context.read<TransactionBloc>().add(UpdateTransactionEvent(newTran));
-          }
-        });
-        print("Done wallet");
-        context.read<TransactionBloc>().stream.listen((transactionState) {
-          if (transactionState is TransactionChangedState) {
-            print("Update transaction successful ${newTran.amount}");
-            if (mounted) {
-              Navigator.of(context).pop();
-            }
-          }
-        });
+        Navigator.of(context).pop();
       }
+    } catch (e) {
+      print("Error: $e");
+      _showErrorDialog(context, "Có lỗi xảy ra. Vui lòng thử lại.");
     }
   }
 
