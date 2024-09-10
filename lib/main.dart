@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:personal_expense_management/Database/database_helper.dart';
+import 'package:personal_expense_management/Database/initdata.dart';
 import 'package:personal_expense_management/Model/Category.dart';
 import 'package:personal_expense_management/Model/Parameter.dart';
 import 'package:personal_expense_management/Model/RepeatOption.dart';
@@ -101,8 +102,9 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
   Future<void> _initializeData() async {
-    // await Initdata.addCurrency();
+    // await Initdata.addAllSampleData();
     // await Initdata.addWallet();
+    // await dbHelper.deleteDatabasee() ;
     _combinedFuture =
         Future.wait([dbHelper.getWallet(), dbHelper.getTransactions(), dbHelper.getParameters(), dbHelper.getCategorys(),
                     dbHelper.getRepeatOptions()]);

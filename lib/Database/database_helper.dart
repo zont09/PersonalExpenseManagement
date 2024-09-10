@@ -414,13 +414,13 @@ class DatabaseHelper {
     });
   }
 
-  Future<int> updateTransaction(TransactionModel Tra) async {
+  Future<int> updateTransaction(TransactionModel tra) async {
     final db = await database;
     return await db.update(
       _transactionTable,
-      Tra.toMap(),
+      tra.toMap(),
       where: 'id = ?',
-      whereArgs: [Tra.id],
+      whereArgs: [tra.id],
     );
   }
 

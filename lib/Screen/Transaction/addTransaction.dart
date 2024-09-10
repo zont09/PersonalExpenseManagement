@@ -377,7 +377,7 @@ class _AddtransactionState extends State<Addtransaction> {
         _showErrorDialog(context ,"Thiếu thông tin ví");
       }
       else if(selectCategory == 0 && _selectWallet.amount < double.parse(_inputAmount)) {
-        _showErrorDialog(context ,"Tiền trong ví không đủ để thực hiện giao dịch");
+        _showErrorDialog(context ,"Số dư trong ví không đủ để thực hiện giao dịch");
       }
       else {
         TransactionModel newTran = TransactionModel(date: dateTra,
@@ -396,13 +396,6 @@ class _AddtransactionState extends State<Addtransaction> {
         else
           updWal.amount += double.parse(_inputAmount);
         print("Wallet: ${updWal.id} - ${updWal.name} - ${updWal.amount}");
-
-        // context.read<WalletBloc>().add(UpdateWalletEvent(updWal));
-        // context.read<TransactionBloc>().add(AddTransactionEvent(newTran));
-        //
-        //
-        // print("Add transaction successful");
-        // Navigator.of(context).pop();
         context.read<WalletBloc>().add(UpdateWalletEvent(updWal));
         context.read<WalletBloc>().stream.listen((walletState) {
           if (walletState is WalletUpdatedState) {
@@ -421,9 +414,6 @@ class _AddtransactionState extends State<Addtransaction> {
         });
       }
   }
-
-
-
 
   @override
   Widget build(BuildContext context) {
