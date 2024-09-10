@@ -524,7 +524,68 @@ class _Detailtransaction extends State<Detailtransaction> {
     }
   }
 
-  void _deleteTransaction() {}
+  void _deleteTransaction() async {
+    WalletBloc walletBloc = context.read<WalletBloc>();
+    TransactionBloc transactionBloc = context.read<TransactionBloc>();
+    List<Wallet> wallets = await DatabaseHelper().getWallet();
+    widget.transaction.wallet = wallets.where((item) => item.id == widget.transaction.wallet.id).first;
+    Wallet updWal;
+    if(widget.transaction.category.type == 0) {
+      updWal = Wallet(
+          id: widget.transaction.wallet.id,
+          name: widget.transaction.wallet.name,
+          amount: widget.transaction.wallet.amount + widget.transaction.amount,
+          currency: widget.transaction.wallet.currency,
+          note: widget.transaction.wallet.note);
+    }
+    else {
+      if(widget.transaction.wallet.amount < widget.transaction.amount) {
+        _showErrorDialog(context,
+            "Ví ${_selectWallet.name} không đủ số dư để hoàn lại giao dịch");
+        return;
+      }
+      updWal = Wallet(
+          id: widget.transaction.wallet.id,
+          name: widget.transaction.wallet.name,
+          amount: widget.transaction.wallet.amount - widget.transaction.amount,
+          currency: widget.transaction.wallet.currency,
+          note: widget.transaction.wallet.note);
+    }
+    walletBloc.add(UpdateWalletEvent(updWal));
+    await Future.delayed(Duration(milliseconds: 500));
+    transactionBloc.add(RemoveTransactionEvent(widget.transaction));
+
+    if (mounted) {
+      Navigator.of(context).pop();
+    }
+  }
+
+  void _showDeleteConfirmDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Xác nhận xóa'),
+          content: Text('Bạn có chắc chắn muốn xóa giao dịch này không?'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Hủy'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Đóng dialog
+              },
+            ),
+            TextButton(
+              child: Text('Xóa'),
+              onPressed: () {
+                _deleteTransaction(); // Gọi hàm xác nhận xóa
+                Navigator.of(context).pop(); // Đóng dialog
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   void dispose() {
@@ -569,6 +630,20 @@ class _Detailtransaction extends State<Detailtransaction> {
               ),
             ),
           ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                _showDeleteConfirmDialog(context);
+              },
+              child: Text(
+                'Xóa',
+                style: TextStyle(
+                  color: Colors.black, // Màu chữ của nút
+                  fontSize: 16, // Kích thước chữ
+                ),
+              ),
+            ),
+          ],
         ),
         body: Column(
           children: [
