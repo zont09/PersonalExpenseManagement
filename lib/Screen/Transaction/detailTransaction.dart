@@ -524,7 +524,7 @@ class _Detailtransaction extends State<Detailtransaction> {
     }
   }
 
-  void _deleteTransaction() async {
+  void _deleteTransaction(BuildContext context) async {
     WalletBloc walletBloc = context.read<WalletBloc>();
     TransactionBloc transactionBloc = context.read<TransactionBloc>();
     List<Wallet> wallets = await DatabaseHelper().getWallet();
@@ -560,9 +560,9 @@ class _Detailtransaction extends State<Detailtransaction> {
     }
   }
 
-  void _showDeleteConfirmDialog(BuildContext context) {
+  void _showDeleteConfirmDialog(BuildContext ncontext) {
     showDialog(
-      context: context,
+      context: ncontext,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Xác nhận xóa'),
@@ -577,8 +577,7 @@ class _Detailtransaction extends State<Detailtransaction> {
             TextButton(
               child: Text('Xóa'),
               onPressed: () {
-                _deleteTransaction(); // Gọi hàm xác nhận xóa
-                Navigator.of(context).pop(); // Đóng dialog
+                _deleteTransaction(ncontext); // Gọi hàm xác nhận xóa
               },
             ),
           ],
@@ -634,6 +633,8 @@ class _Detailtransaction extends State<Detailtransaction> {
             TextButton(
               onPressed: () {
                 _showDeleteConfirmDialog(context);
+                if(mounted)
+                  Navigator.of(context).pop();
               },
               child: Text(
                 'Xóa',

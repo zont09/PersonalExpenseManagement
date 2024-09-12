@@ -18,6 +18,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:personal_expense_management/Screen/Transaction/addTransaction.dart';
 import 'package:personal_expense_management/bloc/category_bloc/category_bloc.dart';
+import 'package:personal_expense_management/bloc/parameter_bloc/parameter_bloc.dart';
 import 'package:personal_expense_management/bloc/repeat_option_bloc/repeat_option_bloc.dart';
 import 'package:personal_expense_management/bloc/transaction_bloc/transaction_bloc.dart';
 import 'package:personal_expense_management/bloc/wallet_bloc/wallet_bloc.dart';
@@ -145,6 +146,9 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           BlocProvider(
             create: (context) => RepeatOptionBloc(repeat_options),
+          ),
+          BlocProvider(
+            create: (context) => ParameterBloc(parameters.first),
           ),
         ],
         child: Builder(
@@ -310,6 +314,9 @@ class AddTransactionButton extends StatelessWidget {
                 ),
                 BlocProvider.value(
                   value: BlocProvider.of<TransactionBloc>(context),
+                ),
+                BlocProvider.value(
+                  value: BlocProvider.of<ParameterBloc>(context),
                 ),
               ],
               child: Addtransaction(),

@@ -715,4 +715,9 @@ class DatabaseHelper {
     );
   }
 
+  Future<int> deleteAllParameters() async {
+    final db = await database;
+    return await db.delete(_parameterTable);
+  }
+
 }

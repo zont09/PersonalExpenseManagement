@@ -16,10 +16,14 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     });
 
     on<UpdateWalletEvent>((event, emit) async {
-      print("IS CALL ????");
       final index = wallets.indexWhere((wallet) => wallet.id == event.wallet.id);
+      final amountDiff = event.wallet.amount - wallets[index].amount;
       if (index != -1) {
         wallets[index] = event.wallet;
+        if(event.wallet.id != 0 ) {
+          wallets[0].amount += amountDiff;
+          await DatabaseHelper().updateWallet(wallets[0]);
+        }
         await DatabaseHelper().updateWallet(event.wallet);
         emit(WalletUpdatedState(List.from(wallets)));
       } else {
