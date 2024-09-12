@@ -232,12 +232,17 @@ class _StatisticalState extends State<Statistical> {
                                 setState(() {
                                   int mon = _dateOption.month;
                                   int yea = _dateOption.year;
-                                  mon = mon - 1;
-                                  if (mon < 1) {
-                                    mon = 12;
-                                    yea = yea - 1;
+                                  if(_dateOptionView == 0) {
+                                    mon = mon - 1;
+                                    if (mon < 1) {
+                                      mon = 12;
+                                      yea = yea - 1;
+                                    }
+                                    _dateOption = DateTime(yea, mon);
                                   }
-                                  _dateOption = DateTime(yea, mon);
+                                  else {
+                                    _dateOption = DateTime(yea-1, mon);
+                                  }
                                 })
                               },
                               icon: const Icon(
@@ -251,9 +256,14 @@ class _StatisticalState extends State<Statistical> {
                                 shadowColor: Colors.transparent,
                                 elevation: 0,
                               ),
-                              onPressed: () => {_selectDate(context, 'vi')},
+                              onPressed: () => {
+                                if(_dateOptionView == 0)
+                                  _selectDate(context, 'vi')
+                              },
                               child: Text(
-                                "Thg ${_dateOption.month} ${_dateOption.year}",
+                                _dateOptionView == 0 ?
+                                "Thg ${_dateOption.month} ${_dateOption.year}" :
+                                _dateOption.year.toString(),
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
@@ -266,12 +276,17 @@ class _StatisticalState extends State<Statistical> {
                                 setState(() {
                                   int mon = _dateOption.month;
                                   int yea = _dateOption.year;
-                                  mon = mon + 1;
-                                  if (mon > 12) {
-                                    mon = 1;
-                                    yea = yea + 1;
+                                  if(_dateOptionView == 0) {
+                                    mon = mon + 1;
+                                    if (mon > 12) {
+                                      mon = 1;
+                                      yea = yea + 1;
+                                    }
+                                    _dateOption = DateTime(yea, mon);
                                   }
-                                  _dateOption = DateTime(yea, mon);
+                                  else {
+                                    _dateOption = DateTime(yea + 1, mon);
+                                  }
                                 })
                               },
                               icon: const Icon(
