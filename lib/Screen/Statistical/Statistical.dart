@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -111,6 +113,25 @@ class _StatisticalState extends State<Statistical> {
     return categoryTotals;
   }
 
+  Map<int, double> calculateDateTotals(List<TransactionModel> transactions, Currency currencyGB, int typeCat) {
+    final Map<int, double> dayToAmountMap = {};
+    int daysInMonth = DateUtils.getDaysInMonth(_dateOption.year, _dateOption.month);
+    for (int day = 1; day <= ((_dateOptionView == 0) ? daysInMonth : 12); day++) {
+      dayToAmountMap[day] = 0.0;
+    }
+    for (var tran in transactions) {
+      if(tran.category.type != typeCat) continue;
+      final day = (_dateOptionView == 0) ? DateTime.parse(tran.date).day : DateTime.parse(tran.date).month;
+      if (dayToAmountMap.containsKey(day)) {
+        dayToAmountMap[day] = dayToAmountMap[day]! + tran.amount * tran.wallet.currency.value / currencyGB.value;
+      } else {
+        dayToAmountMap[day] = tran.amount * tran.wallet.currency.value / currencyGB.value;
+      }
+    }
+
+    return dayToAmountMap;
+  }
+
   @override
   Widget build(BuildContext context) {
     double maxH = MediaQuery.of(context).size.height;
@@ -125,8 +146,7 @@ class _StatisticalState extends State<Statistical> {
               return (tranDate.year == _dateOption.year &&
                   (_dateOptionView == 1 ||
                       tranDate.month == _dateOption.month));
-            });
-
+            }).toList();
 
             return BlocBuilder<ParameterBloc, ParameterState>(
               builder: (context, state) {
@@ -150,6 +170,19 @@ class _StatisticalState extends State<Statistical> {
                   mapsIncome.entries.toList();
                   List<MapEntry<String, double>> listOutcome =
                   mapsOutcome.entries.toList();
+
+                  Map<int, double> listIncomeRp = calculateDateTotals(listTrans, currencyGB, 1);
+                  Map<int, double> listOutcomeRp = calculateDateTotals(listTrans, currencyGB, 0);
+                  print("Lenght: ${listOutcomeRp.length}");
+                  double maxValue = 0;
+                  listIncomeRp.forEach((key, value) {
+                    maxValue = max(value, maxValue);
+                    print("item ${value}");
+                  });
+                  listOutcomeRp.forEach((key, value) {
+                    maxValue = max(value, maxValue);
+                  });
+        print("Max value: $maxValue");
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -320,96 +353,146 @@ class _StatisticalState extends State<Statistical> {
                                           fontWeight: FontWeight.w600),
                                     ),
                                     Expanded(
-                                        child: Container(
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(16.0),
-                                            child: BarChart(
-                                              BarChartData(
-                                                barGroups: [
-                                                  BarChartGroupData(
-                                                    x: 0,
-                                                    barRods: [
-                                                      BarChartRodData(
-                                                        toY: 5,
-                                                        color: AppColors
-                                                            .XanhDuong,
-                                                        width: 15,
-                                                        borderRadius:
-                                                        BorderRadius.zero,
-                                                      ),
-                                                      BarChartRodData(
-                                                        toY: 8,
-                                                        color: AppColors.Cam,
-                                                        width: 15,
-                                                        borderRadius:
-                                                        BorderRadius.zero,
-                                                      ),
-                                                    ],
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(16.0),
+                                          child: Row(
+                                            children: [
+                                              Container(
+                                                margin: EdgeInsets.only(bottom: 20),
+                                                width: 30,
+                                                child: Column(
+                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  children: List.generate(
+                                                    6,
+                                                        (index) {
+                                                      // Các giá trị trục Y (từ 0 đến maxY)
+                                                      final value =(5 - index) * (maxValue / 5).floor();
+                                                      return Text(
+                                                        GlobalFunction.shortMoney(value.toDouble()),
+                                                        style: TextStyle(fontSize: 11, color: Colors.black),
+                                                      );
+                                                    },
                                                   ),
-                                                  BarChartGroupData(
-                                                    x: 1,
-                                                    barRods: [
-                                                      BarChartRodData(
-                                                        toY: 6,
-                                                        color: AppColors
-                                                            .XanhDuong,
-                                                        width: 15,
-                                                        borderRadius:
-                                                        BorderRadius.zero,
-                                                      ),
-                                                      BarChartRodData(
-                                                        toY: 7,
-                                                        color: AppColors.Cam,
-                                                        width: 15,
-                                                        borderRadius:
-                                                        BorderRadius.zero,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ],
-                                                titlesData: FlTitlesData(
-                                                  leftTitles: AxisTitles(
-                                                    sideTitles:
-                                                    SideTitles(
-                                                        showTitles: true),
-                                                  ),
-                                                  rightTitles: AxisTitles(
-                                                    sideTitles:
-                                                    SideTitles(
-                                                        showTitles: false),
-                                                  ),
-                                                  topTitles: AxisTitles(
-                                                    sideTitles:
-                                                    SideTitles(
-                                                        showTitles: false),
-                                                  ),
-                                                  bottomTitles: AxisTitles(
-                                                    sideTitles: SideTitles(
-                                                      showTitles: true,
-                                                      getTitlesWidget: (
-                                                          double value,
-                                                          TitleMeta meta) {
-                                                        switch (value.toInt()) {
-                                                          case 0:
-                                                            return Text(
-                                                                'Nhóm 1');
-                                                          case 1:
-                                                            return Text(
-                                                                'Nhóm 2');
-                                                          default:
-                                                            return Text('');
+                                                ),
+                                              ),
+                                              Expanded(
+                                                child: SingleChildScrollView(
+                                                  scrollDirection: Axis.horizontal,
+                                                  child: Container(
+                                                    width: _dateOptionView == 0 ? GlobalFunction.getDaysInMonth(_dateOption.year, _dateOption.month) * 40.0 : 480,
+                                                    height: 0.4 * maxH,
+                                                    child: BarChart(
+                                                      BarChartData(
+                                                        barGroups: listIncomeRp.entries.map((item) {
+                                                          return
+                                                            BarChartGroupData(
+                                                              x: item.key,
+                                                              barRods: [
+                                                                BarChartRodData(
+                                                                  toY: item.value,
+                                                                  color: AppColors
+                                                                      .XanhLaDam,
+                                                                  width: 15,
+                                                                  borderRadius:
+                                                                  BorderRadius.zero,
+                                                                ),
+                                                                BarChartRodData(
+                                                                  toY: listOutcomeRp[item.key]!,
+                                                                  color: AppColors.Cam,
+                                                                  width: 15,
+                                                                  borderRadius:
+                                                                  BorderRadius.zero,
+                                                                ),
+                                                              ],
+                                                            );
                                                         }
-                                                      },
+                                                        ).toList(),
+                                                        titlesData: FlTitlesData(
+                                                          leftTitles: AxisTitles(
+                                                            sideTitles:
+                                                            SideTitles(
+                                                                showTitles: false),
+                                                          ),
+                                                          rightTitles: AxisTitles(
+                                                            sideTitles:
+                                                            SideTitles(
+                                                                showTitles: false),
+                                                          ),
+                                                          topTitles: AxisTitles(
+                                                            sideTitles:
+                                                            SideTitles(
+                                                                showTitles: false),
+                                                          ),
+                                                          bottomTitles: AxisTitles(
+                                                            sideTitles: SideTitles(
+                                                              showTitles: true,
+                                                              getTitlesWidget: (
+                                                                  double value,
+                                                                  TitleMeta meta) {
+                                                                return Text(value.toInt().toString());
+                                                              },
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        borderData: FlBorderData(
+                                                          show: true,
+                                                          border: Border(
+                                                            left: BorderSide(
+                                                              color: Colors.black, // Màu của đường viền bên trái
+                                                              width: 1, // Độ dày của đường viền
+                                                            ),
+                                                            bottom: BorderSide(
+                                                              color: Colors.black, // Màu của đường viền dưới cùng
+                                                              width: 1, // Độ dày của đường viền
+                                                            ),
+                                                            right: BorderSide.none, // Ẩn viền bên phải
+                                                            top: BorderSide.none,   // Ẩn viền trên
+                                                          ),
+                                                        ),
+                                                          gridData: FlGridData(
+                                                            show: true,
+                                                            drawVerticalLine: true,
+                                                            drawHorizontalLine: true,
+                                                            getDrawingHorizontalLine: (value) {
+                                                              return FlLine(
+                                                                color: Colors.grey,
+                                                                strokeWidth: 0.5,
+                                                              );
+                                                            },
+                                                            getDrawingVerticalLine: (value) {
+                                                              return FlLine(
+                                                                color: Colors.grey,
+                                                                strokeWidth: 0.5,
+                                                              );
+                                                            },
+                                                          ),
+                                                        barTouchData: BarTouchData(
+                                                          touchTooltipData: BarTouchTooltipData(
+                                                            getTooltipColor: (group) {
+                                                              return AppColors.XanhDuong;
+                                                            },
+                                                            tooltipMargin: 8, // Khoảng cách giữa tooltip và cột
+                                                            fitInsideHorizontally: true, // Đảm bảo tooltip không vượt ra ngoài màn hình theo chiều ngang
+                                                            fitInsideVertically: true, // Đảm bảo tooltip không vượt ra ngoài màn hình theo chiều dọc
+                                                            getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                                                              return BarTooltipItem(
+                                                                GlobalFunction.formatCurrency(rod.toY, 2) + " " + currencyGB.name,
+                                                                TextStyle(color: Colors.white),
+                                                              );
+                                                            },
+                                                          ),
+                                                          touchCallback: (event, response) {
+                                                            if (response != null && response.spot != null) {
+                                                              print('Touched spot at x: ${response.spot!.touchedBarGroupIndex}, y: ${response.spot!.touchedRodData.toY}');
+                                                            }
+                                                          },
+                                                        ),
+                                                      ),
                                                     ),
                                                   ),
                                                 ),
-                                                borderData: FlBorderData(
-                                                  show: true,
-                                                ),
-                                                gridData: FlGridData(
-                                                    show: false),
                                               ),
-                                            ),
+                                            ],
                                           ),
                                         ))
                                   ],

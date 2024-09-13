@@ -561,6 +561,7 @@ class _Detailtransaction extends State<Detailtransaction> {
   }
 
   void _showDeleteConfirmDialog(BuildContext ncontext) {
+    print("Xoa2? ${ncontext}");;
     showDialog(
       context: ncontext,
       builder: (BuildContext context) {
@@ -632,9 +633,10 @@ class _Detailtransaction extends State<Detailtransaction> {
           actions: <Widget>[
             TextButton(
               onPressed: () {
+                print("Xoa?");
                 _showDeleteConfirmDialog(context);
-                if(mounted)
-                  Navigator.of(context).pop();
+                // if(mounted)
+                //   Navigator.of(context).pop();
               },
               child: Text(
                 'Xóa',

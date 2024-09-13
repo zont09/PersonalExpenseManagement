@@ -66,4 +66,44 @@ class GlobalFunction {
     String normalizedStr2 = removeDiacritics(str2.toLowerCase());
     return normalizedStr1.contains(normalizedStr2);
   }
+
+  static String shortMoney(double number) {
+    if (number <= 999) return number.toString();
+    if (number <= 999999) return (number / 1000).floor().toString() + "K";
+    if (number <= 999999999) {
+      if ((number / 1000000).floor() >= 100)
+        return (number / 1000000).floor().toString() + "M";
+      else
+        return (
+            (number / 1000000).floor().toString() +
+                "," +
+                ((number % 1000000) / 100000).floor().toString() +
+                "M"
+        );
+    }
+    if (number <= 999999999999) {
+      if ((number / 1000000000).floor() >= 100)
+        return (number / 1000000000).floor().toString() + "B";
+      else
+        return (
+            (number / 1000000000).floor().toString() +
+                "," +
+                ((number % 1000000000) / 100000000).floor().toString() +
+                "B"
+        );
+    }
+    if (number <= 999999999999999) {
+      if ((number / 1000000000000).floor() >= 100)
+        return (number / 1000000000000).floor().toString() + "T";
+      else
+        return (
+            (number / 1000000000000).floor().toString() +
+                "," +
+                ((number % 1000000000000) / 100000000000).floor().toString() +
+                "T"
+        );
+    }
+    return "NaN";
+  }
+
 }
