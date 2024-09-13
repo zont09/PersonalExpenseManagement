@@ -14,6 +14,7 @@ An expense management application built with Flutter. This app helps users track
 - Monitor savings goals
 - View expense reports by day, week, and month
 - Local data storage on the device
+- Expenditure reports and statistics
 - User-friendly and intuitive interface
 
 ## Still under construction
