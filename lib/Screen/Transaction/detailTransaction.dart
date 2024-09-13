@@ -554,8 +554,9 @@ class _Detailtransaction extends State<Detailtransaction> {
     walletBloc.add(UpdateWalletEvent(updWal));
     await Future.delayed(Duration(milliseconds: 500));
     transactionBloc.add(RemoveTransactionEvent(widget.transaction));
-
+    await Future.delayed(Duration(milliseconds: 200));
     if (mounted) {
+      print("Pop in delete");
       Navigator.of(context).pop();
     }
   }
@@ -578,7 +579,11 @@ class _Detailtransaction extends State<Detailtransaction> {
             TextButton(
               child: Text('Xóa'),
               onPressed: () {
-                _deleteTransaction(ncontext); // Gọi hàm xác nhận xóa
+                _deleteTransaction(ncontext);
+                if (mounted) {
+                  print("Pop in dialog");
+                  Navigator.of(ncontext).pop();
+                }
               },
             ),
           ],
@@ -635,7 +640,7 @@ class _Detailtransaction extends State<Detailtransaction> {
               onPressed: () {
                 print("Xoa?");
                 _showDeleteConfirmDialog(context);
-                // if(mounted)
+                // await if(mounted)
                 //   Navigator.of(context).pop();
               },
               child: Text(
