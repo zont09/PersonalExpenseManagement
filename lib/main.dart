@@ -133,9 +133,11 @@ class _HomeScreenState extends State<HomeScreen> {
         final List<Category> categories = snapshot.data![3];
         final List<RepeatOption> repeat_options = snapshot.data![4];
         final List<Budget> budgets = snapshot.data![5];
-        final List<BudgetDetail> budgetdetails = snapshot.data![6];
+        final List<BudgetDetail> budgetDetails = snapshot.data![6];
         final currencyGB = parameters.first.currency;
-        // print("RepeatOption: ${repeat_options.first.id} - ${repeat_options.first.option_name}");
+        budgetDetails.forEach((item) {
+          print("BudgetDetail: ${item.id} - ${item.id_budget.date} - ${item.amount} - ${item.category.id} - ${item.category.type}");
+        });
       return MultiBlocProvider(
         providers: [
           BlocProvider(
@@ -160,7 +162,7 @@ class _HomeScreenState extends State<HomeScreen> {
             create: (context) => BudgetBloc(budgets),
           ),
           BlocProvider(
-            create: (context) => BudgetDetailBloc(budgetdetails),
+            create: (context) => BudgetDetailBloc(budgetDetails),
           ),
         ],
         child: Builder(

@@ -489,7 +489,7 @@ class DatabaseHelper {
     return List.generate(maps.length, (i) {
       final category = Category(
         id: maps[i]['Wid'],
-        name: maps[i]['date'],
+        name: maps[i]['name'],
         type: maps[i]['type'],
       );
       final budget = Budget(
