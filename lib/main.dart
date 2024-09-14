@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:personal_expense_management/Database/database_helper.dart';
 import 'package:personal_expense_management/Database/initdata.dart';
+import 'package:personal_expense_management/Model/Budget.dart';
+import 'package:personal_expense_management/Model/BudgetDetail.dart';
 import 'package:personal_expense_management/Model/Category.dart';
 import 'package:personal_expense_management/Model/Parameter.dart';
 import 'package:personal_expense_management/Model/RepeatOption.dart';
@@ -11,12 +13,14 @@ import 'package:personal_expense_management/Screen/More/More.dart';
 import 'package:personal_expense_management/Resources/AppColor.dart';
 import 'package:personal_expense_management/Screen/Statistical/Statistical.dart';
 import 'package:personal_expense_management/Screen/Transaction/TransactionScreen.dart';
-import 'package:intl/intl.dart'; // Nhập thư viện intl
-import 'package:intl/date_symbol_data_local.dart'; // Nhập để sử dụng hàm initializeDateFormatting
+import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:month_year_picker/month_year_picker.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:personal_expense_management/Screen/Transaction/addTransaction.dart';
+import 'package:personal_expense_management/bloc/budget_bloc/budget_bloc.dart';
+import 'package:personal_expense_management/bloc/budget_detail_bloc/budget_detail_bloc.dart';
 import 'package:personal_expense_management/bloc/category_bloc/category_bloc.dart';
 import 'package:personal_expense_management/bloc/parameter_bloc/parameter_bloc.dart';
 import 'package:personal_expense_management/bloc/repeat_option_bloc/repeat_option_bloc.dart';
@@ -108,7 +112,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // await dbHelper.deleteDatabasee() ;
     _combinedFuture =
         Future.wait([dbHelper.getWallet(), dbHelper.getTransactions(), dbHelper.getParameters(), dbHelper.getCategorys(),
-                    dbHelper.getRepeatOptions()]);
+                    dbHelper.getRepeatOptions(), dbHelper.getBudgets(), dbHelper.getBudgetDetail()]);
   }
 
   @override
@@ -128,6 +132,8 @@ class _HomeScreenState extends State<HomeScreen> {
         final List<Parameter> parameters = snapshot.data![2];
         final List<Category> categories = snapshot.data![3];
         final List<RepeatOption> repeat_options = snapshot.data![4];
+        final List<Budget> budgets = snapshot.data![5];
+        final List<BudgetDetail> budgetdetails = snapshot.data![6];
         final currencyGB = parameters.first.currency;
         // print("RepeatOption: ${repeat_options.first.id} - ${repeat_options.first.option_name}");
       return MultiBlocProvider(
@@ -149,6 +155,12 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           BlocProvider(
             create: (context) => ParameterBloc(parameters.first),
+          ),
+          BlocProvider(
+            create: (context) => BudgetBloc(budgets),
+          ),
+          BlocProvider(
+            create: (context) => BudgetDetailBloc(budgetdetails),
           ),
         ],
         child: Builder(
