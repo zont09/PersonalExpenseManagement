@@ -1,16 +1,20 @@
-# personal_expense_management
+# Personal expense management
 
 A new Flutter project.
 
-## Getting Started
+## Description
 
-This project is a starting point for a Flutter application.
+An expense management application built with Flutter. This app helps users track and manage their expenses, create and monitor budgets, and manage savings efficiently. The application uses the BloC (Business Logic Component) pattern for state management, providing a robust and scalable way to handle the application's state and business logic.
 
-A few resources to get you started if this is your first Flutter project:
+## Features
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- Track expenses
+- Create and manage expense categories
+- Create and track budgets
+- Monitor savings goals
+- View expense reports by day, week, and month
+- Local data storage on the device
+- Expenditure reports and statistics
+- User-friendly and intuitive interface
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Still under construction
