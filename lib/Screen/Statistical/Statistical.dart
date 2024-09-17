@@ -76,7 +76,6 @@ class _StatisticalState extends State<Statistical> {
         dataChart.isNotEmpty ? dataChart.values.reduce((a, b) => a + b) : 0.0;
     return dataChart.entries.toList().asMap().entries.map((entry) {
       final index = entry.key;
-      print("Entry key: ${entry.value.key}");
       final data = entry.value;
       final isTouched = index == touchedIndex;
       final double radius = isTouched ? 60 : 50;
@@ -173,12 +172,8 @@ class _StatisticalState extends State<Statistical> {
 
                   Map<int, double> listIncomeRp = calculateDateTotals(listTrans, currencyGB, 1);
                   Map<int, double> listOutcomeRp = calculateDateTotals(listTrans, currencyGB, 0);
-                  print("Lenght: ${listOutcomeRp.length}");
                   double maxValue = 0;
-                  listIncomeRp.forEach((key, value) {
-                    maxValue = max(value, maxValue);
-                    print("item ${value}");
-                  });
+
                   listOutcomeRp.forEach((key, value) {
                     maxValue = max(value, maxValue);
                   });

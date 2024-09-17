@@ -9,8 +9,10 @@ class BudgetBloc extends Bloc<BudgetEvent, BudgetState> {
 
   BudgetBloc(this.budgets) : super(BudgetUpdateState(budgets)) {
     on<AddBudgetEvent>((event, emit) async {
-      budgets.add(event.newBud);
-      DatabaseHelper().insertBudget(event.newBud);
+      int id = await DatabaseHelper().insertBudget(event.newBud);
+      Budget updatedBudget = Budget(id: id, date: event.newBud.date);
+      budgets.add(updatedBudget);
+      print("Add budget ${updatedBudget.id} - ${updatedBudget.date}");
       emit(BudgetUpdateState(List.from(budgets)));
     });
 
