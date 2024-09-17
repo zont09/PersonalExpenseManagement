@@ -5,13 +5,15 @@ class AddDropdown extends StatefulWidget {
   final TextEditingController controllerTF;
   final List<dynamic> listData;
   final Function(dynamic) onChanged;
+  final bool isEdit;
 
   const AddDropdown(
       {super.key,
       required this.title,
       required this.controllerTF,
       required this.listData,
-      required this.onChanged});
+      required this.onChanged,
+      required this.isEdit});
 
   @override
   State<AddDropdown> createState() => _AddDropdownState();
@@ -23,6 +25,7 @@ class _AddDropdownState extends State<AddDropdown> {
 
   void _showItemOption(BuildContext context) {
     final listItem = widget.listData;
+
     showModalBottomSheet(
       context: context,
       // isScrollControlled: true,
@@ -72,8 +75,10 @@ class _AddDropdownState extends State<AddDropdown> {
                             child: ListTile(
                               title: Text(item.name),
                               onTap: () {
-                                _selectItemOption(item.name, item);
-                                Navigator.pop(context);
+                                if(widget.isEdit) {
+                                  _selectItemOption(item.name, item);
+                                  Navigator.pop(context);
+                                }
                               },
                             ),
                           ),
@@ -118,9 +123,13 @@ class _AddDropdownState extends State<AddDropdown> {
         ),
         Expanded(
           child: GestureDetector(
-            onTap: () => {_showItemOption(context)},
+            onTap: () => {
+              if(widget.isEdit)
+              _showItemOption(context)
+            },
             child: AbsorbPointer(
               child: TextField(
+                enabled: widget.isEdit,
                   controller: _controllerCategory,
                   decoration: InputDecoration(
                       border: UnderlineInputBorder(), labelText: "Thể loại"),

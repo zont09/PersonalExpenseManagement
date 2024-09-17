@@ -11,6 +11,7 @@ import 'package:personal_expense_management/Model/Budget.dart';
 import 'package:personal_expense_management/Model/BudgetDetail.dart';
 import 'package:personal_expense_management/Model/Category.dart';
 import 'package:personal_expense_management/Resources/AppColor.dart';
+import 'package:personal_expense_management/Resources/global_function.dart';
 import 'package:personal_expense_management/bloc/budget_bloc/budget_bloc.dart';
 import 'package:personal_expense_management/bloc/budget_bloc/budget_event.dart';
 import 'package:personal_expense_management/bloc/budget_bloc/budget_state.dart';
@@ -20,27 +21,43 @@ import 'package:personal_expense_management/bloc/budget_detail_bloc/budget_detai
 import 'package:personal_expense_management/bloc/category_bloc/category_bloc.dart';
 import 'package:personal_expense_management/bloc/category_bloc/category_state.dart';
 
-class Addbudgetscreen extends StatefulWidget {
+class Detailbudgetscreen extends StatefulWidget {
   final DateTime dateTime;
-  const Addbudgetscreen({super.key, required this.dateTime});
+  final BudgetDetail budDt;
+
+  const Detailbudgetscreen(
+      {super.key, required this.dateTime, required this.budDt});
 
   @override
-  State<Addbudgetscreen> createState() => _AddbudgetscreenState();
+  State<Detailbudgetscreen> createState() => _Detailbudgetscreen();
 }
 
-class _AddbudgetscreenState extends State<Addbudgetscreen> {
+class _Detailbudgetscreen extends State<Detailbudgetscreen> {
   final TextEditingController _controllerAmount = TextEditingController();
   final TextEditingController _controllerCategory = TextEditingController();
   final TextEditingController _controllerDate = TextEditingController();
   late DateTime _dateTime;
-  Category selectCategory = Category(id: -1,name: "", type: 0);
+  late bool _isEditable = false;
+  Category selectCategory = Category(id: -1, name: "", type: 0);
+  String _inputAmount = "0";
+
 
   @override
   void initState() {
     super.initState();
     _dateTime = widget.dateTime ?? DateTime.now();
-    _controllerAmount.text = "0";
+    _inputAmount = widget.budDt.amount.toString();
+    _controllerAmount.text = formatCurrency2(widget.budDt.amount.toString());
     _controllerDate.text = DateFormat('MM/yyyy').format(_dateTime);
+    _controllerCategory.text = widget.budDt.category.name;
+    selectCategory = widget.budDt.category;
+    _controllerAmount.addListener(() {
+      if (_controllerAmount.text.isNotEmpty) {
+        // Lấy giá trị nguyên bản từ chuỗi mà không có định dạng
+        _inputAmount =
+            _controllerAmount.text.replaceAll('.', '').replaceAll(',', '.');
+      }
+    });
     print("DateTime $_dateTime");
   }
 
@@ -67,8 +84,14 @@ class _AddbudgetscreenState extends State<Addbudgetscreen> {
           ),
           child: Center(
             child: Container(
-              width: MediaQuery.of(context).size.width * 0.8,
-              height: MediaQuery.of(context).size.height * 0.6,
+              width: MediaQuery
+                  .of(context)
+                  .size
+                  .width * 0.8,
+              height: MediaQuery
+                  .of(context)
+                  .size
+                  .height * 0.6,
               child: child,
             ),
           ),
@@ -83,18 +106,58 @@ class _AddbudgetscreenState extends State<Addbudgetscreen> {
       });
     }
   }
-  void _showErrorDialog(BuildContext context, String errorMessage) {
+
+  static String formatCurrency2(String input) {
+    List<String> parts = input.split('.');
+    String integerPart = parts[0].replaceAll(RegExp(r'[^0-9]'), '');
+    NumberFormat numberFormat = NumberFormat('#,##0', 'vi');
+    String formattedInteger =
+    numberFormat.format(int.tryParse(integerPart) ?? 0);
+    String decimalPart = '';
+    if (parts.length > 1) {
+      decimalPart = parts[1];
+      return formattedInteger.replaceAll(',', '.') + ',' + decimalPart;
+    }
+    return formattedInteger.replaceAll(',', '.');
+  }
+
+  void _removeBudgetDetail(BuildContext context) async {
+    double newAmount = double.parse(_inputAmount);
+    context.read<BudgetDetailBloc>().add(RemoveBudgetDetailEvent(widget.budDt));
+    context.read<BudgetDetailBloc>().stream.listen((state) async {
+      if (state is BudgetDetailUpdateState) {
+        print("Remove budgetdetail successful");
+        await Future.delayed(Duration(milliseconds: 500));
+        if (mounted) {
+          Navigator.of(context).pop();
+        }
+      }
+    });
+  }
+
+  void _showDeleteConfirmDialog(BuildContext ncontext) {
+    print("Xoa2? ${ncontext}");;
     showDialog(
-      context: context,
+      context: ncontext,
       builder: (BuildContext context) {
         return AlertDialog(
-          title:  Center(child: Text('Lỗi')),
-          content: Text(errorMessage, style: TextStyle(fontSize: 18),),
+          title: Text('Xác nhận xóa'),
+          content: Text('Bạn có chắc chắn muốn xóa giao dịch này không?'),
           actions: <Widget>[
             TextButton(
-              child: Text('Đóng'),
+              child: Text('Hủy'),
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(); // Đóng dialog
+              },
+            ),
+            TextButton(
+              child: Text('Xóa'),
+              onPressed: () {
+                _removeBudgetDetail(ncontext);
+                if (mounted) {
+                  print("Pop in dialog");
+                  Navigator.of(ncontext).pop();
+                }
               },
             ),
           ],
@@ -103,12 +166,16 @@ class _AddbudgetscreenState extends State<Addbudgetscreen> {
     );
   }
 
-
-
   @override
   Widget build(BuildContext context) {
-    final maxW = MediaQuery.of(context).size.width;
-    final maxH = MediaQuery.of(context).size.height;
+    final maxW = MediaQuery
+        .of(context)
+        .size
+        .width;
+    final maxH = MediaQuery
+        .of(context)
+        .size
+        .height;
     return SafeArea(child: GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -116,9 +183,18 @@ class _AddbudgetscreenState extends State<Addbudgetscreen> {
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: AppColors.Nen,
-          title: Text("Thêm ngân sách tháng", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
-          leading: TextButton(onPressed: () => {Navigator.of(context).pop()}, child:
+          title: Text("Chi tiết ngân sách tháng",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
+          leading: TextButton(
+              onPressed: () => {Navigator.of(context).pop()}, child:
           Text("Huỷ", style: TextStyle(fontSize: 16, color: Colors.black),)),
+          actions: [
+            TextButton(
+                onPressed: () => {
+                  _showDeleteConfirmDialog(context)
+                }, child:
+            Text("Xoá", style: TextStyle(fontSize: 16, color: Colors.black),)),
+          ],
         ),
         body: Container(
           padding: EdgeInsets.only(top: 10),
@@ -149,14 +225,19 @@ class _AddbudgetscreenState extends State<Addbudgetscreen> {
                             )),
                       ),
                       Expanded(
-                        child: AmountTextfield(controllerTF: _controllerAmount,),
+                        child: AmountTextfield(controllerTF: _controllerAmount,
+                          isEdit: _isEditable,),
                       )
                     ],
                   ),
                   SizedBox(
                     height: 8,
                   ),
-                  CategorySelect(controllerCategory: _controllerCategory, onChanged: (Category tmp) { selectCategory = tmp; },),
+                  CategorySelect(controllerCategory: _controllerCategory,
+                    onChanged: (Category tmp) {
+                      selectCategory = tmp;
+                    },
+                    isEdit: false,),
                   SizedBox(height: 8,),
                   Row(
                     children: [
@@ -175,11 +256,14 @@ class _AddbudgetscreenState extends State<Addbudgetscreen> {
                       ),
                       Expanded(
                         child: GestureDetector(
-                          onTap: () => {
-                            _selectDate(context, "vi")
+                          onTap: () =>
+                          {
+                            if(false)
+                              _selectDate(context, "vi")
                           },
                           child: AbsorbPointer(
                             child: TextField(
+                                enabled: false,
                                 controller: _controllerDate,
                                 decoration: InputDecoration(
                                     border: UnderlineInputBorder(),
@@ -195,7 +279,20 @@ class _AddbudgetscreenState extends State<Addbudgetscreen> {
             ),
           ),
         ),
-        bottomNavigationBar: SaveButton(maxW: maxW, controllerCategory: _controllerCategory, controllerDate: _controllerDate, controllerAmount: _controllerAmount, selectItem: selectCategory,),
+        bottomNavigationBar: SaveButton(
+          maxW: maxW,
+          controllerCategory: _controllerCategory,
+          controllerDate: _controllerDate,
+          controllerAmount: _controllerAmount,
+          selectItem: selectCategory,
+          inputAmount: _inputAmount,
+          isEdit: _isEditable,
+          budDet: widget.budDt,
+          onChangedEdit: (value) {
+            setState(() {
+              _isEditable = value;
+            });
+          },),
       ),
     ));
   }
@@ -209,35 +306,41 @@ class SaveButton extends StatefulWidget {
     required this.controllerCategory,
     required this.controllerAmount,
     required this.selectItem,
+    required this.inputAmount,
+    required this.isEdit,
+    required this.onChangedEdit,
+    required this.budDet
   });
 
+  final BudgetDetail budDet;
   final double maxW;
   final TextEditingController controllerDate;
   final TextEditingController controllerCategory;
   final TextEditingController controllerAmount;
   final Category selectItem;
+  final String inputAmount;
+  final bool isEdit;
+  final Function(bool) onChangedEdit;
 
   @override
   State<SaveButton> createState() => _SaveButtonState();
 }
 
 class _SaveButtonState extends State<SaveButton> {
-  String _inputAmount = "0";
   void initState() {
     super.initState();
-    widget.controllerAmount.addListener(() {
-      if (widget.controllerAmount.text.isNotEmpty) {
-        // Lấy giá trị nguyên bản từ chuỗi mà không có định dạng
-        _inputAmount =
-            widget.controllerAmount.text.replaceAll('.', '').replaceAll(',', '.');
-      }
-    });
   }
 
-  Future<Budget> addNewBudgetIfNotExist(BuildContext context, DateTime dateBud, List<Budget> listBud) async {
+  Future<Budget> addNewBudgetIfNotExist(BuildContext context, DateTime dateBud,
+      List<Budget> listBud) async {
     // Kiểm tra ngân sách đã tồn tại
     Budget? isExistBudget = listBud
-        .where((item) => DateTime.parse(item.date).month == dateBud.month && DateTime.parse(item.date).year == dateBud.year)
+        .where((item) =>
+    DateTime
+        .parse(item.date)
+        .month == dateBud.month && DateTime
+        .parse(item.date)
+        .year == dateBud.year)
         .firstOrNull;
 
     if (isExistBudget == null) {
@@ -249,11 +352,19 @@ class _SaveButtonState extends State<SaveButton> {
       context.read<BudgetBloc>().add(AddBudgetEvent(newBud));
 
       // Lắng nghe stream và xử lý khi có trạng thái cập nhật
-      context.read<BudgetBloc>().stream.listen((budgetState) {
+      context
+          .read<BudgetBloc>()
+          .stream
+          .listen((budgetState) {
         if (budgetState is BudgetUpdateState) {
           // Tìm ngân sách mới vừa được thêm
           Budget? newBudget = budgetState.updBudget
-              .where((item) => DateTime.parse(item.date).month == dateBud.month && DateTime.parse(item.date).year == dateBud.year)
+              .where((item) =>
+          DateTime
+              .parse(item.date)
+              .month == dateBud.month && DateTime
+              .parse(item.date)
+              .year == dateBud.year)
               .firstOrNull;
 
           print("New Budget: ${newBudget?.id} - ${newBudget?.date}");
@@ -271,37 +382,19 @@ class _SaveButtonState extends State<SaveButton> {
     return isExistBudget; // Chắc chắn trả về Budget, không thể là null
   }
 
-  void _saveNewTransaction(BuildContext context, List<Budget> listBud, List<BudgetDetail> listBudDt) async {
-    DateTime dateBud = DateFormat('MM/yyyy').parse(widget.controllerDate.text);
-    print("Date: $dateBud");
-    if(widget.controllerCategory.text.isEmpty) {
-      _showErrorDialog(context ,"Thiếu thông tin loại giao dịch");
-    }
-    else {
-       Budget? _budget = await addNewBudgetIfNotExist(context, dateBud, listBud);
-       print("Budget?: ${_budget?.id} - ${_budget?.date}");
-      final listBudgetDt = listBudDt.where((item) => item.id_budget.id == _budget?.id).toList();
-
-      if(listBudgetDt.any((item) => item.category.id == widget.selectItem.id)) {
-        _showErrorDialog(context ,"Loại giao dịch ${widget.controllerCategory.text} đã tồn tại trong tháng này");
+  void _updateBudgetDetail(BuildContext context, List<Budget> listBud, List<BudgetDetail> listBudDt) async {
+    double newAmount = double.parse(widget.inputAmount);
+    BudgetDetail updBudDet = BudgetDetail(id: widget.budDet.id,id_budget: widget.budDet.id_budget, amount: newAmount, category: widget.budDet.category);
+    context.read<BudgetDetailBloc>().add(UpdateBudgetDetailEvent(updBudDet));
+    context.read<BudgetDetailBloc>().stream.listen((state) async {
+      if (state is BudgetDetailUpdateState) {
+        print("Update budgetdetail successful");
+        await Future.delayed(Duration(milliseconds: 500));
+        if (mounted) {
+          Navigator.of(context).pop();
+        }
       }
-      else {
-        BudgetDetail budDet = BudgetDetail(id_budget: _budget, amount: double.parse(_inputAmount), category: widget.selectItem);
-        print("Budget detail add: ${budDet.id} - ${budDet.id_budget.id} - ${budDet.amount} - ${budDet.category.name}");
-        context.read<BudgetDetailBloc>().add(AddBudgetDetailEvent(budDet));
-        context.read<BudgetDetailBloc>().stream.listen((state) async {
-          if (state is BudgetDetailUpdateState) {
-            print("Add budgetdetail successful");
-            await Future.delayed(Duration(milliseconds: 500));
-            if (mounted) {
-              Navigator.of(context).pop();
-            }
-          }
-        });
-      }
-
-    }
-
+    });
   }
 
   void _showErrorDialog(BuildContext context, String errorMessage) {
@@ -309,7 +402,7 @@ class _SaveButtonState extends State<SaveButton> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title:  Center(child: Text('Lỗi')),
+          title: Center(child: Text('Lỗi')),
           content: Text(errorMessage, style: TextStyle(fontSize: 18),),
           actions: <Widget>[
             TextButton(
@@ -328,51 +421,55 @@ class _SaveButtonState extends State<SaveButton> {
   Widget build(BuildContext context) {
     return BlocBuilder<BudgetBloc, BudgetState>(
       builder: (context, state) {
-        if(state is BudgetUpdateState) {
+        if (state is BudgetUpdateState) {
           final listBudget = state.updBudget;
           return BlocBuilder<BudgetDetailBloc, BudgetDetailState>(
-          builder: (context, state) {
-            if(state is BudgetDetailUpdateState) {
-              final listBudgetDt = state.updBudgetDet;
-              return BottomAppBar(
-                color: Colors.transparent,
-                child: Container(
-                  margin: EdgeInsets.only(bottom: 10,),
-                  height: 50,
-                  width: widget.maxW,
-                  child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.XanhDuong,
-                        side: BorderSide(
-                          color: AppColors.XanhDuong,
-                          width: 2.0,
+            builder: (context, state) {
+              if (state is BudgetDetailUpdateState) {
+                final listBudgetDt = state.updBudgetDet;
+                return BottomAppBar(
+                  color: Colors.transparent,
+                  child: Container(
+                    margin: EdgeInsets.only(bottom: 10,),
+                    height: 50,
+                    width: widget.maxW,
+                    child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.XanhDuong,
+                          side: BorderSide(
+                            color: AppColors.XanhDuong,
+                            width: 2.0,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                            BorderRadius.circular(12), // Độ bo góc của viền
+                          ),
                         ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius:
-                          BorderRadius.circular(12), // Độ bo góc của viền
-                        ),
-                      ),
-                      onPressed: () =>
-                      {
-                        _saveNewTransaction(context, listBudget, listBudgetDt)
-                      },
-                      child: Center(
-                        child: Text(
-                          "Lưu",
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500),
-                        ),
-                      )),
-                ),
-              );
-            }
-            else {
-              return Text("Failed to load budget detail in add budget");
-            }
-  },
-);
+                        onPressed: () =>
+                        {
+                        if(widget.isEdit)
+                          _updateBudgetDetail(context, listBudget, listBudgetDt)
+                        else
+                          widget.onChangedEdit(true)
+                    },
+                        child: Center(
+                          child: Text(
+                            widget.isEdit ?
+                            "Lưu" : "Sửa",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500),
+                          ),
+                        )),
+                  ),
+                );
+              }
+              else {
+                return Text("Failed to load budget detail in add budget");
+              }
+            },
+          );
         }
         else {
           return Text("Failed to load budget in add budget");
@@ -386,11 +483,13 @@ class CategorySelect extends StatefulWidget {
   const CategorySelect({
     super.key,
     required TextEditingController controllerCategory,
-    required this.onChanged
+    required this.onChanged,
+    required this.isEdit
   }) : _controllerCategory = controllerCategory;
 
   final TextEditingController _controllerCategory;
   final Function(Category) onChanged;
+  final bool isEdit;
 
   @override
   State<CategorySelect> createState() => _CategorySelectState();
@@ -401,14 +500,16 @@ class _CategorySelectState extends State<CategorySelect> {
   Widget build(BuildContext context) {
     return BlocBuilder<CategoryBloc, CategoryState>(
       builder: (context, state) {
-        if(state is CategoryUpdateState) {
-          final _listData = state.updCategory.where((item) => item.type == 0).toList();
+        if (state is CategoryUpdateState) {
+          final _listData = state.updCategory.where((item) => item.type == 0)
+              .toList();
           return AddDropdown(title: "Thể loại",
-            controllerTF: widget._controllerCategory,
-            listData: _listData,
-            onChanged: (dynamic _tmp) {
-              widget.onChanged(_tmp as Category);
-            });
+              controllerTF: widget._controllerCategory,
+              listData: _listData,
+              isEdit: widget.isEdit,
+              onChanged: (dynamic _tmp) {
+                widget.onChanged(_tmp as Category);
+              });
         }
         else {
           return Text("Failed to load category in add budget");

@@ -149,7 +149,7 @@ class _AddbudgetscreenState extends State<Addbudgetscreen> {
                             )),
                       ),
                       Expanded(
-                        child: AmountTextfield(controllerTF: _controllerAmount,),
+                        child: AmountTextfield(controllerTF: _controllerAmount, isEdit: true,),
                       )
                     ],
                   ),
@@ -406,6 +406,7 @@ class _CategorySelectState extends State<CategorySelect> {
           return AddDropdown(title: "Thể loại",
             controllerTF: widget._controllerCategory,
             listData: _listData,
+            isEdit: true,
             onChanged: (dynamic _tmp) {
               widget.onChanged(_tmp as Category);
             });

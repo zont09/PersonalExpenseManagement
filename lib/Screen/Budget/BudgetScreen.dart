@@ -6,6 +6,7 @@ import 'package:personal_expense_management/Resources/AppColor.dart';
 import 'package:month_year_picker/month_year_picker.dart';
 import 'package:personal_expense_management/Resources/global_function.dart';
 import 'package:personal_expense_management/Screen/Budget/addBudgetScreen.dart';
+import 'package:personal_expense_management/Screen/Budget/detailBudgetScreen.dart';
 import 'package:personal_expense_management/bloc/budget_bloc/budget_bloc.dart';
 import 'package:personal_expense_management/bloc/budget_bloc/budget_state.dart';
 import 'package:personal_expense_management/bloc/budget_detail_bloc/budget_detail_bloc.dart';
@@ -273,79 +274,111 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                                           : _budgetdetList
                                                               .map(
                                                                   (item) =>
-                                                                      Column(
-                                                                        children: [
-                                                                          SizedBox(
-                                                                            height:
-                                                                                10,
-                                                                          ),
-                                                                          Container(
-                                                                              padding: EdgeInsets.all(8),
-                                                                              width: maxW,
-                                                                              height: 100,
-                                                                              color: AppColors.Nen,
-                                                                              child: Column(children: [
-                                                                                Column(
-                                                                                  children: [
-                                                                                    // SizedBox(height: 20,),
-                                                                                    Container(
-                                                                                      height: 25,
-                                                                                      child: Row(
-                                                                                        children: [
-                                                                                          Expanded(
-                                                                                              flex: 1,
-                                                                                              child: Align(
-                                                                                                alignment: Alignment.centerLeft,
-                                                                                                child: Text(
-                                                                                                  item.category.name,
-                                                                                                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis),
-                                                                                                ),
-                                                                                              )),
-                                                                                          Expanded(
-                                                                                              flex: 1,
-                                                                                              child: Align(
-                                                                                                alignment: Alignment.centerRight,
-                                                                                                child: FittedBox(
-                                                                                                  fit: BoxFit.scaleDown,
+                                                                      InkWell(
+                                                                        onTap: () => {
+                                                                          Navigator.of(context).push(
+                                                                            MaterialPageRoute(
+                                                                              builder: (newContext) => MultiBlocProvider(
+                                                                                providers: [
+                                                                                  BlocProvider.value(
+                                                                                    value: BlocProvider.of<TransactionBloc>(
+                                                                                        context),
+                                                                                  ),
+                                                                                  BlocProvider.value(
+                                                                                    value:
+                                                                                    BlocProvider.of<ParameterBloc>(context),
+                                                                                  ),
+                                                                                  BlocProvider.value(
+                                                                                    value:
+                                                                                    BlocProvider.of<CategoryBloc>(context),
+                                                                                  ),
+                                                                                  BlocProvider.value(
+                                                                                    value: BlocProvider.of<BudgetBloc>(context),
+                                                                                  ),
+                                                                                  BlocProvider.value(
+                                                                                    value: BlocProvider.of<BudgetDetailBloc>(
+                                                                                        context),
+                                                                                  ),
+                                                                                ],
+                                                                                child: Detailbudgetscreen(dateTime: _dateTime, budDt: item,),
+                                                                              ),
+                                                                            ),
+                                                                          )
+                                                                        },
+                                                                        child: Column(
+                                                                          children: [
+                                                                            SizedBox(
+                                                                              height:
+                                                                                  10,
+                                                                            ),
+                                                                            Container(
+                                                                                padding: EdgeInsets.all(8),
+                                                                                width: maxW,
+                                                                                height: 100,
+                                                                                color: AppColors.Nen,
+                                                                                child: Column(children: [
+                                                                                  Column(
+                                                                                    children: [
+                                                                                      // SizedBox(height: 20,),
+                                                                                      Container(
+                                                                                        height: 25,
+                                                                                        child: Row(
+                                                                                          children: [
+                                                                                            Expanded(
+                                                                                                flex: 1,
+                                                                                                child: Align(
+                                                                                                  alignment: Alignment.centerLeft,
                                                                                                   child: Text(
-                                                                                                    GlobalFunction.formatCurrency(item.amount, 2),
-                                                                                                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.XanhDuong),
+                                                                                                    item.category.name,
+                                                                                                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis),
                                                                                                   ),
-                                                                                                ),
-                                                                                              ))
-                                                                                        ],
-                                                                                      ),
-                                                                                    ),
-                                                                                    SizedBox(
-                                                                                      height: 5,
-                                                                                    ),
-                                                                                    Container(
-                                                                                      height: 20,
-                                                                                      child: ClipRRect(
-                                                                                        borderRadius: BorderRadius.circular(10),
-                                                                                        child: LinearProgressIndicator(
-                                                                                          value: (mapsOutcome[item.category.name] ?? 0) / item.amount,
-                                                                                          backgroundColor: Colors.grey[200],
-                                                                                          valueColor: AlwaysStoppedAnimation<Color>(
-                                                                                            getColorForValue((mapsOutcome[item.category.name] ?? 0) / item.amount),
-                                                                                          ),
-                                                                                          minHeight: 10,
+                                                                                                )),
+                                                                                            Expanded(
+                                                                                                flex: 1,
+                                                                                                child: Align(
+                                                                                                  alignment: Alignment.centerRight,
+                                                                                                  child: FittedBox(
+                                                                                                    fit: BoxFit.scaleDown,
+                                                                                                    child: Text(
+                                                                                                      GlobalFunction.formatCurrency(item.amount, 2),
+                                                                                                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.XanhDuong),
+                                                                                                    ),
+                                                                                                  ),
+                                                                                                ))
+                                                                                          ],
                                                                                         ),
                                                                                       ),
-                                                                                    ),
-                                                                                    SizedBox(
-                                                                                      height: 5,
-                                                                                    ),
-                                                                                    Center(
-                                                                                      child: Text(
-                                                                                        GlobalFunction.formatCurrency(mapsOutcome[item.category.name] ?? 0, 2),
-                                                                                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                                                                                      SizedBox(
+                                                                                        height: 5,
                                                                                       ),
-                                                                                    )
-                                                                                  ],
-                                                                                )
-                                                                              ]))
-                                                                        ],
+                                                                                      Container(
+                                                                                        height: 20,
+                                                                                        child: ClipRRect(
+                                                                                          borderRadius: BorderRadius.circular(10),
+                                                                                          child: LinearProgressIndicator(
+                                                                                            value: (mapsOutcome[item.category.name] ?? 0) / item.amount,
+                                                                                            backgroundColor: Colors.grey[200],
+                                                                                            valueColor: AlwaysStoppedAnimation<Color>(
+                                                                                              getColorForValue((mapsOutcome[item.category.name] ?? 0) / item.amount),
+                                                                                            ),
+                                                                                            minHeight: 10,
+                                                                                          ),
+                                                                                        ),
+                                                                                      ),
+                                                                                      SizedBox(
+                                                                                        height: 5,
+                                                                                      ),
+                                                                                      Center(
+                                                                                        child: Text(
+                                                                                          GlobalFunction.formatCurrency(mapsOutcome[item.category.name] ?? 0, 2),
+                                                                                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                                                                                        ),
+                                                                                      )
+                                                                                    ],
+                                                                                  )
+                                                                                ]))
+                                                                          ],
+                                                                        ),
                                                                       ))
                                                               .toList()),
                                             );

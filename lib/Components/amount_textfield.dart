@@ -4,7 +4,8 @@ import 'package:intl/intl.dart';
 
 class AmountTextfield extends StatefulWidget {
   final TextEditingController controllerTF;
-  const AmountTextfield({super.key, required this.controllerTF});
+  final bool isEdit;
+  const AmountTextfield({super.key, required this.controllerTF, required this.isEdit});
 
   @override
   State<AmountTextfield> createState() => _AmountTextfieldState();
@@ -14,7 +15,7 @@ class _AmountTextfieldState extends State<AmountTextfield> {
   bool _isEnterDot = false;
   String _preTextAmount = "";
 
-  String formatCurrency2(String input) {
+  static String formatCurrency2(String input) {
     // Kiểm tra xem chuỗi có chứa phần thập phân không
     List<String> parts = input.split('.');
 
@@ -40,6 +41,7 @@ class _AmountTextfieldState extends State<AmountTextfield> {
   Widget build(BuildContext context) {
     final _controllerAmount = widget.controllerTF;
     return TextField(
+      enabled: widget.isEdit,
       controller: _controllerAmount,
       keyboardType: TextInputType.numberWithOptions(
           decimal: true),
