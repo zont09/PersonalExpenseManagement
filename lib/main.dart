@@ -4,6 +4,7 @@ import 'package:personal_expense_management/Database/initdata.dart';
 import 'package:personal_expense_management/Model/Budget.dart';
 import 'package:personal_expense_management/Model/BudgetDetail.dart';
 import 'package:personal_expense_management/Model/Category.dart';
+import 'package:personal_expense_management/Model/Currency.dart';
 import 'package:personal_expense_management/Model/Parameter.dart';
 import 'package:personal_expense_management/Model/RepeatOption.dart';
 import 'package:personal_expense_management/Model/TransactionModel.dart';
@@ -22,6 +23,7 @@ import 'package:personal_expense_management/Screen/Transaction/addTransaction.da
 import 'package:personal_expense_management/bloc/budget_bloc/budget_bloc.dart';
 import 'package:personal_expense_management/bloc/budget_detail_bloc/budget_detail_bloc.dart';
 import 'package:personal_expense_management/bloc/category_bloc/category_bloc.dart';
+import 'package:personal_expense_management/bloc/currency_bloc/currency_bloc.dart';
 import 'package:personal_expense_management/bloc/parameter_bloc/parameter_bloc.dart';
 import 'package:personal_expense_management/bloc/repeat_option_bloc/repeat_option_bloc.dart';
 import 'package:personal_expense_management/bloc/transaction_bloc/transaction_bloc.dart';
@@ -112,7 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // await dbHelper.deleteDatabasee() ;
     _combinedFuture =
         Future.wait([dbHelper.getWallet(), dbHelper.getTransactions(), dbHelper.getParameters(), dbHelper.getCategorys(),
-                    dbHelper.getRepeatOptions(), dbHelper.getBudgets(), dbHelper.getBudgetDetail()]);
+                    dbHelper.getRepeatOptions(), dbHelper.getBudgets(), dbHelper.getBudgetDetail(), dbHelper.getCurrencys()]);
   }
 
   @override
@@ -134,10 +136,8 @@ class _HomeScreenState extends State<HomeScreen> {
         final List<RepeatOption> repeat_options = snapshot.data![4];
         final List<Budget> budgets = snapshot.data![5];
         final List<BudgetDetail> budgetDetails = snapshot.data![6];
+        final List<Currency> currencies = snapshot.data![7];
         final currencyGB = parameters.first.currency;
-        budgetDetails.forEach((item) {
-          print("BudgetDetail: ${item.id} - ${item.id_budget.date} - ${item.amount} - ${item.category.id} - ${item.category.type}");
-        });
       return MultiBlocProvider(
         providers: [
           BlocProvider(
@@ -163,6 +163,9 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           BlocProvider(
             create: (context) => BudgetDetailBloc(budgetDetails),
+          ),
+          BlocProvider(
+            create: (context) => CurrencyBloc(currencies),
           ),
         ],
         child: Builder(

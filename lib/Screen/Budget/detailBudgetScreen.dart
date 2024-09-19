@@ -58,7 +58,6 @@ class _Detailbudgetscreen extends State<Detailbudgetscreen> {
             _controllerAmount.text.replaceAll('.', '').replaceAll(',', '.');
       }
     });
-    print("DateTime $_dateTime");
   }
 
   Future<void> _selectDate(BuildContext context, String? locale,) async {
@@ -136,13 +135,12 @@ class _Detailbudgetscreen extends State<Detailbudgetscreen> {
   }
 
   void _showDeleteConfirmDialog(BuildContext ncontext) {
-    print("Xoa2? ${ncontext}");;
     showDialog(
       context: ncontext,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Xác nhận xóa'),
-          content: Text('Bạn có chắc chắn muốn xóa giao dịch này không?'),
+          content: Text('Bạn có chắc chắn muốn xóa ngân sách này không?'),
           actions: <Widget>[
             TextButton(
               child: Text('Hủy'),
@@ -155,7 +153,6 @@ class _Detailbudgetscreen extends State<Detailbudgetscreen> {
               onPressed: () {
                 _removeBudgetDetail(ncontext);
                 if (mounted) {
-                  print("Pop in dialog");
                   Navigator.of(ncontext).pop();
                 }
               },
@@ -367,7 +364,7 @@ class _SaveButtonState extends State<SaveButton> {
               .year == dateBud.year)
               .firstOrNull;
 
-          print("New Budget: ${newBudget?.id} - ${newBudget?.date}");
+          // print("New Budget: ${newBudget?.id} - ${newBudget?.date}");
 
           if (newBudget != null && !completer.isCompleted) {
             completer.complete(newBudget); // Trả về ngân sách mới

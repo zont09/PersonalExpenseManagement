@@ -224,8 +224,6 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                   DateTime.parse(item.date).year ==
                                       _dateTime.year)
                               .firstOrNull;
-                          if (_budgetSelect != null)
-                            print("Budget: ${_budgetSelect.date}");
                           return BlocBuilder<TransactionBloc, TransactionState>(
                             builder: (context, state) {
                               if (state is TransactionChangedState) {

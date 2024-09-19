@@ -12,7 +12,6 @@ class BudgetBloc extends Bloc<BudgetEvent, BudgetState> {
       int id = await DatabaseHelper().insertBudget(event.newBud);
       Budget updatedBudget = Budget(id: id, date: event.newBud.date);
       budgets.add(updatedBudget);
-      print("Add budget ${updatedBudget.id} - ${updatedBudget.date}");
       emit(BudgetUpdateState(List.from(budgets)));
     });
 

@@ -41,7 +41,6 @@ class _AddbudgetscreenState extends State<Addbudgetscreen> {
     _dateTime = widget.dateTime ?? DateTime.now();
     _controllerAmount.text = "0";
     _controllerDate.text = DateFormat('MM/yyyy').format(_dateTime);
-    print("DateTime $_dateTime");
   }
 
   Future<void> _selectDate(BuildContext context, String? locale,) async {
@@ -256,7 +255,6 @@ class _SaveButtonState extends State<SaveButton> {
               .where((item) => DateTime.parse(item.date).month == dateBud.month && DateTime.parse(item.date).year == dateBud.year)
               .firstOrNull;
 
-          print("New Budget: ${newBudget?.id} - ${newBudget?.date}");
 
           if (newBudget != null && !completer.isCompleted) {
             completer.complete(newBudget); // Trả về ngân sách mới
@@ -273,13 +271,11 @@ class _SaveButtonState extends State<SaveButton> {
 
   void _saveNewTransaction(BuildContext context, List<Budget> listBud, List<BudgetDetail> listBudDt) async {
     DateTime dateBud = DateFormat('MM/yyyy').parse(widget.controllerDate.text);
-    print("Date: $dateBud");
     if(widget.controllerCategory.text.isEmpty) {
       _showErrorDialog(context ,"Thiếu thông tin loại giao dịch");
     }
     else {
        Budget? _budget = await addNewBudgetIfNotExist(context, dateBud, listBud);
-       print("Budget?: ${_budget?.id} - ${_budget?.date}");
       final listBudgetDt = listBudDt.where((item) => item.id_budget.id == _budget?.id).toList();
 
       if(listBudgetDt.any((item) => item.category.id == widget.selectItem.id)) {
@@ -287,7 +283,6 @@ class _SaveButtonState extends State<SaveButton> {
       }
       else {
         BudgetDetail budDet = BudgetDetail(id_budget: _budget, amount: double.parse(_inputAmount), category: widget.selectItem);
-        print("Budget detail add: ${budDet.id} - ${budDet.id_budget.id} - ${budDet.amount} - ${budDet.category.name}");
         context.read<BudgetDetailBloc>().add(AddBudgetDetailEvent(budDet));
         context.read<BudgetDetailBloc>().stream.listen((state) async {
           if (state is BudgetDetailUpdateState) {

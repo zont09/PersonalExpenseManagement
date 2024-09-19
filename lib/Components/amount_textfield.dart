@@ -5,7 +5,8 @@ import 'package:intl/intl.dart';
 class AmountTextfield extends StatefulWidget {
   final TextEditingController controllerTF;
   final bool isEdit;
-  const AmountTextfield({super.key, required this.controllerTF, required this.isEdit});
+  final String hintText;
+  const AmountTextfield({super.key, required this.controllerTF, required this.isEdit,this.hintText = "Nhập số tiền"});
 
   @override
   State<AmountTextfield> createState() => _AmountTextfieldState();
@@ -42,6 +43,7 @@ class _AmountTextfieldState extends State<AmountTextfield> {
     final _controllerAmount = widget.controllerTF;
     return TextField(
       enabled: widget.isEdit,
+
       controller: _controllerAmount,
       keyboardType: TextInputType.numberWithOptions(
           decimal: true),
@@ -52,7 +54,9 @@ class _AmountTextfieldState extends State<AmountTextfield> {
       ],
       decoration: InputDecoration(
         border: UnderlineInputBorder(),
-        labelText: 'Nhập số tiền',
+        labelText: widget.hintText,
+        hintText: widget.hintText,
+        hintStyle: TextStyle(color: Colors.grey, fontSize: 16)
       ),
       onChanged: (value) {
         // Xử lý giá trị hiển thị trong TextField
