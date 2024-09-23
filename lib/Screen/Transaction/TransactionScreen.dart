@@ -160,7 +160,8 @@ class _TransactionState extends State<Transaction> {
     );
   }
 
-  Future<void> _openBottomSheet(BuildContext context, Map<String, bool> mapIncome, Map<String, bool> mapOutcome, int type) {
+  Future<void> _openBottomSheet(BuildContext context,
+      Map<String, bool> mapIncome, Map<String, bool> mapOutcome, int type) {
     bool isAllChecked = true;
     final Completer<void> completer = Completer<void>();
 
@@ -287,553 +288,557 @@ class _TransactionState extends State<Transaction> {
               ),
             ],
             child: Builder(builder: (BuildContext context) {
-              return BlocBuilder<TransactionBloc, TransactionState>(
+              return BlocBuilder<WalletBloc, WalletState>(
                 builder: (context, state) {
-                  if (state is TransactionChangedState) {
-                    final transactions = state.newTransaction;
-                    return BlocBuilder<WalletBloc, WalletState>(
+                  if (state is WalletUpdatedState) {
+                    final List<Wallet> wallets = state.updatedWallet;
+                    return BlocBuilder<WalletSelectBloc,
+                        WalletSelectState>(
                       builder: (context, state) {
-                        if (state is WalletUpdatedState) {
-                          final List<Wallet> wallets = state.updatedWallet;
-                          return BlocBuilder<WalletSelectBloc,
-                              WalletSelectState>(
+                        if (state is WalletSelectedState) {
+                          final selectWallet = wallets
+                              .where((item) =>
+                          item.id == state.selectedWallet.id)
+                              .first;
+                          //state.selectedWallet.id;
+                          return BlocBuilder<ParameterBloc, ParameterState>(
                             builder: (context, state) {
-                              if (state is WalletSelectedState) {
-                                final selectWallet = wallets.where((item) => item.id == state.selectedWallet.id).first;
-                                    //state.selectedWallet.id;
-                                return BlocBuilder<ParameterBloc, ParameterState>(
-                                builder: (context, state) {
-                                  if(state is ParameterUpdateState) {
-                                    final currencyGB = state.updPar.currency;
-                                    return Container(
-                                      height: maxH,
-                                      width: maxW,
-                                      child: Column(
-                                        children: [
-                                          Container(
-                                            height: 0.1 * maxH,
-                                            color: AppColors.Nen,
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment
-                                                  .spaceBetween,
+                              if (state is ParameterUpdateState) {
+                                final currencyGB = state.updPar.currency;
+                                return Container(
+                                  height: maxH,
+                                  width: maxW,
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        height: 0.1 * maxH,
+                                        color: AppColors.Nen,
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment
+                                              .spaceBetween,
+                                          children: [
+                                            SizedBox(
+                                              width: 96,
+                                            ),
+                                            Column(
                                               children: [
-                                                SizedBox(
-                                                  width: 96,
+                                                Text("Số dư"),
+
+                                                Text(
+                                                  GlobalFunction
+                                                      .formatCurrency(
+
+                                                      selectWallet.amount *
+                                                          selectWallet
+                                                              .currency
+                                                              .value /
+                                                          currencyGB
+                                                              .value, 2) +
+                                                      " " +
+                                                      currencyGB.name,
+                                                  style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight: FontWeight
+                                                          .bold,
+                                                      color: AppColors
+                                                          .XanhDuong),
                                                 ),
-                                                Column(
-                                                  children: [
-                                                    Text("Số dư"),
-
-                                                    Text(
-                                                      GlobalFunction
-                                                          .formatCurrency(
-
-                                                          selectWallet.amount *
-                                                              selectWallet
-                                                                  .currency
-                                                                  .value /
-                                                              currencyGB
-                                                                  .value, 2) +
-                                                          " " +
-                                                          currencyGB.name,
-                                                      style: TextStyle(
-                                                          fontSize: 16,
-                                                          fontWeight: FontWeight
-                                                              .bold,
-                                                          color: AppColors
-                                                              .XanhDuong),
-                                                    ),
 
 
-                                                    DropdownMenuW(
-                                                      wallets: wallets,
-                                                      height: 0.04 * maxH,
-                                                      width: 0.25 * maxW,
-                                                      onChanged: (
-                                                          int selectedWalletId) {
-                                                        // Dispatch the wallet change event
-                                                        context.read<
-                                                            WalletSelectBloc>()
-                                                            .add(
-                                                            SelectedWalletEvent(
-                                                                selectedWalletId));
-                                                      },
-                                                    )
-                                                  ],
+                                                DropdownMenuW(
+                                                  wallets: wallets,
+                                                  height: 0.04 * maxH,
+                                                  width: 0.25 * maxW,
+                                                  onChanged: (
+                                                      int selectedWalletId) {
+                                                    // Dispatch the wallet change event
+                                                    context.read<
+                                                        WalletSelectBloc>()
+                                                        .add(
+                                                        SelectedWalletEvent(
+                                                            selectedWalletId));
+                                                  },
+                                                )
+                                              ],
+                                            ),
+                                            Row(
+                                              children: [
+                                                IconButton(
+                                                  onPressed: () =>
+                                                  {
+                                                    _showSearchDialog(
+                                                        context)
+                                                  },
+                                                  icon: Icon(
+                                                    Icons.search,
+                                                    size: 30,
+                                                  ),
                                                 ),
-                                                Row(
-                                                  children: [
-                                                    IconButton(
-                                                      onPressed: () =>
-                                                      {
-                                                        _showSearchDialog(
-                                                            context)
-                                                      },
-                                                      icon: Icon(
-                                                        Icons.search,
-                                                        size: 30,
-                                                      ),
+                                                PopupMenuButton<int>(
+                                                  icon: Icon(
+                                                      Icons.more_vert),
+                                                  // Thay đổi icon ở đây
+                                                  onSelected: (value) async {
+                                                    if (value == 0) {
+                                                      await _openBottomSheet(
+                                                          context,
+                                                          mapIncome,
+                                                          mapOutcome,
+                                                          1);
+                                                      print("ra 0");
+                                                      context.read<
+                                                          CategoryMapBloc>()
+                                                          .add(
+                                                          UpdateCategoryMapEvent(
+                                                              mapIncome,
+                                                              mapOutcome));
+                                                    } else if (value == 1) {
+                                                      await _openBottomSheet(
+                                                          context,
+                                                          mapIncome,
+                                                          mapOutcome,
+                                                          0);
+                                                      print("ra 1");
+                                                      context.read<
+                                                          CategoryMapBloc>()
+                                                          .add(
+                                                          UpdateCategoryMapEvent(
+                                                              mapIncome,
+                                                              mapOutcome));
+                                                    }
+                                                  },
+                                                  itemBuilder: (context) =>
+                                                  [
+                                                    PopupMenuItem<int>(
+                                                      value: 0,
+                                                      child: Text(
+                                                          "Giao dịch thu"),
                                                     ),
-                                                    PopupMenuButton<int>(
-                                                      icon: Icon(
-                                                          Icons.more_vert),
-                                                      // Thay đổi icon ở đây
-                                                      onSelected: (
-                                                          value) async {
-                                                        if (value == 0) {
-                                                          await _openBottomSheet(
-                                                              context,
-                                                              mapIncome,
-                                                              mapOutcome,
-                                                              1);
-                                                          print("ra 0");
-                                                          context.read<
-                                                              CategoryMapBloc>()
-                                                              .add(
-                                                              UpdateCategoryMapEvent(
-                                                                  mapIncome,
-                                                                  mapOutcome));
-                                                        } else if (value == 1) {
-                                                          await _openBottomSheet(
-                                                              context,
-                                                              mapIncome,
-                                                              mapOutcome,
-                                                              0);
-                                                          print("ra 1");
-                                                          context.read<
-                                                              CategoryMapBloc>()
-                                                              .add(
-                                                              UpdateCategoryMapEvent(
-                                                                  mapIncome,
-                                                                  mapOutcome));
-                                                        }
-                                                      },
-                                                      itemBuilder: (context) =>
-                                                      [
-                                                        PopupMenuItem<int>(
-                                                          value: 0,
-                                                          child: Text(
-                                                              "Giao dịch thu"),
-                                                        ),
-                                                        PopupMenuItem<int>(
-                                                          value: 1,
-                                                          child: Text(
-                                                              "Giao dịch chi"),
-                                                        ),
-                                                      ],
+                                                    PopupMenuItem<int>(
+                                                      value: 1,
+                                                      child: Text(
+                                                          "Giao dịch chi"),
                                                     ),
                                                   ],
                                                 ),
                                               ],
                                             ),
-                                          ),
-                                          SizedBox(
-                                            height: 10,
-                                          ),
-                                          Container(
-                                            height: 0.05 * maxH,
-                                            color: AppColors.Nen,
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment
-                                                  .spaceBetween,
-                                              children: [
-                                                IconButton(
-                                                  onPressed: () =>
-                                                  {
-                                                    setState(() {
-                                                      int mon = dateTransaction
-                                                          .month;
-                                                      int yea = dateTransaction
-                                                          .year;
-                                                      mon = mon - 1;
-                                                      if (mon < 1) {
-                                                        mon = 12;
-                                                        yea = yea - 1;
-                                                      }
-                                                      dateTransaction =
-                                                          DateTime(yea, mon);
-                                                    })
-                                                  },
-                                                  icon: const Icon(
-                                                    Icons.keyboard_arrow_left,
-                                                    size: 30,
-                                                  ),
-                                                ),
-                                                ElevatedButton(
-                                                  style: ElevatedButton
-                                                      .styleFrom(
-                                                    backgroundColor: Colors
-                                                        .transparent,
-                                                    shadowColor: Colors
-                                                        .transparent,
-                                                    elevation: 0,
-                                                  ),
-                                                  onPressed: () =>
-                                                  {
-                                                    _selectDate(context, 'vi')
-                                                  },
-                                                  child: Text(
-                                                    "Thg ${dateTransaction
-                                                        .month} ${dateTransaction
-                                                        .year}",
-                                                    style: TextStyle(
-                                                        fontWeight: FontWeight
-                                                            .bold,
-                                                        fontSize: 16,
-                                                        color: Colors.black),
-                                                  ),
-                                                ),
-                                                IconButton(
-                                                  onPressed: () =>
-                                                  {
-                                                    setState(() {
-                                                      int mon = dateTransaction
-                                                          .month;
-                                                      int yea = dateTransaction
-                                                          .year;
-                                                      mon = mon + 1;
-                                                      if (mon > 12) {
-                                                        mon = 1;
-                                                        yea = yea + 1;
-                                                      }
-                                                      dateTransaction =
-                                                          DateTime(yea, mon);
-                                                    })
-                                                  },
-                                                  icon: const Icon(
-                                                    Icons.keyboard_arrow_right,
-                                                    size: 30,
-                                                  ),
-                                                ),
-                                              ],
+                                          ],
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: 10,
+                                      ),
+                                      Container(
+                                        height: 0.05 * maxH,
+                                        color: AppColors.Nen,
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment
+                                              .spaceBetween,
+                                          children: [
+                                            IconButton(
+                                              onPressed: () =>
+                                              {
+                                                setState(() {
+                                                  int mon = dateTransaction
+                                                      .month;
+                                                  int yea = dateTransaction
+                                                      .year;
+                                                  mon = mon - 1;
+                                                  if (mon < 1) {
+                                                    mon = 12;
+                                                    yea = yea - 1;
+                                                  }
+                                                  dateTransaction =
+                                                      DateTime(yea, mon);
+                                                })
+                                              },
+                                              icon: const Icon(
+                                                Icons.keyboard_arrow_left,
+                                                size: 30,
+                                              ),
                                             ),
-                                          ),
-                                          SizedBox(
-                                            height: 10,
-                                          ),
-                                          Expanded(
-                                            child: SingleChildScrollView(
-                                              child:
-                                              BlocBuilder<
-                                                  CategoryMapBloc,
-                                                  CategoryMapState>(
-                                                  builder: (context,
-                                                      categoryState) {
-                                                    if (categoryState
-                                                    is CategoryMapUpdatedState) {
-                                                      final mapIncome =
-                                                          categoryState
-                                                              .mapIncome;
-                                                      final mapOutcome =
-                                                          categoryState
-                                                              .mapOutcome;
+                                            ElevatedButton(
+                                              style: ElevatedButton
+                                                  .styleFrom(
+                                                backgroundColor: Colors
+                                                    .transparent,
+                                                shadowColor: Colors
+                                                    .transparent,
+                                                elevation: 0,
+                                              ),
+                                              onPressed: () =>
+                                              {
+                                                _selectDate(context, 'vi')
+                                              },
+                                              child: Text(
+                                                "Thg ${dateTransaction
+                                                    .month} ${dateTransaction
+                                                    .year}",
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight
+                                                        .bold,
+                                                    fontSize: 16,
+                                                    color: Colors.black),
+                                              ),
+                                            ),
+                                            IconButton(
+                                              onPressed: () =>
+                                              {
+                                                setState(() {
+                                                  int mon = dateTransaction
+                                                      .month;
+                                                  int yea = dateTransaction
+                                                      .year;
+                                                  mon = mon + 1;
+                                                  if (mon > 12) {
+                                                    mon = 1;
+                                                    yea = yea + 1;
+                                                  }
+                                                  dateTransaction =
+                                                      DateTime(yea, mon);
+                                                })
+                                              },
+                                              icon: const Icon(
+                                                Icons.keyboard_arrow_right,
+                                                size: 30,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: 10,
+                                      ),
+                                      Expanded(
+                                        child: SingleChildScrollView(
+                                          child:
+                                          BlocBuilder<TransactionBloc,
+                                              TransactionState>(
+                                            builder: (context, state) {
+                                              if(state is TransactionChangedState) {
+                                                final transactions = state.newTransaction;
+                                                return BlocBuilder<
+                                                    CategoryMapBloc,
+                                                    CategoryMapState>(
+                                                    builder: (context,
+                                                        categoryState) {
+                                                      if (categoryState
+                                                      is CategoryMapUpdatedState) {
+                                                        final mapIncome =
+                                                            categoryState
+                                                                .mapIncome;
+                                                        final mapOutcome =
+                                                            categoryState
+                                                                .mapOutcome;
 
-                                                      return Column(
-                                                        children: List
-                                                            .generate(
-                                                            31, (index) {
-                                                          final listTransaction =
-                                                          GlobalFunction
-                                                              .getTransactionByAll(
-                                                            transactions,
-                                                            DateTime(
-                                                                dateTransaction
-                                                                    .year,
-                                                                dateTransaction
-                                                                    .month,
-                                                                31 - index +
-                                                                    1),
-                                                            selectWallet.id!,
-                                                            searchText,
-                                                            mapIncome,
-                                                            mapOutcome,
-                                                          );
-                                                          if (listTransaction
-                                                              .isNotEmpty) {
-                                                            return Column(
-                                                              children: [
-                                                                // Container cho ngày
-                                                                SizedBox(
-                                                                  height: 10,
-                                                                ),
-                                                                Container(
-                                                                  padding: EdgeInsets
-                                                                      .only(
-                                                                      left: 10),
-                                                                  height: 30,
-                                                                  color: AppColors
-                                                                      .Nen,
-                                                                  child: Row(
-                                                                    crossAxisAlignment:
-                                                                    CrossAxisAlignment
-                                                                        .center,
-                                                                    children: [
-                                                                      Text(
-                                                                        (31 -
-                                                                            index +
-                                                                            1)
-                                                                            .toString(),
-                                                                        // Hiển thị ngày
-                                                                        style: TextStyle(
-                                                                            fontWeight:
-                                                                            FontWeight
-                                                                                .bold,
-                                                                            fontSize: 18),
-                                                                      )
-                                                                    ],
+                                                        return Column(
+                                                          children: List
+                                                              .generate(
+                                                              31, (index) {
+                                                            final listTransaction =
+                                                            GlobalFunction
+                                                                .getTransactionByAll(
+                                                              transactions,
+                                                              DateTime(
+                                                                  dateTransaction
+                                                                      .year,
+                                                                  dateTransaction
+                                                                      .month,
+                                                                  31 - index +
+                                                                      1),
+                                                              selectWallet.id!,
+                                                              searchText,
+                                                              mapIncome,
+                                                              mapOutcome,
+                                                            );
+                                                            if (listTransaction
+                                                                .isNotEmpty) {
+                                                              return Column(
+                                                                children: [
+                                                                  // Container cho ngày
+                                                                  SizedBox(
+                                                                    height: 10,
                                                                   ),
-                                                                ),
-                                                                ...listTransaction
-                                                                    .reversed
-                                                                    .map((
-                                                                    item) =>
-                                                                    Column(
+                                                                  Container(
+                                                                    padding: EdgeInsets
+                                                                        .only(
+                                                                        left: 10),
+                                                                    height: 30,
+                                                                    color: AppColors
+                                                                        .Nen,
+                                                                    child: Row(
+                                                                      crossAxisAlignment:
+                                                                      CrossAxisAlignment
+                                                                          .center,
                                                                       children: [
-                                                                        SizedBox(
-                                                                          height: 2,
-                                                                        ),
-                                                                        Container(
-                                                                          height: 60,
-                                                                          color: AppColors
-                                                                              .Nen,
-                                                                          child: InkWell(
-                                                                            onTap: () =>
-                                                                            {
-                                                                              Navigator
-                                                                                  .of(
-                                                                                  context)
-                                                                                  .push(
-                                                                                MaterialPageRoute(
-                                                                                  builder: (
-                                                                                      newContext) =>
-                                                                                      MultiBlocProvider(
-                                                                                        providers: [
-                                                                                          BlocProvider
-                                                                                              .value(
-                                                                                            value: BlocProvider
-                                                                                                .of<
-                                                                                                CategoryBloc>(
-                                                                                                context),
-                                                                                          ),
-                                                                                          BlocProvider
-                                                                                              .value(
-                                                                                            value: BlocProvider
-                                                                                                .of<
-                                                                                                WalletBloc>(
-                                                                                                context),
-                                                                                          ),
-                                                                                          BlocProvider
-                                                                                              .value(
-                                                                                            value: BlocProvider
-                                                                                                .of<
-                                                                                                RepeatOptionBloc>(
-                                                                                                context),
-                                                                                          ),
-                                                                                          BlocProvider
-                                                                                              .value(
-                                                                                            value: BlocProvider
-                                                                                                .of<
-                                                                                                TransactionBloc>(
-                                                                                                context),
-                                                                                          ),
-                                                                                        ],
-                                                                                        child: Detailtransaction(
-                                                                                            transaction: item),
-                                                                                      ),
-                                                                                ),
-                                                                              )
-                                                                            },
-                                                                            child: Row(
-                                                                              children: [
-                                                                                Expanded(
-                                                                                  flex: 1,
-                                                                                  child:
-                                                                                  Container(
-                                                                                    padding:
-                                                                                    EdgeInsets
-                                                                                        .only(
-                                                                                        left: 10),
-                                                                                    child: Text(
-                                                                                        item
-                                                                                            .category
-                                                                                            .name,
-                                                                                        style: TextStyle(
-                                                                                          fontSize: 16,
-                                                                                          color: Color(
-                                                                                              0xff787878),
-                                                                                        )),
-                                                                                  ),
-                                                                                ),
-                                                                                Expanded(
-                                                                                  flex: 2,
-                                                                                  child:
-                                                                                  Container(
-                                                                                    child:
-                                                                                    Column(
-                                                                                      children: [
-                                                                                        Container(
-                                                                                          height: 30,
-                                                                                          child: Align(
-                                                                                            alignment: Alignment
-                                                                                                .centerLeft,
-                                                                                            child: Text(
-                                                                                              item
-                                                                                                  .note,
-                                                                                              style: TextStyle(
-                                                                                                  fontSize: 16,
-                                                                                                  fontWeight: FontWeight
-                                                                                                      .bold),
-                                                                                              overflow: TextOverflow
-                                                                                                  .ellipsis,
-                                                                                              maxLines: 1,
+                                                                        Text(
+                                                                          (31 -
+                                                                              index +
+                                                                              1)
+                                                                              .toString(),
+                                                                          // Hiển thị ngày
+                                                                          style: TextStyle(
+                                                                              fontWeight:
+                                                                              FontWeight
+                                                                                  .bold,
+                                                                              fontSize: 18),
+                                                                        )
+                                                                      ],
+                                                                    ),
+                                                                  ),
+                                                                  ...listTransaction
+                                                                      .reversed
+                                                                      .map((
+                                                                      item) =>
+                                                                      Column(
+                                                                        children: [
+                                                                          SizedBox(
+                                                                            height: 2,
+                                                                          ),
+                                                                          Container(
+                                                                            height: 60,
+                                                                            color: AppColors
+                                                                                .Nen,
+                                                                            child: InkWell(
+                                                                              onTap: () =>
+                                                                              {
+                                                                                Navigator
+                                                                                    .of(
+                                                                                    context)
+                                                                                    .push(
+                                                                                  MaterialPageRoute(
+                                                                                    builder: (
+                                                                                        newContext) =>
+                                                                                        MultiBlocProvider(
+                                                                                          providers: [
+                                                                                            BlocProvider
+                                                                                                .value(
+                                                                                              value: BlocProvider
+                                                                                                  .of<
+                                                                                                  CategoryBloc>(
+                                                                                                  context),
                                                                                             ),
-                                                                                          ),
+                                                                                            BlocProvider
+                                                                                                .value(
+                                                                                              value: BlocProvider
+                                                                                                  .of<
+                                                                                                  WalletBloc>(
+                                                                                                  context),
+                                                                                            ),
+                                                                                            BlocProvider
+                                                                                                .value(
+                                                                                              value: BlocProvider
+                                                                                                  .of<
+                                                                                                  RepeatOptionBloc>(
+                                                                                                  context),
+                                                                                            ),
+                                                                                            BlocProvider
+                                                                                                .value(
+                                                                                              value: BlocProvider
+                                                                                                  .of<
+                                                                                                  TransactionBloc>(
+                                                                                                  context),
+                                                                                            ),
+                                                                                          ],
+                                                                                          child: Detailtransaction(
+                                                                                              transaction: item),
                                                                                         ),
-                                                                                        Container(
-                                                                                          height: 30,
-                                                                                          child: Align(
-                                                                                            alignment: Alignment
-                                                                                                .centerLeft,
-                                                                                            child: Text(
-                                                                                              item
-                                                                                                  .wallet
-                                                                                                  .name,
-                                                                                              style: TextStyle(
-                                                                                                  fontSize: 16,
-                                                                                                  color: Color(
-                                                                                                      0xff787878)),
-                                                                                              overflow: TextOverflow
-                                                                                                  .ellipsis,
-                                                                                              maxLines: 1,
-                                                                                            ),
-                                                                                          ),
-                                                                                        )
-                                                                                      ],
-                                                                                    ),
                                                                                   ),
-                                                                                ),
-                                                                                Expanded(
-                                                                                  flex: 1,
-                                                                                  child:
-                                                                                  Container(
-                                                                                    padding:
-                                                                                    EdgeInsets
-                                                                                        .only(
-                                                                                        right: 5),
+                                                                                )
+                                                                              },
+                                                                              child: Row(
+                                                                                children: [
+                                                                                  Expanded(
+                                                                                    flex: 1,
                                                                                     child:
-                                                                                    Align(
-                                                                                      alignment:
-                                                                                      Alignment
-                                                                                          .centerRight,
-                                                                                      child:
-                                                                                      FittedBox(
-                                                                                        fit: BoxFit
-                                                                                            .scaleDown,
-                                                                                        child: Text(
+                                                                                    Container(
+                                                                                      padding:
+                                                                                      EdgeInsets
+                                                                                          .only(
+                                                                                          left: 10),
+                                                                                      child: Text(
                                                                                           item
                                                                                               .category
-                                                                                              .type ==
-                                                                                              0
-                                                                                              ? "-" +
-                                                                                              GlobalFunction
-                                                                                                  .formatCurrency(
-                                                                                                  item
-                                                                                                      .amount *
-                                                                                                      item
-                                                                                                          .wallet
-                                                                                                          .currency
-                                                                                                          .value /
-                                                                                                      currencyGB
-                                                                                                          .value,
-                                                                                                  2) +
-                                                                                              " " +
-                                                                                              currencyGB
-                                                                                                  .name
-                                                                                              : "+" +
-                                                                                              GlobalFunction
-                                                                                                  .formatCurrency(
-                                                                                                  item
-                                                                                                      .amount *
-                                                                                                      item
-                                                                                                          .wallet
-                                                                                                          .currency
-                                                                                                          .value /
-                                                                                                      currencyGB
-                                                                                                          .value,
-                                                                                                  2) +
-                                                                                              " " +
-                                                                                              currencyGB
-                                                                                                  .name,
+                                                                                              .name,
                                                                                           style: TextStyle(
-                                                                                            fontWeight: FontWeight
-                                                                                                .bold,
-                                                                                            color: item
+                                                                                            fontSize: 16,
+                                                                                            color: Color(
+                                                                                                0xff787878),
+                                                                                          )),
+                                                                                    ),
+                                                                                  ),
+                                                                                  Expanded(
+                                                                                    flex: 2,
+                                                                                    child:
+                                                                                    Container(
+                                                                                      child:
+                                                                                      Column(
+                                                                                        children: [
+                                                                                          Container(
+                                                                                            height: 30,
+                                                                                            child: Align(
+                                                                                              alignment: Alignment
+                                                                                                  .centerLeft,
+                                                                                              child: Text(
+                                                                                                item
+                                                                                                    .note,
+                                                                                                style: TextStyle(
+                                                                                                    fontSize: 16,
+                                                                                                    fontWeight: FontWeight
+                                                                                                        .bold),
+                                                                                                overflow: TextOverflow
+                                                                                                    .ellipsis,
+                                                                                                maxLines: 1,
+                                                                                              ),
+                                                                                            ),
+                                                                                          ),
+                                                                                          Container(
+                                                                                            height: 30,
+                                                                                            child: Align(
+                                                                                              alignment: Alignment
+                                                                                                  .centerLeft,
+                                                                                              child: Text(
+                                                                                                item
+                                                                                                    .wallet
+                                                                                                    .name,
+                                                                                                style: TextStyle(
+                                                                                                    fontSize: 16,
+                                                                                                    color: Color(
+                                                                                                        0xff787878)),
+                                                                                                overflow: TextOverflow
+                                                                                                    .ellipsis,
+                                                                                                maxLines: 1,
+                                                                                              ),
+                                                                                            ),
+                                                                                          )
+                                                                                        ],
+                                                                                      ),
+                                                                                    ),
+                                                                                  ),
+                                                                                  Expanded(
+                                                                                    flex: 1,
+                                                                                    child:
+                                                                                    Container(
+                                                                                      padding:
+                                                                                      EdgeInsets
+                                                                                          .only(
+                                                                                          right: 5),
+                                                                                      child:
+                                                                                      Align(
+                                                                                        alignment:
+                                                                                        Alignment
+                                                                                            .centerRight,
+                                                                                        child:
+                                                                                        FittedBox(
+                                                                                          fit: BoxFit
+                                                                                              .scaleDown,
+                                                                                          child: Text(
+                                                                                            item
                                                                                                 .category
                                                                                                 .type ==
                                                                                                 0
-                                                                                                ? AppColors
-                                                                                                .Cam
-                                                                                                : AppColors
-                                                                                                .XanhLaDam,
+                                                                                                ? "-" +
+                                                                                                GlobalFunction
+                                                                                                    .formatCurrency(
+                                                                                                    item
+                                                                                                        .amount *
+                                                                                                        item
+                                                                                                            .wallet
+                                                                                                            .currency
+                                                                                                            .value /
+                                                                                                        currencyGB
+                                                                                                            .value,
+                                                                                                    2) +
+                                                                                                " " +
+                                                                                                currencyGB
+                                                                                                    .name
+                                                                                                : "+" +
+                                                                                                GlobalFunction
+                                                                                                    .formatCurrency(
+                                                                                                    item
+                                                                                                        .amount *
+                                                                                                        item
+                                                                                                            .wallet
+                                                                                                            .currency
+                                                                                                            .value /
+                                                                                                        currencyGB
+                                                                                                            .value,
+                                                                                                    2) +
+                                                                                                " " +
+                                                                                                currencyGB
+                                                                                                    .name,
+                                                                                            style: TextStyle(
+                                                                                              fontWeight: FontWeight
+                                                                                                  .bold,
+                                                                                              color: item
+                                                                                                  .category
+                                                                                                  .type ==
+                                                                                                  0
+                                                                                                  ? AppColors
+                                                                                                  .Cam
+                                                                                                  : AppColors
+                                                                                                  .XanhLaDam,
+                                                                                            ),
                                                                                           ),
                                                                                         ),
                                                                                       ),
                                                                                     ),
                                                                                   ),
-                                                                                ),
-                                                                              ],
+                                                                                ],
+                                                                              ),
                                                                             ),
                                                                           ),
-                                                                        ),
-                                                                      ],
-                                                                    ))
-                                                                    .toList(),
-                                                              ],
-                                                            );
-                                                          } else {
-                                                            // Nếu danh sách trống, trả về SizedBox hoặc widget rỗng
-                                                            return SizedBox
-                                                                .shrink();
-                                                          }
-                                                        }).toList(),
-                                                      );
-                                                    } else
-                                                      return Center(
-                                                        child: Text(
-                                                            "Không có dữ liệu category"),
-                                                      );
-                                                  }),
-
-                                            ),
+                                                                        ],
+                                                                      ))
+                                                                      .toList(),
+                                                                ],
+                                                              );
+                                                            } else {
+                                                              // Nếu danh sách trống, trả về SizedBox hoặc widget rỗng
+                                                              return SizedBox
+                                                                  .shrink();
+                                                            }
+                                                          }).toList(),
+                                                        );
+                                                      } else
+                                                        return Center(
+                                                          child: Text(
+                                                              "Không có dữ liệu category"),
+                                                        );
+                                                    });
+                                              }
+                                              else {
+                                                return Text("Không có dữ liệu");
+                                              }
+                                            },
                                           ),
-                                        ]
-                                        ,
-                                      )
-                                      ,
-                                    );
-                                  }
-                                  else {
-                                    return Text(
-                                        "Error load parameter in TransactionScreen");
-                                  }
-  },
-);
+
+                                        ),
+                                      ),
+                                    ]
+                                    ,
+                                  )
+                                  ,
+                                );
                               }
                               else {
                                 return Text(
-                                    "Error load wallets select in TransactionScreen");
+                                    "Error load parameter in TransactionScreen");
                               }
                             },
                           );
                         }
                         else {
                           return Text(
-                              "Error load wallets in TransactionScreen");
+                              "Error load wallets select in TransactionScreen");
                         }
                       },
                     );
-                  } else {
-                    return Text("Error load transactions in TransactionScreen");
+                  }
+                  else {
+                    return Text(
+                        "Error load wallets in TransactionScreen");
                   }
                 },
               );

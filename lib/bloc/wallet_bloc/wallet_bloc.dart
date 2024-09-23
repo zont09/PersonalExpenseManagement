@@ -17,11 +17,11 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
 
     on<UpdateWalletEvent>((event, emit) async {
       final index = wallets.indexWhere((wallet) => wallet.id == event.wallet.id);
-      final amountDiff = event.wallet.amount - wallets[index].amount;
       if (index != -1) {
+        final amountDiff = event.wallet.amount - wallets[index].amount;
         wallets[index] = event.wallet;
         if(event.wallet.id != 0 ) {
-          wallets[0].amount += amountDiff;
+          wallets[0].amount += (amountDiff + event.wallet.currency.value);
           await DatabaseHelper().updateWallet(wallets[0]);
         }
         await DatabaseHelper().updateWallet(event.wallet);
@@ -31,10 +31,10 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
       }
     });
 
-    // on<RemoveWalletEvent>((event, emit) async {
-    //   wallets.removeWhere((wallet) => wallet.id == event.wallet.id);
-    //   await DatabaseHelper().deleteWallet(event.wallet.id!);
-    //   emit(WalletUpdatedState(List.from(wallets)));
-    // });
+    on<RemoveWalletEvent>((event, emit) async {
+      wallets.removeWhere((wallet) => wallet.id == event.wallet.id);
+      await DatabaseHelper().deleteWallet(event.wallet.id!);
+      emit(WalletUpdatedState(List.from(wallets)));
+    });
   }
 }

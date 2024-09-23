@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:personal_expense_management/Model/Wallet.dart';
 import 'package:personal_expense_management/Resources/AppColor.dart';
 import 'package:personal_expense_management/Screen/More/Wallet/addWalletScreen.dart';
+import 'package:personal_expense_management/Screen/More/Wallet/detailWalletScreen.dart';
 import 'package:personal_expense_management/bloc/currency_bloc/currency_bloc.dart';
 import 'package:personal_expense_management/bloc/parameter_bloc/parameter_bloc.dart';
 import 'package:personal_expense_management/bloc/wallet_bloc/wallet_bloc.dart';
@@ -92,7 +93,7 @@ class _WalletscreenState extends State<Walletscreen> {
                               Expanded(
                                   flex: 1,
                                   child: Center(
-                                    child: Text("170.000.000", style: TextStyle(
+                                    child: Text("${GlobalFunction.formatCurrency(listWallet.first.amount, 2)}", style: TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.w500,
                                         color: AppColors.XanhDuong)),
@@ -102,26 +103,30 @@ class _WalletscreenState extends State<Walletscreen> {
                         ),
                         Expanded(child: SingleChildScrollView(
                           child: Column(
-                            children: listWallet.map((item) =>
+                            children: listWallet.skip(1).map((item) =>
                                 GestureDetector(
                                   onTap: () => {
-                                    // Navigator.of(context).push(
-                                    //   MaterialPageRoute(
-                                    //     builder: (newContext) => MultiBlocProvider(
-                                    //       providers: [
-                                    //         BlocProvider.value(
-                                    //           value: BlocProvider.of<WalletBloc>(
-                                    //               context),
-                                    //         ),
-                                    //         BlocProvider.value(
-                                    //           value:
-                                    //           BlocProvider.of<ParameterBloc>(context),
-                                    //         ),
-                                    //       ],
-                                    //       child: Detailcurrencyscreen(cur: item),
-                                    //     ),
-                                    //   ),
-                                    // )
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (newContext) => MultiBlocProvider(
+                                          providers: [
+                                            BlocProvider.value(
+                                              value: BlocProvider.of<WalletBloc>(
+                                                  context),
+                                            ),
+                                            BlocProvider.value(
+                                              value:
+                                              BlocProvider.of<ParameterBloc>(context),
+                                            ),
+                                            BlocProvider.value(
+                                              value:
+                                              BlocProvider.of<CurrencyBloc>(context),
+                                            ),
+                                          ],
+                                          child: Detailwalletscreen(wal: item),
+                                        ),
+                                      ),
+                                    )
                                   },
                                   child: Container(
                                     padding: EdgeInsets.symmetric(horizontal: 16.0),

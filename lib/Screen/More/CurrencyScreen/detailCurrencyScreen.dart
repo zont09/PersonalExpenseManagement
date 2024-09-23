@@ -104,12 +104,25 @@ class _Detailcurrencyscreen extends State<Detailcurrencyscreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Xác nhận xóa'),
-          content: Text('Bạn có chắc chắn muốn xóa giao dịch này không?'),
+          content: IntrinsicWidth(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text('Bạn có chắc chắn muốn xóa tiền tệ này không?'),
+                SizedBox(height: 8), // Khoảng cách giữa hai Text
+                Text(
+                  'Sau khi bạn xoá thì các ví liên quan sẽ bị xoá theo, hãy cân nhắc thật kỹ!',
+                  style: TextStyle(fontWeight: FontWeight.w500, color: Color(0xFF822623)),
+                )
+              ],
+            ),
+          ),
           actions: <Widget>[
             TextButton(
               child: Text('Hủy'),
               onPressed: () {
-                Navigator.of(context).pop(); // Đóng dialog
+                Navigator.of(context).pop();
               },
             ),
             TextButton(
