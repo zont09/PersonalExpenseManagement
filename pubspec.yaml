@@ -20,7 +20,9 @@ dependencies:
   currency_text_input_formatter: ^2.2.3
   flutter_inset_box_shadow: ^1.0.8
   fl_chart: ^0.69.0
-
+  camera: ^0.11.0+2
+  image_picker: ^1.1.2
+  google_ml_kit: ^0.18.1
   cupertino_icons: ^1.0.6
 
 dev_dependencies:

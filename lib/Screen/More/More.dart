@@ -2,8 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:personal_expense_management/Resources/AppColor.dart';
 import 'package:personal_expense_management/Screen/More/CurrencyScreen/CurrencyScreen.dart';
+import 'package:personal_expense_management/Screen/More/Wallet/WalletScreen.dart';
+import 'package:personal_expense_management/Screen/More/testAI.dart';
+import 'package:personal_expense_management/Screen/More/testScan/testScan.dart';
 import 'package:personal_expense_management/bloc/currency_bloc/currency_bloc.dart';
 import 'package:personal_expense_management/bloc/parameter_bloc/parameter_bloc.dart';
+import 'package:personal_expense_management/bloc/wallet_bloc/wallet_bloc.dart';
 
 class More extends StatelessWidget {
   const More({super.key});
@@ -25,7 +29,28 @@ class More extends StatelessWidget {
             children: [
               GestureDetector(
                 onTap: () => {
-                  print("CLicked")
+                  // Navigator.push(context, MaterialPageRoute(builder: (context) => ScanBillPage()))
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (newContext) => MultiBlocProvider(
+                        providers: [
+                          BlocProvider.value(
+                            value: BlocProvider.of<WalletBloc>(
+                                context),
+                          ),
+                          BlocProvider.value(
+                            value: BlocProvider.of<ParameterBloc>(
+                                context),
+                          ),
+                          BlocProvider.value(
+                            value: BlocProvider.of<CurrencyBloc>(
+                                context),
+                          ),
+                        ],
+                        child: Walletscreen(),
+                      ),
+                    ),
+                  )
                 },
                 child: Container(
                   margin: EdgeInsets.only(left: 8, right: 8),
@@ -51,7 +76,7 @@ class More extends StatelessWidget {
               SizedBox(height: 10,),
               GestureDetector(
                 onTap: () => {
-                  print("CLicked")
+                  // Navigator.push(context, MaterialPageRoute(builder: (context) => Workout()))
                 },
                 child: Container(
                   margin: EdgeInsets.only(left: 8, right: 8),
