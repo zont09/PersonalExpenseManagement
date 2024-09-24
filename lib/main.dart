@@ -7,6 +7,8 @@ import 'package:personal_expense_management/Model/Category.dart';
 import 'package:personal_expense_management/Model/Currency.dart';
 import 'package:personal_expense_management/Model/Parameter.dart';
 import 'package:personal_expense_management/Model/RepeatOption.dart';
+import 'package:personal_expense_management/Model/Saving.dart';
+import 'package:personal_expense_management/Model/SavingDetail.dart';
 import 'package:personal_expense_management/Model/TransactionModel.dart';
 import 'package:personal_expense_management/Model/Wallet.dart';
 import 'package:personal_expense_management/Screen/Budget/BudgetScreen.dart';
@@ -26,14 +28,30 @@ import 'package:personal_expense_management/bloc/category_bloc/category_bloc.dar
 import 'package:personal_expense_management/bloc/currency_bloc/currency_bloc.dart';
 import 'package:personal_expense_management/bloc/parameter_bloc/parameter_bloc.dart';
 import 'package:personal_expense_management/bloc/repeat_option_bloc/repeat_option_bloc.dart';
+import 'package:personal_expense_management/bloc/saving_bloc/saving_bloc.dart';
+import 'package:personal_expense_management/bloc/saving_detail_bloc/saving_detail_bloc.dart';
 import 'package:personal_expense_management/bloc/transaction_bloc/transaction_bloc.dart';
 import 'package:personal_expense_management/bloc/wallet_bloc/wallet_bloc.dart';
 import 'package:personal_expense_management/bloc/wallet_select_bloc/wallet_select_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
+void main() async {
   Intl.defaultLocale = 'vi_VN'; // Hoặc locale khác nếu cần
   initializeDateFormatting(Intl.defaultLocale);
+  WidgetsFlutterBinding.ensureInitialized();
+  await checkFirstRun();
   runApp(const MyApp());
+}
+
+Future<void> checkFirstRun() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  bool isFirstRun = prefs.getBool('isFirstRun') ?? true;
+  if (isFirstRun) {
+    // await DatabaseHelper().deleteDatabasee();
+    // await Initdata.addDefaultData();
+    await Initdata.addAllSampleData();
+    await prefs.setBool('isFirstRun', false);
+  }
 }
 
 class Routes {
@@ -109,12 +127,14 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
   Future<void> _initializeData() async {
+    // await DatabaseHelper().deleteDatabasee();
     // await Initdata.addAllSampleData();
     // await Initdata.addWallet();
-    // await dbHelper.deleteDatabasee() ;
+
     _combinedFuture =
         Future.wait([dbHelper.getWallet(), dbHelper.getTransactions(), dbHelper.getParameters(), dbHelper.getCategorys(),
-                    dbHelper.getRepeatOptions(), dbHelper.getBudgets(), dbHelper.getBudgetDetail(), dbHelper.getCurrencys()]);
+                    dbHelper.getRepeatOptions(), dbHelper.getBudgets(), dbHelper.getBudgetDetail(), dbHelper.getCurrencys(),
+                    dbHelper.getSaving(), dbHelper.getSavingDetails()]);
   }
 
   @override
@@ -129,14 +149,17 @@ class _HomeScreenState extends State<HomeScreen> {
         return Center(
             child: Text("Error: ${snapshot.error}")); // Error handling
       } else if (snapshot.hasData) {
-        final List<Wallet> wallets = snapshot.data![0];
-        final List<TransactionModel> transactions = snapshot.data![1];
-        final List<Parameter> parameters = snapshot.data![2];
-        final List<Category> categories = snapshot.data![3];
-        final List<RepeatOption> repeat_options = snapshot.data![4];
-        final List<Budget> budgets = snapshot.data![5];
-        final List<BudgetDetail> budgetDetails = snapshot.data![6];
-        final List<Currency> currencies = snapshot.data![7];
+        final List<Wallet> wallets = snapshot.data![0] ?? [];
+        final List<TransactionModel> transactions = snapshot.data![1] ?? [];
+        final List<Parameter> parameters = snapshot.data![2] ?? [];
+        final List<Category> categories = snapshot.data![3] ?? [];
+        final List<RepeatOption> repeat_options = snapshot.data![4] ?? [];
+        final List<Budget> budgets = snapshot.data![5] ?? [];
+        final List<BudgetDetail> budgetDetails = snapshot.data![6] ?? [];
+        final List<Currency> currencies = snapshot.data![7] ?? [];
+        final List<Saving> savings = snapshot.data![8] ?? [];
+        final List<SavingDetail> savingDets = snapshot.data![9] ?? [];
+
         final currencyGB = parameters.first.currency;
       return MultiBlocProvider(
         providers: [
@@ -166,6 +189,12 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           BlocProvider(
             create: (context) => CurrencyBloc(currencies),
+          ),
+          BlocProvider(
+            create: (context) => SavingBloc(savings),
+          ),
+          BlocProvider(
+            create: (context) => SavingDetailBloc(savingDets),
           ),
         ],
         child: Builder(
@@ -300,7 +329,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       );
           } else {
-          return Center(child: Text("Failed to load Main Transaction"));
+          return Center(child: Text(""));
           }
         },
     );

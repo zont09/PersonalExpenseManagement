@@ -133,6 +133,7 @@ class _AddwalletscreenState extends State<Addwalletscreen> {
           currency: totalWallet.currency,
           note: totalWallet.note
       );
+      print("Total?: ${totalWallet.amount}");
       Wallet newWal = Wallet(
           name: _controllerName.text,
           amount: double.parse(_inputAmount),

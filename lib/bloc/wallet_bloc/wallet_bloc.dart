@@ -21,7 +21,7 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
         final amountDiff = event.wallet.amount - wallets[index].amount;
         wallets[index] = event.wallet;
         if(event.wallet.id != 0 ) {
-          wallets[0].amount += (amountDiff + event.wallet.currency.value);
+          wallets[0].amount += (amountDiff * event.wallet.currency.value);
           await DatabaseHelper().updateWallet(wallets[0]);
         }
         await DatabaseHelper().updateWallet(event.wallet);

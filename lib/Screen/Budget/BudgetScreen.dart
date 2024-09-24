@@ -261,9 +261,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                             return SingleChildScrollView(
                                               child: Column(
                                                   children:
-                                                      (_budgetSelect == null ||
-                                                              _budgetdetList ==
-                                                                  null)
+                                                      (_budgetSelect == null)
                                                           ? [
                                                               Center(
                                                                   child: Text(
@@ -399,7 +397,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                             },
                           );
                         } else {
-                          return Text("Failed to load budget in budget");
+                          return Text("");
                         }
                       },
                     ),

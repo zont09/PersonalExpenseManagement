@@ -14,6 +14,46 @@ import 'package:personal_expense_management/Screen/Budget/BudgetScreen.dart';
 
 class Initdata {
 
+  static Future<void> addDefaultData() async {
+    DatabaseHelper db = DatabaseHelper();
+    Currency cur1 = Currency(name: "VND", value: 1);
+    Currency cur2 = Currency(name: "USD", value: 25000);
+    await db.insertCurrency(cur1);
+    await db.insertCurrency(cur2);
+    RepeatOption rep0 = RepeatOption(option_name: "Không");
+    RepeatOption rep1 = RepeatOption(option_name: "Ngày");
+    RepeatOption rep2 = RepeatOption(option_name: "Tuần");
+    RepeatOption rep3 = RepeatOption(option_name: "Tháng");
+    RepeatOption rep4 = RepeatOption(option_name: "Năm");
+    await db.insertRepeatOption(rep0);
+    await db.insertRepeatOption(rep1);
+    await db.insertRepeatOption(rep2);
+    await db.insertRepeatOption(rep3);
+    await db.insertRepeatOption(rep4);
+    Category cat1 = Category(name: "Ăn uống", type: 0);
+    Category cat2 = Category(name: "Du lịch", type: 0);
+    Category cat3 = Category(name: "Mua sắm", type: 0);
+    Category cat4 = Category(name: "Tiền lương", type: 1);
+    Category cat5 = Category(name: "Trợ cấp", type: 1);
+    Category cat6 = Category(name: "Cướp", type: 1);
+    await db.insertCategory(cat1);
+    await db.insertCategory(cat2);
+    await db.insertCategory(cat3);
+    await db.insertCategory(cat4);
+    await db.insertCategory(cat5);
+    await db.insertCategory(cat6);
+
+    Currency cur11 = Currency(id: 1,name: "VND", value: 1);
+    Wallet wal0 = Wallet(id: 0,name: "Tổng", amount: 0, currency: cur11, note: "Tổng tiền các ví");
+    Wallet wal1 = Wallet(name: "Tiền mặt", amount: 0, currency: cur11, note: "Ví này giữ tiền mặt");
+    await db.insertWallet(wal0);
+    await db.insertWallet(wal1);
+
+    Parameter par = Parameter(currency: cur11);
+    await db.insertParameter(par);
+    print("Add successful");
+  }
+
   static Future<void> addAllSampleData() async {
     await addCurrency();
     await addCategory();

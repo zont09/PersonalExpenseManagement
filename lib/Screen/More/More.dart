@@ -1,18 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:personal_expense_management/Database/database_helper.dart';
+import 'package:personal_expense_management/Database/initdata.dart';
 import 'package:personal_expense_management/Resources/AppColor.dart';
 import 'package:personal_expense_management/Screen/More/CategoryScreen/CategoryScreen.dart';
 import 'package:personal_expense_management/Screen/More/CurrencyScreen/CurrencyScreen.dart';
+import 'package:personal_expense_management/Screen/More/SavingScreen/SavingScreen.dart';
 import 'package:personal_expense_management/Screen/More/Wallet/WalletScreen.dart';
 import 'package:personal_expense_management/Screen/More/testAI.dart';
 import 'package:personal_expense_management/Screen/More/testScan/testScan.dart';
 import 'package:personal_expense_management/bloc/category_bloc/category_bloc.dart';
 import 'package:personal_expense_management/bloc/currency_bloc/currency_bloc.dart';
 import 'package:personal_expense_management/bloc/parameter_bloc/parameter_bloc.dart';
+import 'package:personal_expense_management/bloc/saving_bloc/saving_bloc.dart';
+import 'package:personal_expense_management/bloc/saving_detail_bloc/saving_detail_bloc.dart';
 import 'package:personal_expense_management/bloc/wallet_bloc/wallet_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class More extends StatelessWidget {
   const More({super.key});
+
+  void _resetData() async {
+    await DatabaseHelper().deleteDatabasee();
+    // await Initdata.addDefaultData();
+    await Initdata.addAllSampleData();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isFirstRun', false);
+  }
+
   @override
   Widget build(BuildContext context) {
     double maxH = MediaQuery.of(context).size.height;
@@ -117,7 +132,23 @@ class More extends StatelessWidget {
               SizedBox(height: 10,),
               GestureDetector(
                 onTap: () => {
-                  // Navigator.push(context, MaterialPageRoute(builder: (context) => Workout()))
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (newContext) => MultiBlocProvider(
+                        providers: [
+                          BlocProvider.value(
+                            value: BlocProvider.of<SavingBloc>(
+                                context),
+                          ),
+                          BlocProvider.value(
+                            value: BlocProvider.of<SavingDetailBloc>(
+                                context),
+                          ),
+                        ],
+                        child: Savingscreen(),
+                      ),
+                    ),
+                  )
                 },
                 child: Container(
                   margin: EdgeInsets.only(left: 8, right: 8),
@@ -195,6 +226,31 @@ class More extends StatelessWidget {
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Text("Quản lý tiền tệ", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.XanhDuong),),
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white, // Màu nền của Container
+                    border: Border.all(
+                      color: AppColors.XanhDuong, // Màu của border
+                      width: 2.0, // Độ dày của border
+                    ),
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(10.0), // Độ cong của các góc
+                    ),
+                  ),
+                ),
+              ),
+              GestureDetector(
+                onTap: () async => {
+                  _resetData()
+                },
+                child: Container(
+                  margin: EdgeInsets.only(left: 8, right: 8),
+                  padding: EdgeInsets.all(16),
+                  height: 80,
+                  width: maxW,
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text("Reset Data", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.XanhDuong),),
                   ),
                   decoration: BoxDecoration(
                     color: Colors.white, // Màu nền của Container
