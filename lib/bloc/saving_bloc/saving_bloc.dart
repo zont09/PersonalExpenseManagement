@@ -12,8 +12,9 @@ class SavingBloc extends Bloc<SavingEvent, SavingState> {
 
   SavingBloc(this.savings) : super(SavingUpdateState(savings)) {
     on<AddSavingEvent>((event, emit) async {
-      int id = await DatabaseHelper().insertSaving(event.newSav);
+      int _id = await DatabaseHelper().insertSaving(event.newSav);
       Saving updateSaving = Saving(
+        id: _id,
           name: event.newSav.name,
           target_amount: event.newSav.target_amount,
           target_date: event.newSav.target_date,

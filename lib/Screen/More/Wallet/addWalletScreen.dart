@@ -28,7 +28,7 @@ class _AddwalletscreenState extends State<Addwalletscreen> {
   final TextEditingController _controllerAmount = TextEditingController();
   final TextEditingController _controllerCurrency = TextEditingController();
   final TextEditingController _controllerNote = TextEditingController();
-  Currency _selectCurerncy = Currency(id: -1,name: "", value: 0);
+  Currency _selectCurerncy = Currency(id: -1, name: "", value: 0);
   String _inputAmount = '0';
 
   @override
@@ -64,7 +64,7 @@ class _AddwalletscreenState extends State<Addwalletscreen> {
                     child: Text(
                       "Chọn tiền tệ",
                       style:
-                      TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                   ),
                   decoration: const BoxDecoration(
@@ -79,8 +79,7 @@ class _AddwalletscreenState extends State<Addwalletscreen> {
                 Expanded(
                   child: SingleChildScrollView(
                     child: Column(
-                      children: listCur
-                          .map((item) {
+                      children: listCur.map((item) {
                         return Padding(
                           padding: const EdgeInsets.only(left: 8, right: 8),
                           child: Container(
@@ -129,17 +128,16 @@ class _AddwalletscreenState extends State<Addwalletscreen> {
       Wallet newTotal = Wallet(
           id: totalWallet.id,
           name: totalWallet.name,
-          amount: totalWallet.amount + double.parse(_inputAmount) * _selectCurerncy.value,
+          amount: totalWallet.amount +
+              double.parse(_inputAmount) * _selectCurerncy.value,
           currency: totalWallet.currency,
-          note: totalWallet.note
-      );
+          note: totalWallet.note);
       print("Total?: ${totalWallet.amount}");
       Wallet newWal = Wallet(
           name: _controllerName.text,
           amount: double.parse(_inputAmount),
           currency: _selectCurerncy,
-          note: _controllerNote.text
-      );
+          note: _controllerNote.text);
 
       // Sử dụng Completer để đợi cập nhật hoàn tất
       final completer = Completer<void>();
@@ -174,136 +172,95 @@ class _AddwalletscreenState extends State<Addwalletscreen> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     final maxH = MediaQuery.of(context).size.height;
     final maxW = MediaQuery.of(context).size.width;
     return SafeArea(
         child: GestureDetector(
-          onTap: () {
-            FocusScope.of(context).unfocus();
-          },
-          child: Scaffold(
-                appBar: AppBar(
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(
+        appBar: AppBar(
           backgroundColor: AppColors.Nen,
           title: Text(
             "Thêm ví",
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
+        ),
+        body: Container(
+          // height: maxH,
+          width: maxW,
+          color: AppColors.Nen,
+          margin: EdgeInsets.only(top: 10),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Container(
+                  color: AppColors.Nen,
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 8,
+                      ),
+                      Container(
+                        height: 50,
+                        width: 80,
+                        child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              "Tên ví",
+                              style: TextStyle(fontSize: 16),
+                            )),
+                      ),
+                      Expanded(
+                        child: TextField(
+                          controller: _controllerName,
+                          maxLines: null,
+                          minLines: 1,
+                          decoration: InputDecoration(
+                            border: UnderlineInputBorder(),
+                            labelText: 'Tên ví',
+                          ),
+                          onChanged: (value) {},
+                        ),
+                      )
+                    ],
+                  ),
                 ),
-            body: Container(
-              // height: maxH,
-              width: maxW,
-              color: AppColors.Nen,
-              margin: EdgeInsets.only(top: 10),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Container(
-                      color: AppColors.Nen,
-                      child: Row(
-                        children: [
-                          SizedBox(
-                            width: 8,
-                          ),
-                          Container(
-                            height: 50,
-                            width: 80,
-                            child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  "Tên ví",
-                                  style: TextStyle(fontSize: 16),
-                                )),
-                          ),
-                          Expanded(
-                            child: TextField(
-                              controller: _controllerName,
-                              maxLines: null,
-                              minLines: 1,
-                              decoration: InputDecoration(
-                                border: UnderlineInputBorder(),
-                                labelText: 'Tên ví',
-                              ),
-                              onChanged: (value) {
-                              },
-                            ),
-                          )
-                        ],
+                Container(
+                  color: AppColors.Nen,
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 8,
                       ),
-                    ),
-                    Container(
-                      color: AppColors.Nen,
-                      child: Row(
-                        children: [
-                          SizedBox(
-                            width: 8,
-                          ),
-                          Container(
-                            height: 50,
-                            width: 80,
-                            child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  "Số dư",
-                                  style: TextStyle(fontSize: 16),
-                                )),
-                          ),
-                          Expanded(
-                            child: AmountTextfield(controllerTF: _controllerAmount, isEdit: true,),
-                          )
-                        ],
+                      Container(
+                        height: 50,
+                        width: 80,
+                        child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              "Số dư",
+                              style: TextStyle(fontSize: 16),
+                            )),
                       ),
-                    ),
-                    BlocBuilder<CurrencyBloc, CurrencyState>(
-                      builder: (context, state) {
-                        if (state is CurrencyUpdateState) {
-                          final List<Currency> listCur =
-                              state.updCur;
+                      Expanded(
+                        child: AmountTextfield(
+                          controllerTF: _controllerAmount,
+                          isEdit: true,
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                BlocBuilder<CurrencyBloc, CurrencyState>(
+                  builder: (context, state) {
+                    if (state is CurrencyUpdateState) {
+                      final List<Currency> listCur = state.updCur;
 
-                          return Row(
-                            children: [
-                              SizedBox(
-                                width: 8,
-                              ),
-                              Container(
-                                height: 50,
-                                width: 80,
-                                child: Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      "Tiền tệ",
-                                      style: TextStyle(fontSize: 16),
-                                    )),
-                              ),
-                              Expanded(
-                                child: GestureDetector(
-                                  onTap: () => {
-                                    _showCurrencyOption(context, listCur)
-                                  },
-                                  child: AbsorbPointer(
-                                    child: TextField(
-                                        controller: _controllerCurrency,
-                                        decoration: InputDecoration(
-                                            border:
-                                            UnderlineInputBorder(),
-                                            labelText: "Tiền tệ"),
-                                        onChanged: (value) {}),
-                                  ),
-                                ),
-                              )
-                            ],
-                          );
-                        } else {
-                          return Text(
-                              "Failed to load Category in add transaction");
-                        }
-                      },
-                    ),
-                    Container(
-                      color: AppColors.Nen,
-                      child: Row(
+                      return Row(
                         children: [
                           SizedBox(
                             width: 8,
@@ -314,75 +271,110 @@ class _AddwalletscreenState extends State<Addwalletscreen> {
                             child: Align(
                                 alignment: Alignment.centerLeft,
                                 child: Text(
-                                  "Ghi chú",
+                                  "Tiền tệ",
                                   style: TextStyle(fontSize: 16),
                                 )),
                           ),
                           Expanded(
-                            child: TextField(
-                              controller: _controllerNote,
-                              maxLines: null,
-                              minLines: 1,
-                              decoration: InputDecoration(
-                                border: UnderlineInputBorder(),
-                                labelText: 'Ghi chú',
+                            child: GestureDetector(
+                              onTap: () =>
+                                  {_showCurrencyOption(context, listCur)},
+                              child: AbsorbPointer(
+                                child: TextField(
+                                    controller: _controllerCurrency,
+                                    decoration: InputDecoration(
+                                        border: UnderlineInputBorder(),
+                                        labelText: "Tiền tệ"),
+                                    onChanged: (value) {}),
                               ),
-                              onChanged: (value) {
-                              },
                             ),
                           )
                         ],
-                      ),
-                    ),
-                  ],
+                      );
+                    } else {
+                      return Text("Failed to load Category in add transaction");
+                    }
+                  },
                 ),
-              ),
+                Container(
+                  color: AppColors.Nen,
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 8,
+                      ),
+                      Container(
+                        height: 50,
+                        width: 80,
+                        child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              "Ghi chú",
+                              style: TextStyle(fontSize: 16),
+                            )),
+                      ),
+                      Expanded(
+                        child: TextField(
+                          controller: _controllerNote,
+                          maxLines: null,
+                          minLines: 1,
+                          decoration: InputDecoration(
+                            border: UnderlineInputBorder(),
+                            labelText: 'Ghi chú',
+                          ),
+                          onChanged: (value) {},
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ],
             ),
-            bottomNavigationBar: BottomAppBar(
-              color: Colors.transparent,
-              child: BlocBuilder<WalletBloc, WalletState>(
-  builder: (context, state) {
-    if(state is WalletUpdatedState) {
-      final wallet = state.updatedWallet;
-      return Container(
-        margin: EdgeInsets.only(bottom: 10,),
-        height: 50,
-        width: maxW,
-        child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.XanhDuong,
-              side: BorderSide(
-                color: AppColors.XanhDuong,
-                width: 2.0,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius:
-                BorderRadius.circular(12), // Độ bo góc của viền
-              ),
-            ),
-            onPressed: () =>
-            {
-              _saveNewCurrency(context, wallet.first)
+          ),
+        ),
+        bottomNavigationBar: BottomAppBar(
+          color: Colors.transparent,
+          child: BlocBuilder<WalletBloc, WalletState>(
+            builder: (context, state) {
+              if (state is WalletUpdatedState) {
+                final wallet = state.updatedWallet;
+                return Container(
+                  margin: EdgeInsets.only(
+                    bottom: 10,
+                  ),
+                  height: 50,
+                  width: maxW,
+                  child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.XanhDuong,
+                        side: BorderSide(
+                          color: AppColors.XanhDuong,
+                          width: 2.0,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(12), // Độ bo góc của viền
+                        ),
+                      ),
+                      onPressed: () =>
+                          {_saveNewCurrency(context, wallet.first)},
+                      child: Center(
+                        child: Text(
+                          "Lưu",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500),
+                        ),
+                      )),
+                );
+              } else {
+                return Text("");
+              }
             },
-            child: Center(
-              child: Text(
-                "Lưu",
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500),
-              ),
-            )),
-      );
-    }
-    else {
-      return Text("");
-    }
-  },
-),
-            ),
-              ),
-        ));
+          ),
+        ),
+      ),
+    ));
   }
 }
-

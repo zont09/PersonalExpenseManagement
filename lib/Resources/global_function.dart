@@ -51,6 +51,28 @@ class GlobalFunction {
   }
 
 
+  static String formatCurrency2(String input) {
+    // Kiểm tra xem chuỗi có chứa phần thập phân không
+    List<String> parts = input.split('.');
+
+    // Xử lý phần nguyên
+    String integerPart = parts[0].replaceAll(RegExp(r'[^0-9]'), '');
+    NumberFormat numberFormat = NumberFormat('#,##0', 'vi');
+    String formattedInteger =
+    numberFormat.format(int.tryParse(integerPart) ?? 0);
+
+    // Xử lý phần thập phân (nếu có)
+    String decimalPart = '';
+    if (parts.length > 1) {
+      decimalPart = parts[1]; // Lấy phần thập phân sau dấu '.'
+
+      // Nếu phần thập phân trống (ví dụ '1000000.'), thì mặc định là '0'
+      return formattedInteger.replaceAll(',', '.') + ',' + decimalPart;
+    }
+
+    return formattedInteger.replaceAll(',', '.');
+  }
+
   static String removeDiacritics(String str) {
     const withDiacritics = 'áàảãạâấầẩẫậăắằẳẵặäåāçđéèẻẽẹêếềểễệëēíìỉĩịîïīłñóòỏõọôốồổỗộơớờởỡợöøōúùủũụưứừửữựûüūýỳỷỹỵÿžÁÀẢÃẠÂẤẦẨẪẬĂẮẰẲẴẶÄÅĀÇĐÉÈẺẼẸÊẾỀỂỄỆËĒÍÌỈĨỊÎÏĪŁÑÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÖØŌÚÙỦŨỤƯỨỪỬỮỰÛÜŪÝỲỶỸỴŸŽ';
     const withoutDiacritics = 'aaaaaaaaaaaaaaaaaåacdeeeeeeeeeeeeiiiiiiłnoooooooooooooooooouuuuuuưuuuuuuuuuuuuuuuuyyyyyzAAAAAAAAAAAAAAAAAAAACDEEEEEEEEEEEEIIIIIIŁNOOOOOOOOOOOOOOOOOOUUUUUUƯUUUUUUUUUUUUUYYYYYZ';

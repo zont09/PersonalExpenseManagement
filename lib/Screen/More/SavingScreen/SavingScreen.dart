@@ -4,8 +4,11 @@ import 'package:intl/intl.dart';
 import 'package:month_year_picker/month_year_picker.dart';
 import 'package:personal_expense_management/Resources/AppColor.dart';
 import 'package:personal_expense_management/Resources/global_function.dart';
+import 'package:personal_expense_management/Screen/More/SavingScreen/addSavingScreen.dart';
+import 'package:personal_expense_management/Screen/More/SavingScreen/detailSavingScreen.dart';
 import 'package:personal_expense_management/bloc/saving_bloc/saving_bloc.dart';
 import 'package:personal_expense_management/bloc/saving_bloc/saving_state.dart';
+import 'package:personal_expense_management/bloc/saving_detail_bloc/saving_detail_bloc.dart';
 
 class Savingscreen extends StatefulWidget {
   const Savingscreen({super.key});
@@ -34,8 +37,10 @@ class _SavingscreenState extends State<Savingscreen> {
       DateTime previousMonth = DateTime(endDate.year, endDate.month - 1);
       days += DateTime(previousMonth.year, previousMonth.month + 1, 0).day; // Lấy ngày cuối cùng của tháng trước đó
     }
-    if(years == 0)  return '$months tháng, $days ngày';
-    if(months == 0) return '$days ngày';
+    if(years == 0) {
+      if(months == 0) return '$days ngày';
+      return '$months tháng, $days ngày';
+    }
     return '$years năm, $months tháng, $days ngày';
   }
   Future<void> _selectDate(BuildContext context,
@@ -106,27 +111,24 @@ class _SavingscreenState extends State<Savingscreen> {
               TextButton(
                   onPressed: () =>
                   {
-                    // Navigator.of(context).push(
-                    //   MaterialPageRoute(
-                    //     builder: (newContext) => MultiBlocProvider(
-                    //       providers: [
-                    //         BlocProvider.value(
-                    //           value: BlocProvider.of<WalletBloc>(
-                    //               context),
-                    //         ),
-                    //         BlocProvider.value(
-                    //           value:
-                    //           BlocProvider.of<ParameterBloc>(context),
-                    //         ),
-                    //         BlocProvider.value(
-                    //           value:
-                    //           BlocProvider.of<CurrencyBloc>(context),
-                    //         ),
-                    //       ],
-                    //       child: Addwalletscreen(),
-                    //     ),
-                    //   ),
-                    // )
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (newContext) => MultiBlocProvider(
+                          providers: [
+                            BlocProvider.value(
+                              value: BlocProvider.of<SavingBloc>(
+                                  context),
+                            ),
+                            BlocProvider.value(
+                              value:
+                              BlocProvider.of<SavingDetailBloc>(context),
+                            ),
+
+                          ],
+                          child: Addsavingscreen(),
+                        ),
+                      ),
+                    )
                   },
                   child: Text(
                     "Thêm",
@@ -140,68 +142,7 @@ class _SavingscreenState extends State<Savingscreen> {
             margin: EdgeInsets.only(top: 10),
             child: Column(
               children: [
-                Container(
-                  height: 0.05 * maxH,
-                  color: AppColors.Nen,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      IconButton(
-                        onPressed: () =>
-                        {
-                          setState(() {
-                            int mon = _dateTime.month;
-                            int yea = _dateTime.year;
-                            mon = mon - 1;
-                            if (mon < 1) {
-                              mon = 12;
-                              yea = yea - 1;
-                            }
-                            _dateTime = DateTime(yea, mon);
-                          })
-                        },
-                        icon: const Icon(
-                          Icons.keyboard_arrow_left,
-                          size: 30,
-                        ),
-                      ),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          shadowColor: Colors.transparent,
-                          elevation: 0,
-                        ),
-                        onPressed: () => {_selectDate(context, 'vi')},
-                        child: Text(
-                          "Thg ${_dateTime.month} ${_dateTime.year}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              color: Colors.black),
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () =>
-                        {
-                          setState(() {
-                            int mon = _dateTime.month;
-                            int yea = _dateTime.year;
-                            mon = mon + 1;
-                            if (mon > 12) {
-                              mon = 1;
-                              yea = yea + 1;
-                            }
-                            _dateTime = DateTime(yea, mon);
-                          })
-                        },
-                        icon: const Icon(
-                          Icons.keyboard_arrow_right,
-                          size: 30,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                
                 SizedBox(
                   height: 10,
                 ),
@@ -213,103 +154,125 @@ class _SavingscreenState extends State<Savingscreen> {
                         return SingleChildScrollView(
                           child: Column(
                             children: listSaving.map((item) =>
-                                Column(
-                                  children: [
-                                    SizedBox(height: 10,),
-                                    Container(
-                                      height: 100,
-                                      width: maxW,
-                                      color: AppColors.Nen,
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 10, vertical: 8),
-                                      child: Column(
-                                        children: [
-                                          Expanded(
-                                              flex: 1,
-                                              child: Row(
-                                                children: [
-                                                  Expanded(
-                                                      flex: 1,
-                                                      child: Text(
-                                                        item.name, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),)
-                                                  ),
-                                                  Expanded(
-                                                      flex: 1,
-                                                      child: Align(
-                                                        alignment: Alignment
-                                                            .centerRight,
-                                                        child: FittedBox(
-                                                            fit: BoxFit
-                                                                .scaleDown,
-                                                            child: Text(
-                                                              "${GlobalFunction
-                                                                  .formatCurrency(
-                                                                  item
-                                                                      .current_amount,
-                                                                  2)}/${GlobalFunction
-                                                                  .formatCurrency(
-                                                                  item
-                                                                      .target_amount,
-                                                                  2)}",
-                                                              style: TextStyle(
-                                                                  fontSize: 14,
-                                                                  fontWeight: FontWeight.w500,
-                                                                  color: AppColors
-                                                                      .XanhDuong),)),
-                                                      )
-                                                  ),
-                                                ],
-                                              )),
-                                          Expanded(
-                                              flex: 1,
-                                              child: Row(
-                                                children: [
-                                                  Expanded(
-                                                      flex: 1,
-                                                      child: Text(
-                                                        DateFormat('dd/MM/yyyy').format(DateTime.parse(item.target_date)), style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),)
-                                                  ),
-                                                  Expanded(
-                                                      flex: 1,
-                                                      child: Align(
-                                                        alignment: Alignment
-                                                            .centerRight,
-                                                        child: FittedBox(
-                                                            fit: BoxFit
-                                                                .scaleDown,
-                                                            child: Text(
-                                                              item.is_finished == 1 ? "Đã xong" :
-                                                              calculateDateDifference(DateTime.now(), DateTime.parse(item.target_date)),
-                                                              style: TextStyle(
-                                                                  fontSize: 16,
-                                                                  ),)),
-                                                      )
-                                                  ),
-                                                ],
-                                              )),
-                                          Expanded(
-                                            flex: 1,
-                                            child: Container(
-                                              height: 10,
-                                              child: ClipRRect(
-                                                borderRadius: BorderRadius
-                                                    .circular(10),
-                                                child: LinearProgressIndicator(
-                                                  value: 0.5,
-                                                  backgroundColor: Colors
-                                                      .grey[200],
-                                                  valueColor: AlwaysStoppedAnimation<
-                                                      Color>(
-                                                    Colors.blue,
-                                                  ),
-                                                  minHeight: 10,
-                                                ),
-                                              ),
-                                            ),)
-                                        ],
+                                GestureDetector(
+                                  onTap: () => {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (newContext) => MultiBlocProvider(
+                                          providers: [
+                                            BlocProvider.value(
+                                              value: BlocProvider.of<SavingBloc>(
+                                                  context),
+                                            ),
+                                            BlocProvider.value(
+                                              value:
+                                              BlocProvider.of<SavingDetailBloc>(context),
+                                            ),
+
+                                          ],
+                                          child: Detailsavingscreen(sav: item),
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    )
+                                  },
+                                  child: Column(
+                                    children: [
+                                      SizedBox(height: 10,),
+                                      Container(
+                                        height: 100,
+                                        width: maxW,
+                                        color: AppColors.Nen,
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 10, vertical: 8),
+                                        child: Column(
+                                          children: [
+                                            Expanded(
+                                                flex: 1,
+                                                child: Row(
+                                                  children: [
+                                                    Expanded(
+                                                        flex: 1,
+                                                        child: Text(
+                                                          item.name, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),)
+                                                    ),
+                                                    Expanded(
+                                                        flex: 1,
+                                                        child: Align(
+                                                          alignment: Alignment
+                                                              .centerRight,
+                                                          child: FittedBox(
+                                                              fit: BoxFit
+                                                                  .scaleDown,
+                                                              child: Text(
+                                                                "${GlobalFunction
+                                                                    .formatCurrency(
+                                                                    item
+                                                                        .current_amount,
+                                                                    2)}/${GlobalFunction
+                                                                    .formatCurrency(
+                                                                    item
+                                                                        .target_amount,
+                                                                    2)}",
+                                                                style: TextStyle(
+                                                                    fontSize: 14,
+                                                                    fontWeight: FontWeight.w500,
+                                                                    color: AppColors
+                                                                        .XanhDuong),)),
+                                                        )
+                                                    ),
+                                                  ],
+                                                )),
+                                            Expanded(
+                                                flex: 1,
+                                                child: Row(
+                                                  children: [
+                                                    Expanded(
+                                                        flex: 1,
+                                                        child: Text(
+                                                          DateFormat('dd/MM/yyyy').format(DateTime.parse(item.target_date)), style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),)
+                                                    ),
+                                                    Expanded(
+                                                        flex: 1,
+                                                        child: Align(
+                                                          alignment: Alignment
+                                                              .centerRight,
+                                                          child: FittedBox(
+                                                              fit: BoxFit
+                                                                  .scaleDown,
+                                                              child: Text(
+                                                                item.is_finished == 1 ? "Đã xong" :
+                                                                calculateDateDifference(DateTime.now(), DateTime.parse(item.target_date)),
+                                                                style: TextStyle(
+                                                                    fontSize: 16,
+                                                                    ),)),
+                                                        )
+                                                    ),
+                                                  ],
+                                                )),
+                                            Expanded(
+                                              flex: 1,
+                                              child: Container(
+                                                height: 10,
+                                                child: ClipRRect(
+                                                  borderRadius: BorderRadius
+                                                      .circular(10),
+                                                  child: LinearProgressIndicator(
+                                                    value: item.current_amount/item.target_amount,
+                                                    backgroundColor: Colors
+                                                        .grey[200],
+                                                    valueColor: AlwaysStoppedAnimation<
+                                                        Color>(
+                                                      Colors.blue,
+                                                    ),
+                                                    minHeight: 10,
+                                                  ),
+                                                ),
+                                              ),)
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 )
                             ).toList(),
                           ),
