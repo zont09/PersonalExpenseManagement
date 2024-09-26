@@ -9,6 +9,7 @@ import 'package:personal_expense_management/Screen/More/SavingScreen/detailSavin
 import 'package:personal_expense_management/bloc/saving_bloc/saving_bloc.dart';
 import 'package:personal_expense_management/bloc/saving_bloc/saving_state.dart';
 import 'package:personal_expense_management/bloc/saving_detail_bloc/saving_detail_bloc.dart';
+import 'package:personal_expense_management/bloc/wallet_bloc/wallet_bloc.dart';
 
 class Savingscreen extends StatefulWidget {
   const Savingscreen({super.key});
@@ -123,7 +124,10 @@ class _SavingscreenState extends State<Savingscreen> {
                               value:
                               BlocProvider.of<SavingDetailBloc>(context),
                             ),
-
+                            BlocProvider.value(
+                              value:
+                              BlocProvider.of<WalletBloc>(context),
+                            ),
                           ],
                           child: Addsavingscreen(),
                         ),
@@ -168,7 +172,10 @@ class _SavingscreenState extends State<Savingscreen> {
                                               value:
                                               BlocProvider.of<SavingDetailBloc>(context),
                                             ),
-
+                                            BlocProvider.value(
+                                              value:
+                                              BlocProvider.of<WalletBloc>(context),
+                                            ),
                                           ],
                                           child: Detailsavingscreen(sav: item),
                                         ),

@@ -47,9 +47,9 @@ Future<void> checkFirstRun() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool isFirstRun = prefs.getBool('isFirstRun') ?? true;
   if (isFirstRun) {
-    // await DatabaseHelper().deleteDatabasee();
-    // await Initdata.addDefaultData();
-    await Initdata.addAllSampleData();
+    await DatabaseHelper().deleteDatabasee();
+    await Initdata.addDefaultData();
+    // await Initdata.addAllSampleData();
     await prefs.setBool('isFirstRun', false);
   }
 }

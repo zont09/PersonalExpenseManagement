@@ -144,6 +144,10 @@ class More extends StatelessWidget {
                             value: BlocProvider.of<SavingDetailBloc>(
                                 context),
                           ),
+                          BlocProvider.value(
+                            value: BlocProvider.of<WalletBloc>(
+                                context),
+                          ),
                         ],
                         child: Savingscreen(),
                       ),

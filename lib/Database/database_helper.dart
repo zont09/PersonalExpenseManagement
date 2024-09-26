@@ -613,13 +613,14 @@ class DatabaseHelper {
     });
   }
 
-  Future<int> updateSavingDetail(SavingDetail SDe) async {
+  Future<int> updateSavingDetail(SavingDetail sDe) async {
+    print("Update: ${sDe.id}");
     final db = await database;
     return await db.update(
       _savingDetailTable,
-      SDe.toMap(),
+      sDe.toMap(),
       where: 'id = ?',
-      whereArgs: [SDe.id],
+      whereArgs: [sDe.id],
     );
   }
 
