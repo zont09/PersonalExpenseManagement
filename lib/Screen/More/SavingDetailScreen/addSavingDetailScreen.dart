@@ -137,54 +137,30 @@ class _AddsavingdetailscreenState extends State<Addsavingdetailscreen> {
       Wallet updWallet = Wallet(id: _selectWallet.id,name: _selectWallet.name, amount: _selectWallet.amount - double.parse(_inputAmount), currency: _selectWallet.currency, note: _selectWallet.note);
       Saving updSaving = Saving(id: widget.sav.id,name: widget.sav.name, target_amount: widget.sav.target_amount, target_date: widget.sav.target_date, current_amount: widget.sav.current_amount + double.parse(_inputAmount), is_finished: widget.sav.current_amount + double.parse(_inputAmount) >= widget.sav.target_amount ? 1 : 0);
       SavingDetail newSavDet = SavingDetail(id_saving: widget.sav, amount: double.parse(_inputAmount), wallet: _selectWallet, note: _controllerNote.text);
-      final Completer<void> savingDetailCompleter = Completer<void>();
-      final Completer<void> walletCompleter = Completer<void>();
-      final Completer<void> savingCompleter = Completer<void>();
 
       // Step 1: Add the new saving detail
       context.read<SavingDetailBloc>().add(AddSavingDetailEvent(newSavDet));
 
-      // Step 2: Wait for saving detail update completion
-      context.read<SavingDetailBloc>().stream.listen((state) {
-        if (state is SavingDetailUpdateState) {
-          print("Success sav det");
-          savingDetailCompleter.complete();
-        }
-      });
-
-      // Wait for saving detail update to complete
-      await savingDetailCompleter.future;
+      // Step 2: Chờ sự kiện SavingDetailUpdateState từ SavingDetailBloc
+      await context.read<SavingDetailBloc>().stream.firstWhere((state) => state is SavingDetailUpdateState);
+      print("Success sav det");
 
       // Step 3: Update wallet
       context.read<WalletBloc>().add(UpdateWalletEvent(updWallet));
 
-      // Step 4: Wait for wallet update completion
-      context.read<WalletBloc>().stream.listen((walletState) {
-        if (walletState is WalletUpdatedState) {
-          print("Success wallet det");
-          walletCompleter.complete();
-        }
-      });
-
-      // Wait for wallet update to complete
-      await walletCompleter.future;
+      // Step 4: Chờ sự kiện WalletUpdatedState từ WalletBloc
+      await context.read<WalletBloc>().stream.firstWhere((walletState) => walletState is WalletUpdatedState);
+      print("Success wallet det");
 
       // Step 5: Update saving
       context.read<SavingBloc>().add(UpdateSavingEvent(updSaving));
 
-      // Step 6: Wait for saving update completion
-      context.read<SavingBloc>().stream.listen((savingState) {
-        if (savingState is SavingUpdateState) {
-          print("Success sav");
-          savingCompleter.complete();
-        }
-      });
-
-      // Wait for saving update to complete
-      await savingCompleter.future;
+      // Step 6: Chờ sự kiện SavingUpdateState từ SavingBloc
+      await context.read<SavingBloc>().stream.firstWhere((savingState) => savingState is SavingUpdateState);
+      print("Success sav");
 
       // Step 7: Once all updates are done, pop the screen
-      if (mounted) {
+      if (context.mounted) {
         Navigator.of(context).pop();
       }
 

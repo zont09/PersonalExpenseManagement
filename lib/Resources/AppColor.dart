@@ -5,7 +5,7 @@ class AppColors {
   static const Color Cam = Color(0xFFFF7300);
   static const Color CamNhat = Color(0xFFFEA42A);
   static const Color XanhLaDam = Color(0xFF40A700);
-  static const Color Nen = Color(0xFFFEFFFA);
+  static const Color Nen = Colors.white;
   static List<Color> chartColors = [
     Color(0xFFe57373), // Red
     Color(0xFFf06292), // Pink
