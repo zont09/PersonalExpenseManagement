@@ -50,6 +50,9 @@ class GlobalFunction {
     return lastDayOfMonth.day;
   }
 
+  static double convernCurrency(double amount, double valueA, double valueB) {
+    return amount * valueA / valueB;
+  }
 
   static String formatCurrency2(String input) {
     // Kiểm tra xem chuỗi có chứa phần thập phân không

@@ -200,6 +200,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Builder(
           builder: (context) {
             return Scaffold(
+              resizeToAvoidBottomInset: false,
               body: Center(
                 child: IndexedStack(
                   index: _selectedIndex,

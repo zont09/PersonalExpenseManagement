@@ -1,14 +1,19 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:personal_expense_management/Components/dropdown.dart';
+import 'package:personal_expense_management/Components/transaction_tag.dart';
+import 'package:personal_expense_management/Components/transaction_tag2.dart';
 import 'package:personal_expense_management/Components/wallet_container.dart';
 import 'package:personal_expense_management/Database/database_helper.dart';
 import 'package:personal_expense_management/Database/initdata.dart';
 import 'package:personal_expense_management/Model/Category.dart';
 import 'package:personal_expense_management/Model/Currency.dart';
 import 'package:personal_expense_management/Model/Parameter.dart';
+import 'package:personal_expense_management/Model/RepeatOption.dart';
+import 'package:personal_expense_management/Model/TransactionModel.dart';
 import 'package:personal_expense_management/Model/Wallet.dart';
 import 'package:personal_expense_management/Resources/AppColor.dart';
 import 'package:personal_expense_management/Resources/global_function.dart';
@@ -29,6 +34,9 @@ import 'package:personal_expense_management/bloc/wallet_select_bloc/wallet_selec
 import 'package:personal_expense_management/bloc/wallet_select_bloc/wallet_select_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:month_year_picker/month_year_picker.dart';
+import 'package:month_picker_dialog/month_picker_dialog.dart';
+
+import '../../Animation/Wavepainter.dart';
 
 class Transaction extends StatefulWidget {
   const Transaction({super.key});
@@ -44,7 +52,12 @@ class _TransactionState extends State<Transaction> {
   String searchText = "";
   TextEditingController _textFieldController = TextEditingController();
   late int countDebug = 0;
-  Wallet _walletSelect = Wallet(id: 0,name: "", amount: 0, currency: Currency(name: "", value: 0), note: "");
+  Wallet _walletSelect = Wallet(
+      id: 0,
+      name: "",
+      amount: 0,
+      currency: Currency(name: "", value: 0),
+      note: "");
 
   @override
   void initState() {
@@ -64,10 +77,7 @@ class _TransactionState extends State<Transaction> {
     ]);
   }
 
-  Future<void> _selectDate(
-    BuildContext context,
-    String? locale,
-  ) async {
+  Future<void> _selectDate(BuildContext context, String? locale,) async {
     final localeObj = locale != null ? Locale(locale) : null;
     final selected = await showMonthYearPicker(
       context: context,
@@ -78,20 +88,34 @@ class _TransactionState extends State<Transaction> {
       builder: (context, child) {
         return Theme(
           data: ThemeData.light().copyWith(
-            textTheme: TextTheme(
+            colorScheme: ColorScheme.light(
+              primary: Colors.blue, // Header background color
+              onPrimary: Colors.white, // Header text color
+              surface: Colors.white, // Picker background color
+              onSurface: Colors.black, // Picker text color
+            ),
+            textTheme: const TextTheme(
               bodyLarge: TextStyle(
                 fontSize: 12,
-              ), // Center text
+                color: Colors.black, // Text color for picker body
+              ),
               titleLarge: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
+                color: Colors.blue, // Text color for picker title
               ),
             ),
           ),
           child: Center(
             child: Container(
-              width: MediaQuery.of(context).size.width * 0.8,
-              height: MediaQuery.of(context).size.height * 0.6,
+              width: MediaQuery
+                  .of(context)
+                  .size
+                  .width * 0.8,
+              height: MediaQuery
+                  .of(context)
+                  .size
+                  .height * 0.6,
               child: child,
             ),
           ),
@@ -105,6 +129,8 @@ class _TransactionState extends State<Transaction> {
       });
     }
   }
+
+
 
   void addSampleData() async {
     await Initdata.addAllSampleData();
@@ -120,20 +146,38 @@ class _TransactionState extends State<Transaction> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Nhập ghi chú muốn tìm kiếm'),
+          title: const Text(
+            'Tìm kiếm ghi chú',
+            style: TextStyle(color: Color(0xFF339DD4)),
+          ),
           content: TextField(
+            style: const TextStyle(
+              color: Color(0xFF384955), // Đổi màu chữ
+              fontSize: 16.0, // Kích thước chữ
+            ),
             controller: _textFieldController,
-            decoration: InputDecoration(hintText: "Nhập vào đây"),
+            decoration: const InputDecoration(
+              hintText: "Nhập ghi chú",
+              hintStyle: TextStyle(
+                color: Color(0xFF9CADBC), // Đổi màu gợi ý
+              ),
+            ),
+          ),
+          backgroundColor: Colors.white,
+          // Thay đổi màu nền
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0), // Thêm border radius
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Hủy'),
+              child: const Text('Hủy', style: TextStyle(color: Color(0xFF339DD4))),
               onPressed: () {
                 Navigator.of(context).pop(); // Đóng dialog
               },
             ),
             TextButton(
-              child: Text('Xác nhận'),
+              child:
+                  const Text('Xác nhận', style: TextStyle(color: Color(0xFF339DD4))),
               onPressed: () {
                 setState(() {
                   searchText = _textFieldController.text;
@@ -166,6 +210,14 @@ class _TransactionState extends State<Transaction> {
     }
     showModalBottomSheet(
       context: context,
+      backgroundColor: Colors.white, // Make background transparent to apply custom radius
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(15)), // Set border radius
+      ),
+      transitionAnimationController: AnimationController(
+        duration: const Duration(milliseconds: 200), // Adjust the opening speed here
+        vsync: Scaffold.of(context),
+      ),
       builder: (BuildContext context) {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
@@ -175,47 +227,64 @@ class _TransactionState extends State<Transaction> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    type == 1 ? 'Giao dịch thu' : 'Giao dịch chi',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  Center(
+                    child: Text(
+                      type == 1 ? 'Giao dịch thu' : 'Giao dịch chi',
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
                   ),
                   SizedBox(height: 10),
-                  ...checkboxValues.keys.map((key) {
-                    return CheckboxListTile(
-                      title: Text(key),
-                      value: checkboxValues[key],
-                      onChanged: (bool? value) {
-                        setState(() {
-                          checkboxValues[key] = value!;
-                          if (key == 'Tất cả') {
-                            bool isAllChecked = value;
-                            checkboxValues
-                                .updateAll((key, value) => isAllChecked);
-                          } else {
-                            if (!value)
-                              checkboxValues['Tất cả'] = false;
-                            else {
-                              bool allTrue = checkboxValues.values
-                                  .skip(1)
-                                  .every((value) => value == true);
-                              if (allTrue) checkboxValues['Tất cả'] = true;
-                            }
-                          }
-                        });
-                      },
-                    );
-                  }).toList(),
+                  SingleChildScrollView(
+                    child: Column(
+                      children: checkboxValues.keys.map((key) {
+                        return CheckboxListTile(
+                          title: Text(key),
+                          activeColor: AppColors.XanhDuong, // Color when checked
+                          checkColor: Colors.white,
+                          value: checkboxValues[key],
+                          onChanged: (bool? value) {
+                            setState(() {
+                              checkboxValues[key] = value!;
+                              if (key == 'Tất cả') {
+                                bool isAllChecked = value;
+                                checkboxValues
+                                    .updateAll((key, value) => isAllChecked);
+                              } else {
+                                if (!value)
+                                  checkboxValues['Tất cả'] = false;
+                                else {
+                                  bool allTrue = checkboxValues.values
+                                      .skip(1)
+                                      .every((value) => value == true);
+                                  if (allTrue) checkboxValues['Tất cả'] = true;
+                                }
+                              }
+                            });
+                          },
+                        );
+                      }).toList(),
+                    ),
+                  ),
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          backgroundColor: AppColors.XanhDuong, // Text color
+                        ),
                         onPressed: () {
                           Navigator.pop(context);
                           completer.complete();
                         },
-                        child: Text('Hủy'),
+                        child: Text('Hủy', style: TextStyle(),),
                       ),
                       ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          backgroundColor: AppColors.XanhDuong, // Text color
+                        ),
                         onPressed: () {
                           Navigator.pop(context);
                           completer.complete();
@@ -271,21 +340,40 @@ class _TransactionState extends State<Transaction> {
                 builder: (context, state) {
                   if (state is WalletUpdatedState) {
                     final List<Wallet> wallets = state.updatedWallet;
-                    final totalWallet = wallets.firstWhere((item) => item.id == 0);
-                          //state.selectedWallet.id;
-                          return BlocBuilder<ParameterBloc, ParameterState>(
-                            builder: (context, state) {
-                              if (state is ParameterUpdateState) {
-                                final currencyGB = state.updPar.currency;
-                                return Container(
-                                  height: maxH,
-                                  width: maxW,
-                                  color: Colors.white.withOpacity(0.6),
+                    final totalWallet =
+                        wallets.firstWhere((item) => item.id == 0);
+                    //state.selectedWallet.id;
+                    return BlocBuilder<ParameterBloc, ParameterState>(
+                      builder: (context, state) {
+                        if (state is ParameterUpdateState) {
+                          final currencyGB = state.updPar.currency;
+                          return Container(
+                            height: maxH,
+                            width: maxW,
+                            color: Colors.white.withOpacity(0.6),
+                            child: Column(
+                              children: [
+                                Container(
+                                  decoration: const BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Color(0xFf339DD4),
+                                          Color(0xFF00D0CC)
+                                        ],
+                                        // Các màu bạn muốn chuyển tiếp
+                                        begin: Alignment.topLeft,
+                                        // Điểm bắt đầu của gradient
+                                        end: Alignment
+                                            .bottomRight, // Điểm kết thúc của gradient
+                                      ),
+                                      borderRadius: BorderRadius.only(
+                                          bottomLeft: Radius.circular(25),
+                                          bottomRight: Radius.circular(25))),
                                   child: Column(
                                     children: [
                                       Container(
                                         height: 0.07 * maxH,
-                                        color: AppColors.Nen,
+                                        // color: AppColors.Nen,
                                         child: Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceBetween,
@@ -368,54 +456,71 @@ class _TransactionState extends State<Transaction> {
                                                 ),
                                               ],
                                             ),
-                                            PopupMenuButton<int>(
-                                              icon: Icon(Icons.more_vert),
-                                              onSelected: (value) async {
-                                                if (value == 0) {
-                                                  await _openBottomSheet(
-                                                      context,
-                                                      mapIncome,
-                                                      mapOutcome,
-                                                      1);
-                                                  print("ra 0");
-                                                  context
-                                                      .read<CategoryMapBloc>()
-                                                      .add(
-                                                          UpdateCategoryMapEvent(
-                                                              mapIncome,
-                                                              mapOutcome));
-                                                } else if (value == 1) {
-                                                  await _openBottomSheet(
-                                                      context,
-                                                      mapIncome,
-                                                      mapOutcome,
-                                                      0);
-                                                  print("ra 1");
-                                                  context
-                                                      .read<CategoryMapBloc>()
-                                                      .add(
-                                                          UpdateCategoryMapEvent(
-                                                              mapIncome,
-                                                              mapOutcome));
-                                                }
-                                              },
-                                              itemBuilder: (context) => [
-                                                PopupMenuItem<int>(
-                                                  value: 0,
-                                                  child: Text("Giao dịch thu"),
+                                            Theme(
+                                              data: Theme.of(context).copyWith(
+                                                popupMenuTheme: const PopupMenuThemeData(
+                                                  color: Color(0xFFF2FBFF), // Đổi màu nền của PopupMenu
+                                                  textStyle: TextStyle(
+                                                    color: Colors.white, // Đổi màu chữ của tất cả các mục
+                                                  ),
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius: BorderRadius.all(Radius.circular(5.0)), // Bo góc cho PopupMenu
+                                                    side: BorderSide(
+                                                      color: Colors.white, // Màu viền của PopupMenu
+                                                      width: 2.0, // Độ dày của viền
+                                                    ),
+                                                  ),
                                                 ),
-                                                PopupMenuItem<int>(
-                                                  value: 1,
-                                                  child: Text("Giao dịch chi"),
-                                                ),
-                                              ],
+                                              ),
+                                              child: PopupMenuButton<int>(
+                                                icon: Icon(Icons.more_vert),
+                                                onSelected: (value) async {
+                                                  if (value == 0) {
+                                                    await _openBottomSheet(
+                                                        context,
+                                                        mapIncome,
+                                                        mapOutcome,
+                                                        1);
+                                                    print("ra 0");
+                                                    context
+                                                        .read<CategoryMapBloc>()
+                                                        .add(
+                                                            UpdateCategoryMapEvent(
+                                                                mapIncome,
+                                                                mapOutcome));
+                                                  } else if (value == 1) {
+                                                    await _openBottomSheet(
+                                                        context,
+                                                        mapIncome,
+                                                        mapOutcome,
+                                                        0);
+                                                    print("ra 1");
+                                                    context
+                                                        .read<CategoryMapBloc>()
+                                                        .add(
+                                                            UpdateCategoryMapEvent(
+                                                                mapIncome,
+                                                                mapOutcome));
+                                                  }
+                                                },
+                                                itemBuilder: (context) => [
+                                                  PopupMenuItem<int>(
+                                                    value: 0,
+                                                    child: Text("Giao dịch thu"),
+                                                  ),
+                                                  PopupMenuItem<int>(
+                                                    value: 1,
+                                                    child: Text("Giao dịch chi"),
+                                                  ),
+                                                ],
+                                              ),
                                             ),
                                           ],
                                         ),
                                       ),
                                       Container(
                                         height: 70,
-                                        width: maxW,
+                                        width: maxW * 3 / 4,
                                         padding: EdgeInsets.all(8),
                                         child: Column(
                                           children: [
@@ -425,8 +530,8 @@ class _TransactionState extends State<Transaction> {
                                                 "Tổng",
                                                 style: TextStyle(
                                                     fontSize: 17,
-                                                    fontWeight: FontWeight.w500,
-                                                    color: Color(0xFF878787)),
+                                                    fontWeight: FontWeight.w600,
+                                                    color: Color(0xFFCEF6FF)),
                                               ),
                                             ),
                                             Align(
@@ -434,19 +539,13 @@ class _TransactionState extends State<Transaction> {
                                               child: FittedBox(
                                                   fit: BoxFit.scaleDown,
                                                   child: Text(
-                                                    "${GlobalFunction
-                                                            .formatCurrency(
-                                                                totalWallet
-                                                                    .amount,
-                                                                2)} ${totalWallet
-                                                            .currency.name}"
-                                                    ,
+                                                    "${GlobalFunction.formatCurrency(totalWallet.amount, 2)} ${totalWallet.currency.name}",
                                                     style: const TextStyle(
                                                         fontSize: 18,
                                                         fontWeight:
-                                                            FontWeight.w500,
-                                                        color: AppColors
-                                                            .XanhDuong),
+                                                            FontWeight.w800,
+                                                        color:
+                                                            Color(0xFF006A9D)),
                                                   )),
                                             ),
                                           ],
@@ -461,26 +560,35 @@ class _TransactionState extends State<Transaction> {
                                         child: SingleChildScrollView(
                                           scrollDirection: Axis.horizontal,
                                           child: Row(
-                                            children: wallets.skip(1)
+                                            children: wallets
+                                                .skip(1)
                                                 .map((item) => Row(
                                                       children: [
                                                         GestureDetector(
-                                                          onTap: () => {
-                                                            setState(() {
-                                                              if(_walletSelect.id != item.id) {
-                                                                _walletSelect = item;
-                                                              } else {
-                                                                _walletSelect = totalWallet;
-                                                              }
-                                                            })
-                                                          },
+                                                            onTap: () => {
+                                                                  setState(() {
+                                                                    if (_walletSelect
+                                                                            .id !=
+                                                                        item.id) {
+                                                                      _walletSelect =
+                                                                          item;
+                                                                    } else {
+                                                                      _walletSelect =
+                                                                          totalWallet;
+                                                                    }
+                                                                  })
+                                                                },
                                                             child:
                                                                 WalletContainer(
-                                                          wal: item,
-                                                          height: 80,
-                                                          width: maxW * 2 / 3,
-                                                          isSelect: _walletSelect.id == item.id,
-                                                        )),
+                                                              wal: item,
+                                                              height: 80,
+                                                              width:
+                                                                  maxW * 2 / 3,
+                                                              isSelect:
+                                                                  _walletSelect
+                                                                          .id ==
+                                                                      item.id,
+                                                            )),
                                                         SizedBox(
                                                           width: 8,
                                                         )
@@ -490,225 +598,163 @@ class _TransactionState extends State<Transaction> {
                                           ),
                                         ),
                                       ),
-                                      Expanded(
-                                        child: SingleChildScrollView(
-                                          child: BlocBuilder<TransactionBloc,
-                                              TransactionState>(
-                                            builder: (context, state) {
-                                              if (state
-                                                  is TransactionChangedState) {
-                                                final transactions =
-                                                    state.newTransaction;
-                                                return BlocBuilder<
-                                                        CategoryMapBloc,
-                                                        CategoryMapState>(
-                                                    builder: (context,
-                                                        categoryState) {
-                                                  if (categoryState
-                                                      is CategoryMapUpdatedState) {
-                                                    final mapIncome =
-                                                        categoryState.mapIncome;
-                                                    final mapOutcome =
-                                                        categoryState
-                                                            .mapOutcome;
-
-                                                    return Column(
-                                                      children: List.generate(
-                                                          31, (index) {
-                                                        final listTransaction =
-                                                            GlobalFunction
-                                                                .getTransactionByAll(
-                                                          transactions,
-                                                          DateTime(
-                                                              dateTransaction
-                                                                  .year,
-                                                              dateTransaction
-                                                                  .month,
-                                                              31 - index + 1),
-                                                          _walletSelect.id!,
-                                                          searchText,
-                                                          mapIncome,
-                                                          mapOutcome,
-                                                        );
-                                                        if (listTransaction
-                                                            .isNotEmpty) {
-                                                          return Column(
-                                                            children: [
-                                                              // Container cho ngày
-                                                              SizedBox(
-                                                                height: 10,
-                                                              ),
-                                                              Container(
-                                                                padding: EdgeInsets
-                                                                    .only(
-                                                                        left:
-                                                                            10),
-                                                                height: 30,
-                                                                color: AppColors
-                                                                    .Nen,
-                                                                child: Row(
-                                                                  crossAxisAlignment:
-                                                                      CrossAxisAlignment
-                                                                          .center,
-                                                                  children: [
-                                                                    Text(
-                                                                      (31 -
-                                                                              index +
-                                                                              1)
-                                                                          .toString(),
-                                                                      // Hiển thị ngày
-                                                                      style: TextStyle(
-                                                                          fontWeight: FontWeight
-                                                                              .bold,
-                                                                          fontSize:
-                                                                              18),
-                                                                    )
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                              ...listTransaction
-                                                                  .reversed
-                                                                  .map((item) =>
-                                                                      Column(
-                                                                        children: [
-                                                                          SizedBox(
-                                                                            height:
-                                                                                2,
-                                                                          ),
-                                                                          Container(
-                                                                            height:
-                                                                                60,
-                                                                            color:
-                                                                                AppColors.Nen,
-                                                                            child:
-                                                                                InkWell(
-                                                                              onTap: () => {
-                                                                                Navigator.of(context).push(
-                                                                                  MaterialPageRoute(
-                                                                                    builder: (newContext) => MultiBlocProvider(
-                                                                                      providers: [
-                                                                                        BlocProvider.value(
-                                                                                          value: BlocProvider.of<CategoryBloc>(context),
-                                                                                        ),
-                                                                                        BlocProvider.value(
-                                                                                          value: BlocProvider.of<WalletBloc>(context),
-                                                                                        ),
-                                                                                        BlocProvider.value(
-                                                                                          value: BlocProvider.of<RepeatOptionBloc>(context),
-                                                                                        ),
-                                                                                        BlocProvider.value(
-                                                                                          value: BlocProvider.of<TransactionBloc>(context),
-                                                                                        ),
-                                                                                      ],
-                                                                                      child: Detailtransaction(transaction: item),
-                                                                                    ),
-                                                                                  ),
-                                                                                )
-                                                                              },
-                                                                              child: Row(
-                                                                                children: [
-                                                                                  Expanded(
-                                                                                    flex: 1,
-                                                                                    child: Container(
-                                                                                      padding: EdgeInsets.only(left: 10),
-                                                                                      child: Text(item.category.name,
-                                                                                          style: TextStyle(
-                                                                                            fontSize: 16,
-                                                                                            color: Color(0xff787878),
-                                                                                          )),
-                                                                                    ),
-                                                                                  ),
-                                                                                  Expanded(
-                                                                                    flex: 2,
-                                                                                    child: Container(
-                                                                                      child: Column(
-                                                                                        children: [
-                                                                                          Container(
-                                                                                            height: 30,
-                                                                                            child: Align(
-                                                                                              alignment: Alignment.centerLeft,
-                                                                                              child: Text(
-                                                                                                item.note,
-                                                                                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                                                                                                overflow: TextOverflow.ellipsis,
-                                                                                                maxLines: 1,
-                                                                                              ),
-                                                                                            ),
-                                                                                          ),
-                                                                                          Container(
-                                                                                            height: 30,
-                                                                                            child: Align(
-                                                                                              alignment: Alignment.centerLeft,
-                                                                                              child: Text(
-                                                                                                item.wallet.name,
-                                                                                                style: TextStyle(fontSize: 16, color: Color(0xff787878)),
-                                                                                                overflow: TextOverflow.ellipsis,
-                                                                                                maxLines: 1,
-                                                                                              ),
-                                                                                            ),
-                                                                                          )
-                                                                                        ],
-                                                                                      ),
-                                                                                    ),
-                                                                                  ),
-                                                                                  Expanded(
-                                                                                    flex: 1,
-                                                                                    child: Container(
-                                                                                      padding: EdgeInsets.only(right: 5),
-                                                                                      child: Align(
-                                                                                        alignment: Alignment.centerRight,
-                                                                                        child: FittedBox(
-                                                                                          fit: BoxFit.scaleDown,
-                                                                                          child: Text(
-                                                                                            item.category.type == 0 ? "-" + GlobalFunction.formatCurrency(item.amount * item.wallet.currency.value / currencyGB.value, 2) + " " + currencyGB.name : "+" + GlobalFunction.formatCurrency(item.amount * item.wallet.currency.value / currencyGB.value, 2) + " " + currencyGB.name,
-                                                                                            style: TextStyle(
-                                                                                              fontWeight: FontWeight.bold,
-                                                                                              color: item.category.type == 0 ? AppColors.Cam : AppColors.XanhLaDam,
-                                                                                            ),
-                                                                                          ),
-                                                                                        ),
-                                                                                      ),
-                                                                                    ),
-                                                                                  ),
-                                                                                ],
-                                                                              ),
-                                                                            ),
-                                                                          ),
-                                                                        ],
-                                                                      ))
-                                                                  .toList(),
-                                                            ],
-                                                          );
-                                                        } else {
-                                                          // Nếu danh sách trống, trả về SizedBox hoặc widget rỗng
-                                                          return SizedBox
-                                                              .shrink();
-                                                        }
-                                                      }).toList(),
-                                                    );
-                                                  } else
-                                                    return Center(
-                                                      child: Text(
-                                                          "Không có dữ liệu category"),
-                                                    );
-                                                });
-                                              } else {
-                                                return Text("Không có dữ liệu");
-                                              }
-                                            },
-                                          ),
-                                        ),
-                                      ),
+                                      SizedBox(
+                                        height: 30,
+                                      )
                                     ],
                                   ),
-                                );
-                              } else {
-                                return Text(
-                                    "Error load parameter in TransactionScreen");
-                              }
-                            },
-                          );
+                                ),
+                                // TransactionTag(tran: TransactionModel(date: "2024-09-30", amount: 5000000, wallet: Wallet(name: "tien mat", amount: 90, currency: Currency(name: "VND", value: 1), note: ""), category: Category(name: "An uong", type: 0), note: "", description: "", repeat_option: RepeatOption(option_name: ""))),
+                                Expanded(
+                                  child: SingleChildScrollView(
+                                    scrollDirection: Axis.vertical,
+                                    child: BlocBuilder<TransactionBloc,
+                                        TransactionState>(
+                                      builder: (context, state) {
+                                        if (state is TransactionChangedState) {
+                                          final transactions =
+                                              state.newTransaction;
+                                          return BlocBuilder<CategoryMapBloc,
+                                                  CategoryMapState>(
+                                              builder:
+                                                  (context, categoryState) {
+                                            if (categoryState
+                                                is CategoryMapUpdatedState) {
+                                              final mapIncome =
+                                                  categoryState.mapIncome;
+                                              final mapOutcome =
+                                                  categoryState.mapOutcome;
 
+                                              return Column(
+                                                children:
+                                                    List.generate(31, (index) {
+                                                  final listTransaction =
+                                                      GlobalFunction
+                                                          .getTransactionByAll(
+                                                    transactions,
+                                                    DateTime(
+                                                        dateTransaction.year,
+                                                        dateTransaction.month,
+                                                        31 - index + 1),
+                                                    _walletSelect.id!,
+                                                    searchText,
+                                                    mapIncome,
+                                                    mapOutcome,
+                                                  );
+                                                  if (listTransaction
+                                                      .isNotEmpty) {
+                                                    return Column(
+                                                      children: [
+                                                        // Container cho ngày
+                                                        SizedBox(
+                                                          height: 10,
+                                                        ),
+                                                        Container(
+                                                          padding:
+                                                              EdgeInsets.only(
+                                                                  left: 10),
+                                                          margin:
+                                                              EdgeInsets.only(
+                                                                  bottom: 5),
+                                                          height: 30,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                                  boxShadow: [
+                                                                BoxShadow(
+                                                                  color: Colors
+                                                                      .grey
+                                                                      .withOpacity(
+                                                                          0.2),
+                                                                  // Màu của shadow
+                                                                  spreadRadius:
+                                                                      3,
+                                                                  // Độ lan rộng của shadow
+                                                                  blurRadius: 7,
+                                                                  // Độ mờ của shadow
+                                                                  offset: Offset(
+                                                                      0,
+                                                                      0), // Vị trí của shadow
+                                                                ),
+                                                              ],
+                                                                  color: Colors
+                                                                      .white),
+                                                          child: Row(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .center,
+                                                            children: [
+                                                              Text(
+                                                                "Ngày ${(31 - index + 1)}",
+                                                                // Hiển thị ngày
+                                                                style: TextStyle(
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    fontSize:
+                                                                        18),
+                                                              )
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        SingleChildScrollView(
+                                                          scrollDirection:
+                                                              Axis.horizontal,
+                                                          child: Row(
+                                                            children:
+                                                                listTransaction
+                                                                    .reversed
+                                                                    .map(
+                                                                        (item) =>
+                                                                            Row(
+                                                                              children: [
+                                                                                TransactionTag(
+                                                                                  tran: item,
+                                                                                  cur: currencyGB,
+                                                                                ),
+                                                                                SizedBox(
+                                                                                  width: 8,
+                                                                                )
+                                                                              ],
+                                                                            ))
+                                                                    .toList(),
+                                                          ),
+                                                        )
+                                                        // ...listTransaction
+                                                        //     .reversed
+                                                        //     .map(
+                                                        //         (item) =>
+                                                        //             TransactionTag(tran: item, cur: currencyGB,)
+                                                        // ).toList(),
+                                                      ],
+                                                    );
+                                                  } else {
+                                                    // Nếu danh sách trống, trả về SizedBox hoặc widget rỗng
+                                                    return SizedBox.shrink();
+                                                  }
+                                                }).toList(),
+                                              );
+                                            } else
+                                              return Center(
+                                                child: Text(
+                                                    "Không có dữ liệu category"),
+                                              );
+                                          });
+                                        } else {
+                                          return Text("Không có dữ liệu");
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        } else {
+                          return Text(
+                              "Error load parameter in TransactionScreen");
+                        }
+                      },
+                    );
                   } else {
                     return Text("Error load wallets in TransactionScreen");
                   }

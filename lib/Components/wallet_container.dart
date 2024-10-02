@@ -23,7 +23,7 @@ class WalletContainer extends StatelessWidget {
       width: width,
       padding: EdgeInsets.all(8),
       decoration: BoxDecoration(
-          color: isSelect ? AppColors.Nen : Colors.transparent,
+          color: isSelect ? Color(0xFF006A9D) : Color(0xFFCEF6FF),
           border: Border.all(
             style: BorderStyle.solid,
             color: isSelect ? AppColors.XanhDuong : Colors.black54,
@@ -46,7 +46,9 @@ class WalletContainer extends StatelessWidget {
                             fontSize: 16,
                             overflow: TextOverflow.ellipsis,
                             fontWeight:
-                            FontWeight.w600),
+                            FontWeight.w600,
+                          color: isSelect ? Color(0xFFFFFFFF) : Colors.black,
+                        ),
                       ),
                     ),
                   ),
@@ -59,7 +61,7 @@ class WalletContainer extends StatelessWidget {
                         style: TextStyle(
                             fontSize: 16,
                             overflow: TextOverflow.ellipsis,
-                            color: Color(0xFF878787)),
+                            color: isSelect ? Color(0xFF9EADBD) : Color(0xFF878787)),
                       ),
                     ),
                   ),
@@ -74,7 +76,7 @@ class WalletContainer extends StatelessWidget {
                   GlobalFunction.formatCurrency(wal.amount, 2) +
                       " " +
                       wal.currency.name,
-                  style: TextStyle(fontSize: 16, color: AppColors.XanhDuong, fontWeight: FontWeight.w600),
+                  style: TextStyle(fontSize: 16, color: isSelect ? Color(0xFFD3F4FF) : AppColors.XanhDuong, fontWeight: FontWeight.w600),
                 )),
           ))
         ],
