@@ -37,6 +37,7 @@ import 'package:month_year_picker/month_year_picker.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
 
 import '../../Animation/Wavepainter.dart';
+import '../../Components/month_picker.dart';
 
 class Transaction extends StatefulWidget {
   const Transaction({super.key});
@@ -77,58 +78,58 @@ class _TransactionState extends State<Transaction> {
     ]);
   }
 
-  Future<void> _selectDate(BuildContext context, String? locale,) async {
-    final localeObj = locale != null ? Locale(locale) : null;
-    final selected = await showMonthYearPicker(
-      context: context,
-      initialDate: dateTransaction ?? DateTime.now(),
-      firstDate: DateTime(2019),
-      lastDate: DateTime(2030),
-      locale: localeObj,
-      builder: (context, child) {
-        return Theme(
-          data: ThemeData.light().copyWith(
-            colorScheme: ColorScheme.light(
-              primary: Colors.blue, // Header background color
-              onPrimary: Colors.white, // Header text color
-              surface: Colors.white, // Picker background color
-              onSurface: Colors.black, // Picker text color
-            ),
-            textTheme: const TextTheme(
-              bodyLarge: TextStyle(
-                fontSize: 12,
-                color: Colors.black, // Text color for picker body
-              ),
-              titleLarge: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.blue, // Text color for picker title
-              ),
-            ),
-          ),
-          child: Center(
-            child: Container(
-              width: MediaQuery
-                  .of(context)
-                  .size
-                  .width * 0.8,
-              height: MediaQuery
-                  .of(context)
-                  .size
-                  .height * 0.6,
-              child: child,
-            ),
-          ),
-        );
-      },
-    );
-
-    if (selected != null) {
-      setState(() {
-        dateTransaction = selected;
-      });
-    }
-  }
+  // Future<void> _selectDate(BuildContext context, String? locale,) async {
+  //   final localeObj = locale != null ? Locale(locale) : null;
+  //   final selected = await showMonthYearPicker(
+  //     context: context,
+  //     initialDate: dateTransaction ?? DateTime.now(),
+  //     firstDate: DateTime(2019),
+  //     lastDate: DateTime(2030),
+  //     locale: localeObj,
+  //     builder: (context, child) {
+  //       return Theme(
+  //         data: ThemeData.light().copyWith(
+  //           colorScheme: ColorScheme.light(
+  //             primary: Colors.blue, // Header background color
+  //             onPrimary: Colors.white, // Header text color
+  //             surface: Colors.white, // Picker background color
+  //             onSurface: Colors.black, // Picker text color
+  //           ),
+  //           textTheme: const TextTheme(
+  //             bodyLarge: TextStyle(
+  //               fontSize: 12,
+  //               color: Colors.black, // Text color for picker body
+  //             ),
+  //             titleLarge: TextStyle(
+  //               fontSize: 18,
+  //               fontWeight: FontWeight.bold,
+  //               color: Colors.blue, // Text color for picker title
+  //             ),
+  //           ),
+  //         ),
+  //         child: Center(
+  //           child: Container(
+  //             width: MediaQuery
+  //                 .of(context)
+  //                 .size
+  //                 .width * 0.8,
+  //             height: MediaQuery
+  //                 .of(context)
+  //                 .size
+  //                 .height * 0.6,
+  //             child: child,
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //   );
+  //
+  //   if (selected != null) {
+  //     setState(() {
+  //       dateTransaction = selected;
+  //     });
+  //   }
+  // }
 
 
 
@@ -422,7 +423,11 @@ class _TransactionState extends State<Transaction> {
                                                     elevation: 0,
                                                   ),
                                                   onPressed: () => {
-                                                    _selectDate(context, 'vi')
+                                                    openMonthPicker(context, 'vi',dateTransaction, (newDate) {
+                                                      setState(() {
+                                                        dateTransaction = newDate;
+                                                      });
+                                                    }, )
                                                   },
                                                   child: Text(
                                                     "Thg ${dateTransaction.month} ${dateTransaction.year}",
