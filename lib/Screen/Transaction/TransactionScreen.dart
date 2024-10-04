@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:personal_expense_management/Components/dropdown.dart';
+import 'package:personal_expense_management/Components/select_time.dart';
 import 'package:personal_expense_management/Components/transaction_tag.dart';
 import 'package:personal_expense_management/Components/transaction_tag2.dart';
 import 'package:personal_expense_management/Components/wallet_container.dart';
@@ -77,61 +78,6 @@ class _TransactionState extends State<Transaction> {
       dbHelper.getCategorys()
     ]);
   }
-
-  // Future<void> _selectDate(BuildContext context, String? locale,) async {
-  //   final localeObj = locale != null ? Locale(locale) : null;
-  //   final selected = await showMonthYearPicker(
-  //     context: context,
-  //     initialDate: dateTransaction ?? DateTime.now(),
-  //     firstDate: DateTime(2019),
-  //     lastDate: DateTime(2030),
-  //     locale: localeObj,
-  //     builder: (context, child) {
-  //       return Theme(
-  //         data: ThemeData.light().copyWith(
-  //           colorScheme: ColorScheme.light(
-  //             primary: Colors.blue, // Header background color
-  //             onPrimary: Colors.white, // Header text color
-  //             surface: Colors.white, // Picker background color
-  //             onSurface: Colors.black, // Picker text color
-  //           ),
-  //           textTheme: const TextTheme(
-  //             bodyLarge: TextStyle(
-  //               fontSize: 12,
-  //               color: Colors.black, // Text color for picker body
-  //             ),
-  //             titleLarge: TextStyle(
-  //               fontSize: 18,
-  //               fontWeight: FontWeight.bold,
-  //               color: Colors.blue, // Text color for picker title
-  //             ),
-  //           ),
-  //         ),
-  //         child: Center(
-  //           child: Container(
-  //             width: MediaQuery
-  //                 .of(context)
-  //                 .size
-  //                 .width * 0.8,
-  //             height: MediaQuery
-  //                 .of(context)
-  //                 .size
-  //                 .height * 0.6,
-  //             child: child,
-  //           ),
-  //         ),
-  //       );
-  //     },
-  //   );
-  //
-  //   if (selected != null) {
-  //     setState(() {
-  //       dateTransaction = selected;
-  //     });
-  //   }
-  // }
-
-
 
   void addSampleData() async {
     await Initdata.addAllSampleData();
@@ -387,80 +333,11 @@ class _TransactionState extends State<Transaction> {
                                                 size: 30,
                                               ),
                                             ),
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                IconButton(
-                                                  onPressed: () => {
-                                                    setState(() {
-                                                      int mon =
-                                                          dateTransaction.month;
-                                                      int yea =
-                                                          dateTransaction.year;
-                                                      mon = mon - 1;
-                                                      if (mon < 1) {
-                                                        mon = 12;
-                                                        yea = yea - 1;
-                                                      }
-                                                      dateTransaction =
-                                                          DateTime(yea, mon);
-                                                    })
-                                                  },
-                                                  icon: const Icon(
-                                                    Icons.keyboard_arrow_left,
-                                                    size: 30,
-                                                  ),
-                                                ),
-                                                ElevatedButton(
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                    backgroundColor:
-                                                        Colors.transparent,
-                                                    shadowColor:
-                                                        Colors.transparent,
-                                                    elevation: 0,
-                                                  ),
-                                                  onPressed: () => {
-                                                    openMonthPicker(context, 'vi',dateTransaction, (newDate) {
-                                                      setState(() {
-                                                        dateTransaction = newDate;
-                                                      });
-                                                    }, )
-                                                  },
-                                                  child: Text(
-                                                    "Thg ${dateTransaction.month} ${dateTransaction.year}",
-                                                    style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 16,
-                                                        color: Colors.black),
-                                                  ),
-                                                ),
-                                                IconButton(
-                                                  onPressed: () => {
-                                                    setState(() {
-                                                      int mon =
-                                                          dateTransaction.month;
-                                                      int yea =
-                                                          dateTransaction.year;
-                                                      mon = mon + 1;
-                                                      if (mon > 12) {
-                                                        mon = 1;
-                                                        yea = yea + 1;
-                                                      }
-                                                      dateTransaction =
-                                                          DateTime(yea, mon);
-                                                    })
-                                                  },
-                                                  icon: const Icon(
-                                                    Icons.keyboard_arrow_right,
-                                                    size: 30,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
+                                            SelectTime(dateOption: dateTransaction, changed: (newDate) {
+                                              setState(() {
+                                                dateTransaction = newDate;
+                                              });
+                                            }),
                                             Theme(
                                               data: Theme.of(context).copyWith(
                                                 popupMenuTheme: const PopupMenuThemeData(

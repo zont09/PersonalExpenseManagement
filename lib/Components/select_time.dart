@@ -13,16 +13,8 @@ class SelectTime extends StatelessWidget {
     return Container(
       height: 0.05 * MediaQuery.of(context).size.height,
       decoration: BoxDecoration(
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.2), // Màu của shadow
-            spreadRadius: 2,                     // Độ lan rộng của shadow
-            blurRadius: 7,                       // Độ mờ của shadow
-            offset: Offset(5, 5),                // Vị trí của shadow
-          ),
-        ],
-        color: Colors.white,
 
+        color: Colors.transparent
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

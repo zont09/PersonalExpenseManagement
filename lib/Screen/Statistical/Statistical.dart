@@ -184,11 +184,24 @@ class _StatisticalState extends State<Statistical> {
           const SizedBox(
             height: 8,
           ),
-          SelectTime(dateOption: _dateOption,dateOptionView: _dateOptionView, changed: (newDate) {
-            setState(() {
-              _dateOption = newDate;
-            });
-          }),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.2), // Màu của shadow
+                  spreadRadius: 2,                     // Độ lan rộng của shadow
+                  blurRadius: 7,                       // Độ mờ của shadow
+                  offset: Offset(5, 5),                // Vị trí của shadow
+                ),
+              ],
+            ),
+            child: SelectTime(dateOption: _dateOption,dateOptionView: _dateOptionView, changed: (newDate) {
+              setState(() {
+                _dateOption = newDate;
+              });
+            }),
+          ),
           const SizedBox(
             height: 12,
           ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:personal_expense_management/Components/select_time.dart';
 import 'package:personal_expense_management/Model/Currency.dart';
 import 'package:personal_expense_management/Model/TransactionModel.dart';
 import 'package:personal_expense_management/Resources/AppColor.dart';
@@ -89,8 +90,17 @@ class _BudgetScreenState extends State<BudgetScreen> {
 
   Color getColorForValue(double value) {
     // value ở đây là từ 0 đến 1
-    return Color.lerp(AppColors.XanhDuong, Colors.red, value) ??
-        AppColors.XanhDuong;
+    if(value > 1) value = 1;
+    if(value < 0) value = 0;
+    assert(value >= 0 && value <= 1);
+
+    if (value < 0.5) {
+      // Nội suy từ xanh dương đến vàng (0 -> 0.5)
+      return Color.lerp(Colors.blue, Colors.yellow, value * 2)!;
+    } else {
+      // Nội suy từ vàng đến đỏ (0.5 -> 1)
+      return Color.lerp(Colors.yellow, Colors.red, (value - 0.5) * 2)!;
+    }
   }
 
 
@@ -101,10 +111,22 @@ class _BudgetScreenState extends State<BudgetScreen> {
     return SafeArea(
         child: Scaffold(
             appBar: AppBar(
-              backgroundColor: AppColors.Nen,
+              flexibleSpace: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Color(0xFf339DD4),
+                      Color(0xFF00D0CC)
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment
+                        .bottomRight, // Điểm kết thúc của gradient
+                  ),
+                ),
+              ),
               title: Text(
                 "Ngân sách",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
               ),
               actions: [
                 TextButton(
@@ -141,7 +163,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                         },
                     child: Text(
                       "Thêm",
-                      style: TextStyle(fontSize: 16, color: Colors.black),
+                      style: TextStyle(fontSize: 16, color: Colors.white),
                     ))
               ],
             ),
@@ -150,68 +172,23 @@ class _BudgetScreenState extends State<BudgetScreen> {
               width: maxW,
               child: Column(
                 children: [
-                  SizedBox(
-                    height: 10,
-                  ),
                   Container(
-                    height: 0.05 * maxH,
-                    color: AppColors.Nen,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        IconButton(
-                          onPressed: () => {
-                            setState(() {
-                              int mon = _dateTime.month;
-                              int yea = _dateTime.year;
-                              mon = mon - 1;
-                              if (mon < 1) {
-                                mon = 12;
-                                yea = yea - 1;
-                              }
-                              _dateTime = DateTime(yea, mon);
-                            })
-                          },
-                          icon: const Icon(
-                            Icons.keyboard_arrow_left,
-                            size: 30,
-                          ),
-                        ),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.transparent,
-                            shadowColor: Colors.transparent,
-                            elevation: 0,
-                          ),
-                          onPressed: () => {_selectDate(context, 'vi')},
-                          child: Text(
-                            "Thg ${_dateTime.month} ${_dateTime.year}",
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                                color: Colors.black),
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: () => {
-                            setState(() {
-                              int mon = _dateTime.month;
-                              int yea = _dateTime.year;
-                              mon = mon + 1;
-                              if (mon > 12) {
-                                mon = 1;
-                                yea = yea + 1;
-                              }
-                              _dateTime = DateTime(yea, mon);
-                            })
-                          },
-                          icon: const Icon(
-                            Icons.keyboard_arrow_right,
-                            size: 30,
-                          ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.2), // Màu của shadow
+                          spreadRadius: 2,                     // Độ lan rộng của shadow
+                          blurRadius: 7,                       // Độ mờ của shadow
+                          offset: Offset(5, 5),                // Vị trí của shadow
                         ),
                       ],
                     ),
+                    child: SelectTime(dateOption: _dateTime, changed: (newDate) {
+                      setState(() {
+                        _dateTime = newDate;
+                      });
+                    }),
                   ),
                   Expanded(
                     child: BlocBuilder<BudgetBloc, BudgetState>(
@@ -263,6 +240,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                                   children:
                                                       (_budgetSelect == null)
                                                           ? [
+                                                            SizedBox(height: 20,),
                                                               Center(
                                                                   child: Text(
                                                                       "Không có dữ liệu ngân sách tháng này"))
@@ -305,13 +283,23 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                                                           children: [
                                                                             SizedBox(
                                                                               height:
-                                                                                  10,
+                                                                                  15,
                                                                             ),
                                                                             Container(
                                                                                 padding: EdgeInsets.all(8),
                                                                                 width: maxW,
                                                                                 height: 100,
-                                                                                color: AppColors.Nen,
+                                                                                decoration: BoxDecoration(
+                                                                                  color: Colors.white,
+                                                                                  boxShadow: [
+                                                                                    BoxShadow(
+                                                                                      color: Colors.grey.withOpacity(0.2), // Màu của shadow
+                                                                                      spreadRadius: 2,                     // Độ lan rộng của shadow
+                                                                                      blurRadius: 7,                       // Độ mờ của shadow
+                                                                                      offset: Offset(5, 5),                // Vị trí của shadow
+                                                                                    ),
+                                                                                  ],
+                                                                                ),
                                                                                 child: Column(children: [
                                                                                   Column(
                                                                                     children: [

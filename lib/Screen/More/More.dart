@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:personal_expense_management/Components/option_tag.dart';
 import 'package:personal_expense_management/Database/database_helper.dart';
 import 'package:personal_expense_management/Database/initdata.dart';
 import 'package:personal_expense_management/Resources/AppColor.dart';
@@ -34,13 +35,27 @@ class More extends StatelessWidget {
     double maxW = MediaQuery.of(context).size.width;
     return SafeArea(child: Scaffold(
       appBar: AppBar(
-        title: Text("Tính năng khác", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color(0xFf339DD4),
+                Color(0xFF00D0CC)
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment
+                  .bottomRight, // Điểm kết thúc của gradient
+            ),
+          ),
+        ),
+        title: Text("Tính năng khác", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),),
         backgroundColor: AppColors.Nen,
       ),
       body: Container(
         padding: EdgeInsets.only(top: 16),
         height: maxH,
         width: maxW,
+        color: Colors.white,
         child: SingleChildScrollView(
           child: Column(
             children: [
@@ -69,28 +84,9 @@ class More extends StatelessWidget {
                     ),
                   )
                 },
-                child: Container(
-                  margin: EdgeInsets.only(left: 8, right: 8),
-                  padding: EdgeInsets.all(16),
-                  height: 80,
-                  width: maxW,
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text("Quản lý ví", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.XanhDuong),),
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white, // Màu nền của Container
-                    border: Border.all(
-                      color: AppColors.XanhDuong, // Màu của border
-                      width: 2.0, // Độ dày của border
-                    ),
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(10.0), // Độ cong của các góc
-                    ),
-                  ),
-                ),
+                child: OptionTag(name: "Quản lý ví", height: 60, width: maxW)
               ),
-              SizedBox(height: 10,),
+              // SizedBox(height: 10,),
               GestureDetector(
                 onTap: () => {
                   // Navigator.push(context, MaterialPageRoute(builder: (context) => ScanBillPage()))
@@ -108,28 +104,9 @@ class More extends StatelessWidget {
                     ),
                   )
                 },
-                child: Container(
-                  margin: EdgeInsets.only(left: 8, right: 8),
-                  padding: EdgeInsets.all(16),
-                  height: 80,
-                  width: maxW,
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text("Quản lý loại giao dịch", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.XanhDuong),),
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white, // Màu nền của Container
-                    border: Border.all(
-                      color: AppColors.XanhDuong, // Màu của border
-                      width: 2.0, // Độ dày của border
-                    ),
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(10.0), // Độ cong của các góc
-                    ),
-                  ),
-                ),
+                child: OptionTag(name: "Quản lý loại giao dịch", height: 60, width: maxW),
               ),
-              SizedBox(height: 10,),
+              // SizedBox(height: 10,),
               GestureDetector(
                 onTap: () => {
                   Navigator.of(context).push(
@@ -154,54 +131,16 @@ class More extends StatelessWidget {
                     ),
                   )
                 },
-                child: Container(
-                  margin: EdgeInsets.only(left: 8, right: 8),
-                  padding: EdgeInsets.all(16),
-                  height: 80,
-                  width: maxW,
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text("Quản lý khoản tiết kiệm", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.XanhDuong),),
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white, // Màu nền của Container
-                    border: Border.all(
-                      color: AppColors.XanhDuong, // Màu của border
-                      width: 2.0, // Độ dày của border
-                    ),
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(10.0), // Độ cong của các góc
-                    ),
-                  ),
-                ),
+                child: OptionTag(name: "Quản lý khoản tiết kiệm", height: 60, width: maxW)
               ),
-              SizedBox(height: 10,),
+              // SizedBox(height: 10,),
               GestureDetector(
                 onTap: () => {
                   print("CLicked")
                 },
-                child: Container(
-                  margin: EdgeInsets.only(left: 8, right: 8),
-                  padding: EdgeInsets.all(16),
-                  height: 80,
-                  width: maxW,
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text("Quản lý lời nhắc", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.XanhDuong),),
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white, // Màu nền của Container
-                    border: Border.all(
-                      color: AppColors.XanhDuong, // Màu của border
-                      width: 2.0, // Độ dày của border
-                    ),
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(10.0), // Độ cong của các góc
-                    ),
-                  ),
-                ),
+                child: OptionTag(name: "Quản lý lời nhắc", height: 60, width: maxW)
               ),
-              SizedBox(height: 10,),
+              // SizedBox(height: 10,),
               GestureDetector(
                 onTap: () => {
                   Navigator.of(context).push(
@@ -222,51 +161,13 @@ class More extends StatelessWidget {
                     ),
                   )
                 },
-                child: Container(
-                  margin: EdgeInsets.only(left: 8, right: 8),
-                  padding: EdgeInsets.all(16),
-                  height: 80,
-                  width: maxW,
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text("Quản lý tiền tệ", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.XanhDuong),),
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white, // Màu nền của Container
-                    border: Border.all(
-                      color: AppColors.XanhDuong, // Màu của border
-                      width: 2.0, // Độ dày của border
-                    ),
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(10.0), // Độ cong của các góc
-                    ),
-                  ),
-                ),
+                child: OptionTag(name: "Quản lý tiền tệ", height: 60, width: maxW)
               ),
               GestureDetector(
                 onTap: () async => {
                   _resetData()
                 },
-                child: Container(
-                  margin: EdgeInsets.only(left: 8, right: 8),
-                  padding: EdgeInsets.all(16),
-                  height: 80,
-                  width: maxW,
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text("Reset Data", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.XanhDuong),),
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white, // Màu nền của Container
-                    border: Border.all(
-                      color: AppColors.XanhDuong, // Màu của border
-                      width: 2.0, // Độ dày của border
-                    ),
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(10.0), // Độ cong của các góc
-                    ),
-                  ),
-                ),
+                child: OptionTag(name: "reset data", height: 60, width: maxW)
               ),
             ],
           ),
