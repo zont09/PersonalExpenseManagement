@@ -21,40 +21,40 @@ class Walletscreen extends StatefulWidget {
 class _WalletscreenState extends State<Walletscreen> {
   @override
   Widget build(BuildContext context) {
-    final maxH = MediaQuery
-        .of(context)
-        .size
-        .height;
-    final maxW = MediaQuery
-        .of(context)
-        .size
-        .width;
+    final maxH = MediaQuery.of(context).size.height;
+    final maxW = MediaQuery.of(context).size.width;
     return SafeArea(
         child: Scaffold(
-          appBar: AppBar(
-            backgroundColor: AppColors.Nen,
-            title: Text(
-              "Quản lý ví",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      appBar: AppBar(
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFf339DD4), Color(0xFF00D0CC)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight, // Điểm kết thúc của gradient
             ),
-            actions: [
-              TextButton(
-                  onPressed: () => {
+          ),
+        ),
+        title: Text(
+          "Quản lý ví",
+          style: TextStyle(
+              fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => {
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (newContext) => MultiBlocProvider(
                           providers: [
                             BlocProvider.value(
-                              value: BlocProvider.of<WalletBloc>(
-                                  context),
+                              value: BlocProvider.of<WalletBloc>(context),
                             ),
                             BlocProvider.value(
-                              value:
-                              BlocProvider.of<ParameterBloc>(context),
+                              value: BlocProvider.of<ParameterBloc>(context),
                             ),
                             BlocProvider.value(
-                              value:
-                              BlocProvider.of<CurrencyBloc>(context),
+                              value: BlocProvider.of<CurrencyBloc>(context),
                             ),
                           ],
                           child: Addwalletscreen(),
@@ -62,115 +62,157 @@ class _WalletscreenState extends State<Walletscreen> {
                       ),
                     )
                   },
-                  child: Text(
-                    "Thêm",
-                    style: TextStyle(fontSize: 16, color: Colors.black),
-                  ))
-            ],
-          ),
-          body: BlocBuilder<WalletBloc, WalletState>(
-            builder: (context, state) {
-              if(state is WalletUpdatedState) {
-                final listWallet = state.updatedWallet;
-                return Container(
-                    height: double.infinity,
-                    width: double.infinity,
-                    margin: EdgeInsets.only(top: 10),
-                    child: Column(
-                      children: [
-                        Container(
-                          height: 0.07 * maxH,
-                          // color: Colors.amber,
-                          child: Column(
-                            children: [
-                              Expanded(
-                                  flex: 1,
-                                  child: Center(
-                                    child: Text("Tổng số dư", style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w500),),
-                                  )),
-                              Expanded(
-                                  flex: 1,
-                                  child: Center(
-                                    child: Text("${GlobalFunction.formatCurrency(listWallet.first.amount, 2)}", style: TextStyle(
+              child: Text(
+                "Thêm",
+                style: TextStyle(fontSize: 16, color: Colors.white),
+              ))
+        ],
+      ),
+      body: BlocBuilder<WalletBloc, WalletState>(
+        builder: (context, state) {
+          if (state is WalletUpdatedState) {
+            final listWallet = state.updatedWallet;
+            return Container(
+                height: double.infinity,
+                width: double.infinity,
+                color: Colors.white,
+                padding: EdgeInsets.only(top: 10),
+                child: Column(
+                  children: [
+                    Container(
+                      height: 0.07 * maxH,
+                      // color: Colors.amber,
+                      child: Column(
+                        children: [
+                          Expanded(
+                              flex: 1,
+                              child: Center(
+                                child: Text(
+                                  "Tổng số dư",
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                              )),
+                          Expanded(
+                              flex: 1,
+                              child: Center(
+                                child: Text(
+                                    "${GlobalFunction.formatCurrency(listWallet.first.amount, 2)}",
+                                    style: TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.w500,
                                         color: AppColors.XanhDuong)),
-                                  ))
-                            ],
-                          ),
+                              ))
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 20,),
+                    Expanded(
+                        child: SingleChildScrollView(
+                      child: Container(
+                        margin: EdgeInsets.symmetric(horizontal: 8),
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.5), // Màu của shadow
+                              spreadRadius: 1, // Độ lan rộng của shadow
+                              blurRadius: 3, // Độ mờ của shadow
+                              offset: const Offset(0, 3), // Vị trí của shadow
+                            ),
+                          ],
                         ),
-                        Expanded(child: SingleChildScrollView(
-                          child: Column(
-                            children: listWallet.skip(1).map((item) =>
-                                GestureDetector(
-                                  onTap: () => {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (newContext) => MultiBlocProvider(
-                                          providers: [
-                                            BlocProvider.value(
-                                              value: BlocProvider.of<WalletBloc>(
-                                                  context),
-                                            ),
-                                            BlocProvider.value(
-                                              value:
-                                              BlocProvider.of<ParameterBloc>(context),
-                                            ),
-                                            BlocProvider.value(
-                                              value:
-                                              BlocProvider.of<CurrencyBloc>(context),
-                                            ),
+                        child: Column(children: [
+                          SizedBox(height: 2,),
+                          ...listWallet
+                              .skip(1)
+                              .map((item) => GestureDetector(
+                                    onTap: () => {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (newContext) =>
+                                              MultiBlocProvider(
+                                            providers: [
+                                              BlocProvider.value(
+                                                value:
+                                                    BlocProvider.of<WalletBloc>(
+                                                        context),
+                                              ),
+                                              BlocProvider.value(
+                                                value: BlocProvider.of<
+                                                    ParameterBloc>(context),
+                                              ),
+                                              BlocProvider.value(
+                                                value: BlocProvider.of<
+                                                    CurrencyBloc>(context),
+                                              ),
+                                            ],
+                                            child:
+                                                Detailwalletscreen(wal: item),
+                                          ),
+                                        ),
+                                      )
+                                    },
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 8.0),
+                                      child: Container(
+                                        height: 70,
+                                        width: double.infinity,
+                                        decoration: BoxDecoration(
+                                            border: Border(
+                                                bottom: BorderSide(
+                                                    color: Color(0xFFDADADA),
+                                                    width: 1))),
+                                        child: Column(
+                                          children: [
+                                            Expanded(
+                                                flex: 1,
+                                                child: Align(
+                                                  alignment:
+                                                      Alignment.centerLeft,
+                                                  child: Text(
+                                                    item.name,
+                                                    style: TextStyle(
+                                                        fontSize: 18,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                )),
+                                            Expanded(
+                                                flex: 1,
+                                                child: Align(
+                                                  alignment:
+                                                      Alignment.centerLeft,
+                                                  child: Text(
+                                                    "${GlobalFunction.formatCurrency(item.amount, 2)} ${item.currency.name}",
+                                                    style: TextStyle(
+                                                        fontSize: 18,
+                                                        color:
+                                                            Color(0xFF787878)),
+                                                  ),
+                                                ))
                                           ],
-                                          child: Detailwalletscreen(wal: item),
                                         ),
                                       ),
-                                    )
-                                  },
-                                  child: Container(
-                                    padding: EdgeInsets.symmetric(horizontal: 16.0),
-                                    color: AppColors.Nen,
-                                    child: Container(
-                                      height: 70,
-                                      width: double.infinity,
-                                      decoration: BoxDecoration(
-                                          border: Border(
-                                              bottom:
-                                              BorderSide(color: Color(0xFFDADADA), width: 1))),
-                                      child: Column(
-                                        children: [
-                                          Expanded(
-                                              flex: 1,
-                                              child: Align(
-                                                alignment: Alignment.centerLeft,
-                                                child: Text(item.name, style: TextStyle(
-                                                    fontSize: 18,
-                                                    fontWeight: FontWeight.bold),),
-                                              )),
-                                          Expanded(
-                                              flex: 1,
-                                              child: Align(
-                                                alignment: Alignment.centerLeft,
-                                                child: Text("${GlobalFunction.formatCurrency(item.amount, 2)} ${item.currency.name}", style: TextStyle(
-                                                    fontSize: 18, color: Color(0xFF787878)),),
-                                              ))
-                                        ],
-                                      ),
                                     ),
-                                  ),
-                                )
-                            ).toList(),
-                          ),
-                        ))
-                      ],
-                    ));
-              }
-              else {
-                return Text("Failed to load wallet in wallet screen");
-              }
-            },
-          ),
-        ));
+                                  ))
+                              .toList(),
+                          SizedBox(
+                            height: 20,
+                          )
+                        ]),
+                      ),
+                    ))
+                  ],
+                ));
+          } else {
+            return Text("Failed to load wallet in wallet screen");
+          }
+        },
+      ),
+    ));
   }
 }

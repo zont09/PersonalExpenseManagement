@@ -3,42 +3,27 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:personal_expense_management/Components/dropdown.dart';
 import 'package:personal_expense_management/Components/select_time.dart';
 import 'package:personal_expense_management/Components/transaction_tag.dart';
-import 'package:personal_expense_management/Components/transaction_tag2.dart';
 import 'package:personal_expense_management/Components/wallet_container.dart';
 import 'package:personal_expense_management/Database/database_helper.dart';
 import 'package:personal_expense_management/Database/initdata.dart';
 import 'package:personal_expense_management/Model/Category.dart';
 import 'package:personal_expense_management/Model/Currency.dart';
 import 'package:personal_expense_management/Model/Parameter.dart';
-import 'package:personal_expense_management/Model/RepeatOption.dart';
-import 'package:personal_expense_management/Model/TransactionModel.dart';
 import 'package:personal_expense_management/Model/Wallet.dart';
 import 'package:personal_expense_management/Resources/AppColor.dart';
 import 'package:personal_expense_management/Resources/global_function.dart';
-import 'package:personal_expense_management/Screen/Transaction/detailTransaction.dart';
-import 'package:personal_expense_management/bloc/category_bloc/category_bloc.dart';
 import 'package:personal_expense_management/bloc/category_map_bloc/category_map_bloc.dart';
 import 'package:personal_expense_management/bloc/category_map_bloc/category_map_event.dart';
 import 'package:personal_expense_management/bloc/category_map_bloc/category_map_state.dart';
 import 'package:personal_expense_management/bloc/parameter_bloc/parameter_bloc.dart';
 import 'package:personal_expense_management/bloc/parameter_bloc/parameter_state.dart';
-import 'package:personal_expense_management/bloc/repeat_option_bloc/repeat_option_bloc.dart';
 import 'package:personal_expense_management/bloc/transaction_bloc/transaction_bloc.dart';
 import 'package:personal_expense_management/bloc/transaction_bloc/transaction_state.dart';
 import 'package:personal_expense_management/bloc/wallet_bloc/wallet_bloc.dart';
 import 'package:personal_expense_management/bloc/wallet_bloc/wallet_state.dart';
-import 'package:personal_expense_management/bloc/wallet_select_bloc/wallet_select_bloc.dart';
-import 'package:personal_expense_management/bloc/wallet_select_bloc/wallet_select_event.dart';
-import 'package:personal_expense_management/bloc/wallet_select_bloc/wallet_select_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:month_year_picker/month_year_picker.dart';
-import 'package:month_picker_dialog/month_picker_dialog.dart';
-
-import '../../Animation/Wavepainter.dart';
-import '../../Components/month_picker.dart';
 
 class Transaction extends StatefulWidget {
   const Transaction({super.key});
