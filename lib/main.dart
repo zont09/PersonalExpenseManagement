@@ -6,6 +6,7 @@ import 'package:personal_expense_management/Model/BudgetDetail.dart';
 import 'package:personal_expense_management/Model/Category.dart';
 import 'package:personal_expense_management/Model/Currency.dart';
 import 'package:personal_expense_management/Model/Parameter.dart';
+import 'package:personal_expense_management/Model/Reminder.dart';
 import 'package:personal_expense_management/Model/RepeatOption.dart';
 import 'package:personal_expense_management/Model/Saving.dart';
 import 'package:personal_expense_management/Model/SavingDetail.dart';
@@ -27,6 +28,7 @@ import 'package:personal_expense_management/bloc/budget_detail_bloc/budget_detai
 import 'package:personal_expense_management/bloc/category_bloc/category_bloc.dart';
 import 'package:personal_expense_management/bloc/currency_bloc/currency_bloc.dart';
 import 'package:personal_expense_management/bloc/parameter_bloc/parameter_bloc.dart';
+import 'package:personal_expense_management/bloc/reminder_bloc/reminder_bloc.dart';
 import 'package:personal_expense_management/bloc/repeat_option_bloc/repeat_option_bloc.dart';
 import 'package:personal_expense_management/bloc/saving_bloc/saving_bloc.dart';
 import 'package:personal_expense_management/bloc/saving_detail_bloc/saving_detail_bloc.dart';
@@ -134,7 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _combinedFuture =
         Future.wait([dbHelper.getWallet(), dbHelper.getTransactions(), dbHelper.getParameters(), dbHelper.getCategorys(),
                     dbHelper.getRepeatOptions(), dbHelper.getBudgets(), dbHelper.getBudgetDetail(), dbHelper.getCurrencys(),
-                    dbHelper.getSaving(), dbHelper.getSavingDetails()]);
+                    dbHelper.getSaving(), dbHelper.getSavingDetails(), dbHelper.getReminders()]);
   }
 
   @override
@@ -159,6 +161,7 @@ class _HomeScreenState extends State<HomeScreen> {
         final List<Currency> currencies = snapshot.data![7] ?? [];
         final List<Saving> savings = snapshot.data![8] ?? [];
         final List<SavingDetail> savingDets = snapshot.data![9] ?? [];
+        final List<Reminder> reminders = snapshot.data![10] ?? [];
 
         final currencyGB = parameters.first.currency;
       return MultiBlocProvider(
@@ -195,6 +198,9 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           BlocProvider(
             create: (context) => SavingDetailBloc(savingDets),
+          ),
+          BlocProvider(
+            create: (context) => ReminderBloc(reminders),
           ),
         ],
         child: Builder(

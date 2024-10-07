@@ -12,8 +12,9 @@ class RepeatOptionBloc extends Bloc<RepeatOptionEvent, RepeatOptionState> {
 
   RepeatOptionBloc(this.repeat_options) : super(RepeatOptionUpdateState(repeat_options)) {
     on<AddRepeatOptionEvent>((event, emit) async {
-      repeat_options.add(event.newRep);
-      DatabaseHelper().insertRepeatOption(event.newRep);
+      int id = await DatabaseHelper().insertRepeatOption(event.newRep);
+      RepeatOption newRepOp = RepeatOption(id: id, option_name: event.newRep.option_name);
+      repeat_options.add(newRepOp);
       emit(RepeatOptionUpdateState(List.from(repeat_options)));
     });
 

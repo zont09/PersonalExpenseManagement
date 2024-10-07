@@ -6,6 +6,7 @@ import 'package:personal_expense_management/Database/initdata.dart';
 import 'package:personal_expense_management/Resources/AppColor.dart';
 import 'package:personal_expense_management/Screen/More/CategoryScreen/CategoryScreen.dart';
 import 'package:personal_expense_management/Screen/More/CurrencyScreen/CurrencyScreen.dart';
+import 'package:personal_expense_management/Screen/More/ReminderScreen/ReminderScreen.dart';
 import 'package:personal_expense_management/Screen/More/SavingScreen/SavingScreen.dart';
 import 'package:personal_expense_management/Screen/More/Wallet/WalletScreen.dart';
 import 'package:personal_expense_management/Screen/More/testAI.dart';
@@ -13,6 +14,8 @@ import 'package:personal_expense_management/Screen/More/testScan/testScan.dart';
 import 'package:personal_expense_management/bloc/category_bloc/category_bloc.dart';
 import 'package:personal_expense_management/bloc/currency_bloc/currency_bloc.dart';
 import 'package:personal_expense_management/bloc/parameter_bloc/parameter_bloc.dart';
+import 'package:personal_expense_management/bloc/reminder_bloc/reminder_bloc.dart';
+import 'package:personal_expense_management/bloc/repeat_option_bloc/repeat_option_bloc.dart';
 import 'package:personal_expense_management/bloc/saving_bloc/saving_bloc.dart';
 import 'package:personal_expense_management/bloc/saving_detail_bloc/saving_detail_bloc.dart';
 import 'package:personal_expense_management/bloc/wallet_bloc/wallet_bloc.dart';
@@ -136,7 +139,23 @@ class More extends StatelessWidget {
               // SizedBox(height: 10,),
               GestureDetector(
                 onTap: () => {
-                  print("CLicked")
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (newContext) => MultiBlocProvider(
+                        providers: [
+                          BlocProvider.value(
+                            value: BlocProvider.of<ReminderBloc>(
+                                context),
+                          ),
+                          BlocProvider.value(
+                            value: BlocProvider.of<RepeatOptionBloc>(
+                                context),
+                          ),
+                        ],
+                        child: Reminderscreen(),
+                      ),
+                    ),
+                  )
                 },
                 child: OptionTag(name: "Quản lý lời nhắc", height: 60, width: maxW)
               ),

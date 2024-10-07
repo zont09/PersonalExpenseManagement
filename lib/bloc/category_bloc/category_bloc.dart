@@ -9,8 +9,9 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
   
   CategoryBloc(this.categories) : super(CategoryUpdateState(categories)) {
     on<AddCategoryEvent>((event, emit) async {
-      categories.add(event.newCat);
-      DatabaseHelper().insertCategory(event.newCat);
+      int id = await DatabaseHelper().insertCategory(event.newCat);
+      Category newCate = Category(id: id,name: event.newCat.name, type: event.newCat.type);
+      categories.add(newCate);
       emit(CategoryUpdateState(List.from(categories)));
     });
 

@@ -41,6 +41,8 @@ class _Detailcategory extends State<Detailcategory> {
     else {
       Category newCat = Category(id: widget.cat.id ,name: _controllerName.text, type: widget.cat.type);
       context.read<CategoryBloc>().add(UpdateCategoryEvent(newCat));
+
+
       context.read<CategoryBloc>().stream.listen((state) {
         if (state is CategoryUpdateState) {
           print("Update category successful");

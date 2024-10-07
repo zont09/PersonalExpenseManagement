@@ -32,14 +32,10 @@ class _AddcategoryState extends State<Addcategory> {
     else {
       Category newCat = Category(name: _controllerName.text, type: _categoryOption);
       context.read<CategoryBloc>().add(AddCategoryEvent(newCat));
-      context.read<CategoryBloc>().stream.listen((state) {
-        if (state is CategoryUpdateState) {
-          print("Add transaction successful");
-          if (mounted) {
-            Navigator.of(context).pop();
-          }
-        }
-      });
+      await context.read<CategoryBloc>().stream.firstWhere((state) => state is CategoryUpdateState);
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
     }
   }
 

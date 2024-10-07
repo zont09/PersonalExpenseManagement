@@ -472,7 +472,7 @@ class _Detailtransaction extends State<Detailtransaction> {
         }
 
         walletBloc.add(UpdateWalletEvent(updWal));
-
+        await context.read<WalletBloc>().stream.firstWhere((walletState) => walletState is WalletUpdatedState);
       } else {
         Wallet updWal1 = Wallet(
             id: widget.transaction.wallet.id,
@@ -508,14 +508,14 @@ class _Detailtransaction extends State<Detailtransaction> {
           updWal2.amount += widget.transaction.amount;
 
         walletBloc.add(UpdateWalletEvent(updWal1));
-        await Future.delayed(Duration(milliseconds: 500)); // Chờ một chút để đảm bảo wallet đã được cập nhật
+        await context.read<WalletBloc>().stream.firstWhere((walletState) => walletState is WalletUpdatedState);
         walletBloc.add(UpdateWalletEvent(updWal2));
+        await context.read<WalletBloc>().stream.firstWhere((walletState) => walletState is WalletUpdatedState);
       }
 
-      await Future.delayed(Duration(milliseconds: 500)); // Chờ một chút để đảm bảo wallet đã được cập nhật
 
       transactionBloc.add(UpdateTransactionEvent(newTran));
-
+      await context.read<TransactionBloc>().stream.firstWhere((state) => state is TransactionChangedState);
       if (mounted) {
         Navigator.of(context).pop();
       }
@@ -553,9 +553,9 @@ class _Detailtransaction extends State<Detailtransaction> {
           note: widget.transaction.wallet.note);
     }
     walletBloc.add(UpdateWalletEvent(updWal));
-    await Future.delayed(Duration(milliseconds: 500));
+    await context.read<WalletBloc>().stream.firstWhere((state) => state is WalletUpdatedState);
     transactionBloc.add(RemoveTransactionEvent(widget.transaction));
-    await Future.delayed(Duration(milliseconds: 200));
+    await context.read<TransactionBloc>().stream.firstWhere((state) => state is TransactionChangedState);
     if (mounted) {
       print("Pop in delete");
       Navigator.of(context).pop();

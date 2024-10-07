@@ -103,10 +103,22 @@ class _SavingscreenState extends State<Savingscreen> {
     return SafeArea(
         child: Scaffold(
           appBar: AppBar(
-            backgroundColor: AppColors.Nen,
+            flexibleSpace: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Color(0xFf339DD4),
+                    Color(0xFF00D0CC)
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment
+                      .bottomRight, // Điểm kết thúc của gradient
+                ),
+              ),
+            ),
             title: const Text(
               "Khoản tiết kiệm",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
             ),
             actions: [
               TextButton(
@@ -136,20 +148,19 @@ class _SavingscreenState extends State<Savingscreen> {
                   },
                   child: Text(
                     "Thêm",
-                    style: TextStyle(fontSize: 16, color: Colors.black),
+                    style: TextStyle(fontSize: 16, color: Colors.white),
                   ))
             ],
           ),
           body: Container(
             height: maxH,
             width: maxW,
-            margin: EdgeInsets.only(top: 10),
+            color: Colors.white,
+            padding: EdgeInsets.only(top: 10),
             child: Column(
               children: [
                 
-                SizedBox(
-                  height: 10,
-                ),
+
                 Expanded(
                   child: BlocBuilder<SavingBloc, SavingState>(
                     builder: (context, state) {
@@ -184,11 +195,21 @@ class _SavingscreenState extends State<Savingscreen> {
                                   },
                                   child: Column(
                                     children: [
-                                      SizedBox(height: 10,),
+                                      SizedBox(height: 20,),
                                       Container(
                                         height: 100,
                                         width: maxW,
-                                        color: AppColors.Nen,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.grey.withOpacity(0.5), // Màu của shadow
+                                              spreadRadius: 1, // Độ lan rộng của shadow
+                                              blurRadius: 3, // Độ mờ của shadow
+                                              offset: const Offset(0, 3), // Vị trí của shadow
+                                            ),
+                                          ],
+                                        ),
                                         padding: EdgeInsets.symmetric(
                                             horizontal: 10, vertical: 8),
                                         child: Column(

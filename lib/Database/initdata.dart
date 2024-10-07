@@ -187,7 +187,7 @@ class Initdata {
     RepeatOption rep4 = RepeatOption(id: 4,option_name: "Năm");
     Reminder rem1 = Reminder(date: "2024-09-22", description: "🙂Sinh nhat ban than", repeat_option: rep4);
     Reminder rem2 = Reminder(date: "2024-09-10", description: "Tien dien + nuoc", repeat_option: rep3);
-    Reminder rem3 = Reminder(date: "2024-09-7", description: "Di hoc mon Java", repeat_option: rep2);
+    Reminder rem3 = Reminder(date: "2024-09-07", description: "Di hoc mon Java", repeat_option: rep2);
     await db.insertReminder(rem1);
     await db.insertReminder(rem2);
     int id = await db.insertReminder(rem3);

@@ -170,6 +170,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
             body: Container(
               height: maxH,
               width: maxW,
+              color: Colors.white,
               child: Column(
                 children: [
                   Container(
@@ -238,7 +239,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                             return SingleChildScrollView(
                                               child: Column(
                                                   children:
-                                                      (_budgetSelect == null)
+                                                      (_budgetSelect == null || _budgetdetList.isEmpty)
                                                           ? [
                                                             SizedBox(height: 20,),
                                                               Center(

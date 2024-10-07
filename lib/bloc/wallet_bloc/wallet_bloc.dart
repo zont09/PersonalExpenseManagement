@@ -10,8 +10,9 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
   WalletBloc(this.wallets) : super(WalletUpdatedState(wallets)) {
 
     on<AddWalletEvent>((event, emit) async {
-      wallets.add(event.wallet);
-      DatabaseHelper().insertWallet(event.wallet);
+      int id = await DatabaseHelper().insertWallet(event.wallet);
+      Wallet newWal = Wallet(id: id, name: event.wallet.name, amount: event.wallet.amount, currency: event.wallet.currency, note: event.wallet.note);
+      wallets.add(newWal);
       emit(WalletUpdatedState(List.from(wallets)));
     });
 

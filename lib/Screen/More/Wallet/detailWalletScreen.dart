@@ -150,7 +150,7 @@ class _Detailwalletscreen extends State<Detailwalletscreen> {
     });
   }
 
-  void _updateWallet(BuildContext context, Wallet totalWallet) {
+  void _updateWallet(BuildContext context, Wallet totalWallet) async {
     if (_controllerName.text.isEmpty) {
       ErrorDialog.showErrorDialog(context, "Chưa nhập tên ví");
     } else if (_selectCurerncy.id == -1) {
@@ -165,16 +165,10 @@ class _Detailwalletscreen extends State<Detailwalletscreen> {
           note: _controllerNote.text
       );
       context.read<WalletBloc>().add(UpdateWalletEvent(newWal));
-
-      // Lắng nghe sự kiện thêm ví mới
-      context.read<WalletBloc>().stream.listen((state) {
-        if (state is WalletUpdatedState) {
-          // Kiểm tra xem widget còn mounted không trước khi pop
-          if (mounted) {
-            Navigator.of(context).pop();
-          }
-        }
-      });
+      await context.read<WalletBloc>().stream.firstWhere((walletState) => walletState is WalletUpdatedState);
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
 
     }
   }
@@ -201,38 +195,19 @@ class _Detailwalletscreen extends State<Detailwalletscreen> {
           currency: _selectCurerncy,
           note: _controllerNote.text
       );
+           // Sử dụng Completer để đợi cập nhật hoàn tất
 
-      // Sử dụng Completer để đợi cập nhật hoàn tất
-      final completer = Completer<void>();
-
-      // Lắng nghe sự kiện cập nhật
-      late StreamSubscription<WalletState> subscription;
-      subscription = context.read<WalletBloc>().stream.listen((state) {
-        if (state is WalletUpdatedState) {
-          subscription.cancel();
-          completer.complete();
-        }
-      });
 
       // Cập nhật tổng số dư
       context.read<WalletBloc>().add(UpdateWalletEvent(newTotal));
+      await context.read<WalletBloc>().stream.firstWhere((state) => state is WalletUpdatedState);
+      context.read<WalletBloc>().add(RemoveWalletEvent(newWal));
+      await context.read<WalletBloc>().stream.firstWhere((state) => state is WalletUpdatedState);
+      if (mounted) {
+        print("Delete wallet successful");
+        Navigator.of(context).pop();
+      }
 
-      // Đợi cập nhật hoàn tất trước khi thêm ví mới
-      completer.future.then((_) {
-        // Thêm ví mới
-        context.read<WalletBloc>().add(RemoveWalletEvent(newWal));
-
-        // Lắng nghe sự kiện thêm ví mới
-        context.read<WalletBloc>().stream.listen((state) {
-          if (state is WalletUpdatedState) {
-            // Kiểm tra xem widget còn mounted không trước khi pop
-            if (mounted) {
-              print("Delete wallet successful");
-              Navigator.of(context).pop();
-            }
-          }
-        });
-      });
     }
 
   }

@@ -248,6 +248,7 @@ class _SaveButtonState extends State<SaveButton> {
       context.read<BudgetBloc>().add(AddBudgetEvent(newBud));
 
       // Lắng nghe stream và xử lý khi có trạng thái cập nhật
+
       context.read<BudgetBloc>().stream.listen((budgetState) {
         if (budgetState is BudgetUpdateState) {
           // Tìm ngân sách mới vừa được thêm
@@ -284,15 +285,10 @@ class _SaveButtonState extends State<SaveButton> {
       else {
         BudgetDetail budDet = BudgetDetail(id_budget: _budget, amount: double.parse(_inputAmount), category: widget.selectItem);
         context.read<BudgetDetailBloc>().add(AddBudgetDetailEvent(budDet));
-        context.read<BudgetDetailBloc>().stream.listen((state) async {
-          if (state is BudgetDetailUpdateState) {
-            print("Add budgetdetail successful");
-            await Future.delayed(Duration(milliseconds: 500));
-            if (mounted) {
-              Navigator.of(context).pop();
-            }
-          }
-        });
+        await context.read<BudgetDetailBloc>().stream.firstWhere((state) => state is BudgetDetailUpdateState);
+        if (mounted) {
+          Navigator.of(context).pop();
+        }
       }
 
     }

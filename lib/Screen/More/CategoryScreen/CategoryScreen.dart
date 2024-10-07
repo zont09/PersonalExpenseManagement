@@ -25,10 +25,22 @@ class _CategoryscreenState extends State<Categoryscreen> {
     return SafeArea(
         child: Scaffold(
       appBar: AppBar(
-        backgroundColor: AppColors.Nen,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color(0xFf339DD4),
+                Color(0xFF00D0CC)
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment
+                  .bottomRight, // Điểm kết thúc của gradient
+            ),
+          ),
+        ),
         title: const Text(
           "Quản lý loại giao dịch",
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
         ),
         actions: [
           TextButton(
@@ -48,7 +60,7 @@ class _CategoryscreenState extends State<Categoryscreen> {
                   },
               child: Text(
                 "Thêm",
-                style: TextStyle(fontSize: 16, color: Colors.black),
+                style: TextStyle(fontSize: 16, color: Colors.white),
               ))
         ],
       ),

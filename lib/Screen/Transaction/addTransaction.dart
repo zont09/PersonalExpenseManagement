@@ -396,22 +396,16 @@ class _AddtransactionState extends State<Addtransaction> {
         else
           updWal.amount += double.parse(_inputAmount);
         print("Wallet: ${updWal.id} - ${updWal.name} - ${updWal.amount}");
+
         context.read<WalletBloc>().add(UpdateWalletEvent(updWal));
-        context.read<WalletBloc>().stream.listen((walletState) {
-          if (walletState is WalletUpdatedState) {
-            context.read<TransactionBloc>().add(AddTransactionEvent(newTran));
-          }
-        });
-        print("Done wallet");
-        // Lắng nghe trạng thái TransactionBloc
-        context.read<TransactionBloc>().stream.listen((transactionState) {
-          if (transactionState is TransactionChangedState) {
-            print("Add transaction successful");
-            if (mounted) {
-              Navigator.of(context).pop();
-            }
-          }
-        });
+        await context.read<WalletBloc>().stream.firstWhere((walletState) => walletState is WalletUpdatedState);
+        
+        context.read<TransactionBloc>().add(AddTransactionEvent(newTran));
+        await context.read<TransactionBloc>().stream.firstWhere((state) => state is TransactionChangedState);
+
+        if (mounted) {
+          Navigator.of(context).pop();
+        }
       }
   }
 

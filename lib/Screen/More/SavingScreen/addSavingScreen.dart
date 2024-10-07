@@ -53,20 +53,17 @@ class _AddsavingscreenState extends State<Addsavingscreen> {
     }
   }
 
-  void _saveNewSaving(BuildContext context) {
+  void _saveNewSaving(BuildContext context) async {
     if(_controllerName.text.length <= 0) {
       ErrorDialog.showErrorDialog(context, "Chưa nhập tên khoản tiết kiệm");
     }
     else {
       Saving newSav = Saving(name: _controllerName.text, target_amount: double.parse(_inputAmount), target_date: DateFormat('yyyy-MM-dd').format(DateFormat('dd/MM/yyyy').parse(_controllerDate.text)), current_amount: 0, is_finished: 0);
       context.read<SavingBloc>().add(AddSavingEvent(newSav));
-      context.read<SavingBloc>().stream.listen((state) {
-        if (state is SavingUpdateState) {
-          if (mounted) {
-            Navigator.of(context).pop();
-          }
-        }
-      });
+      await context.read<SavingBloc>().stream.firstWhere((walletState) => walletState is SavingUpdateState);
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
     }
   }
 

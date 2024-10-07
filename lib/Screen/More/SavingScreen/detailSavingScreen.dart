@@ -74,7 +74,7 @@ class _DetailsavingscreenState extends State<Detailsavingscreen> {
     }
   }
 
-  void _updateSaving(BuildContext context) {
+  void _updateSaving(BuildContext context) async {
     if (_controllerName.text.length <= 0) {
       ErrorDialog.showErrorDialog(context, "Chưa nhập tên khoản tiết kiệm");
     } else {
@@ -87,26 +87,19 @@ class _DetailsavingscreenState extends State<Detailsavingscreen> {
           current_amount: 0,
           is_finished: 0);
       context.read<SavingBloc>().add(UpdateSavingEvent(newSav));
-      context.read<SavingBloc>().stream.listen((state) {
-        if (state is SavingUpdateState) {
-          if (mounted) {
-            Navigator.of(context).pop();
-          }
-        }
-      });
+      await context.read<SavingBloc>().stream.firstWhere((walletState) => walletState is SavingUpdateState);
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
     }
   }
 
   void _removeSavingDetail(BuildContext context) async {
     context.read<SavingBloc>().add(RemoveSavingEvent(widget.sav));
-    context.read<SavingBloc>().stream.listen((state) {
-      if (state is SavingUpdateState) {
-        print("Remove category successful");
-        if (mounted) {
-          Navigator.of(context).pop();
-        }
-      }
-    });
+    await context.read<SavingBloc>().stream.firstWhere((walletState) => walletState is SavingUpdateState);
+    if (mounted) {
+      Navigator.of(context).pop();
+    }
   }
 
   void _showDeleteConfirmDialog(BuildContext ncontext) {

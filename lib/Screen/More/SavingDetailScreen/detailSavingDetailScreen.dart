@@ -225,8 +225,15 @@ class _DetailsavingdetailscreenState extends State<Detailsavingdetailscreen> {
     );
 
     context.read<SavingDetailBloc>().add(UpdateSavingDetailEvent(newSavDet));
+    await context.read<SavingDetailBloc>().stream.firstWhere((state) => state is SavingDetailUpdateState);
     context.read<WalletBloc>().add(UpdateWalletEvent(updWallet));
+    await context.read<WalletBloc>().stream.firstWhere((state) => state is WalletUpdatedState);
     context.read<SavingBloc>().add(UpdateSavingEvent(updSaving));
+    await context.read<SavingBloc>().stream.firstWhere((state) => state is SavingUpdateState);
+    if (mounted) {
+      print("Pop in delete");
+      Navigator.of(context).pop();
+    }
   }
 
   @override
@@ -246,158 +253,151 @@ class _DetailsavingdetailscreenState extends State<Detailsavingdetailscreen> {
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
         ),
-        body: BlocListener<SavingBloc, SavingState>(
-          listener: (context, state) {
-            if (state is SavingUpdateState) {
-              Navigator.of(context).pop();
-            }
-          },
-          child: Container(
-            height: maxH,
-            width: maxW,
-            margin: EdgeInsets.only(top: 10),
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  Container(
-                    color: AppColors.Nen,
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          width: 8,
-                        ),
-                        Container(
-                          height: 50,
-                          width: 80,
-                          child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                "Tên KTK",
-                                style: TextStyle(fontSize: 16),
-                              )),
-                        ),
-                        Expanded(
-                          child: TextField(
-                            enabled: false,
-                            controller: _controllerName,
-                            maxLines: null,
-                            minLines: 1,
-                            decoration: InputDecoration(
-                              border: UnderlineInputBorder(),
-                              labelText: 'Tên khoản tiết kiệm',
-                            ),
-                            onChanged: (value) {},
+        body: Container(
+          height: maxH,
+          width: maxW,
+          margin: EdgeInsets.only(top: 10),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Container(
+                  color: AppColors.Nen,
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 8,
+                      ),
+                      Container(
+                        height: 50,
+                        width: 80,
+                        child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              "Tên KTK",
+                              style: TextStyle(fontSize: 16),
+                            )),
+                      ),
+                      Expanded(
+                        child: TextField(
+                          enabled: false,
+                          controller: _controllerName,
+                          maxLines: null,
+                          minLines: 1,
+                          decoration: InputDecoration(
+                            border: UnderlineInputBorder(),
+                            labelText: 'Tên khoản tiết kiệm',
                           ),
-                        )
-                      ],
-                    ),
-                  ),
-                  Container(
-                    color: AppColors.Nen,
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          width: 8,
+                          onChanged: (value) {},
                         ),
-                        Container(
-                          height: 50,
-                          width: 80,
-                          child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                "Số tiền",
-                                style: TextStyle(fontSize: 16),
-                              )),
-                        ),
-                        Expanded(
-                          child: AmountTextfield(
-                            controllerTF: _controllerAmount,
-                            isEdit: _isEditable,
-                          ),
-                        )
-                      ],
-                    ),
+                      )
+                    ],
                   ),
-                  BlocBuilder<WalletBloc, WalletState>(
-                    builder: (context, state) {
-                      if (state is WalletUpdatedState) {
-                        final List<Wallet> listWal = state.updatedWallet;
+                ),
+                Container(
+                  color: AppColors.Nen,
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 8,
+                      ),
+                      Container(
+                        height: 50,
+                        width: 80,
+                        child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              "Số tiền",
+                              style: TextStyle(fontSize: 16),
+                            )),
+                      ),
+                      Expanded(
+                        child: AmountTextfield(
+                          controllerTF: _controllerAmount,
+                          isEdit: _isEditable,
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                BlocBuilder<WalletBloc, WalletState>(
+                  builder: (context, state) {
+                    if (state is WalletUpdatedState) {
+                      final List<Wallet> listWal = state.updatedWallet;
 
-                        return Container(
-                          color: AppColors.Nen,
-                          child: Row(
-                            children: [
-                              SizedBox(
-                                width: 8,
-                              ),
-                              Container(
-                                height: 50,
-                                width: 80,
-                                child: Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      "Ví",
-                                      style: TextStyle(fontSize: 16),
-                                    )),
-                              ),
-                              Expanded(
-                                child: GestureDetector(
-                                  onTap: () =>
-                                      {_showWalletOption(context, listWal)},
-                                  child: AbsorbPointer(
-                                    child: TextField(
-                                        enabled: _isEditable,
-                                        controller: _controllerWallet,
-                                        decoration: InputDecoration(
-                                            border: UnderlineInputBorder(),
-                                            labelText: "Ví"),
-                                        onChanged: (value) {}),
-                                  ),
-                                ),
-                              )
-                            ],
-                          ),
-                        );
-                      } else {
-                        return Text("");
-                      }
-                    },
-                  ),
-                  Container(
-                    color: AppColors.Nen,
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          width: 8,
-                        ),
-                        Container(
-                          height: 50,
-                          width: 80,
-                          child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                "Ghi chú",
-                                style: TextStyle(fontSize: 16),
-                              )),
-                        ),
-                        Expanded(
-                          child: TextField(
-                            enabled: _isEditable,
-                            controller: _controllerNote,
-                            maxLines: null,
-                            minLines: 1,
-                            decoration: InputDecoration(
-                              border: UnderlineInputBorder(),
-                              labelText: 'Ghi chú',
+                      return Container(
+                        color: AppColors.Nen,
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: 8,
                             ),
-                            onChanged: (value) {},
+                            Container(
+                              height: 50,
+                              width: 80,
+                              child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    "Ví",
+                                    style: TextStyle(fontSize: 16),
+                                  )),
+                            ),
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () =>
+                                    {_showWalletOption(context, listWal)},
+                                child: AbsorbPointer(
+                                  child: TextField(
+                                      enabled: _isEditable,
+                                      controller: _controllerWallet,
+                                      decoration: InputDecoration(
+                                          border: UnderlineInputBorder(),
+                                          labelText: "Ví"),
+                                      onChanged: (value) {}),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      );
+                    } else {
+                      return Text("");
+                    }
+                  },
+                ),
+                Container(
+                  color: AppColors.Nen,
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 8,
+                      ),
+                      Container(
+                        height: 50,
+                        width: 80,
+                        child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              "Ghi chú",
+                              style: TextStyle(fontSize: 16),
+                            )),
+                      ),
+                      Expanded(
+                        child: TextField(
+                          enabled: _isEditable,
+                          controller: _controllerNote,
+                          maxLines: null,
+                          minLines: 1,
+                          decoration: InputDecoration(
+                            border: UnderlineInputBorder(),
+                            labelText: 'Ghi chú',
                           ),
-                        )
-                      ],
-                    ),
+                          onChanged: (value) {},
+                        ),
+                      )
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),

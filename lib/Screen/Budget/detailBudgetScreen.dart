@@ -123,15 +123,10 @@ class _Detailbudgetscreen extends State<Detailbudgetscreen> {
   void _removeBudgetDetail(BuildContext context) async {
     double newAmount = double.parse(_inputAmount);
     context.read<BudgetDetailBloc>().add(RemoveBudgetDetailEvent(widget.budDt));
-    context.read<BudgetDetailBloc>().stream.listen((state) async {
-      if (state is BudgetDetailUpdateState) {
-        print("Remove budgetdetail successful");
-        await Future.delayed(Duration(milliseconds: 500));
-        if (mounted) {
-          Navigator.of(context).pop();
-        }
-      }
-    });
+    await context.read<BudgetDetailBloc>().stream.firstWhere((state) => state is BudgetDetailUpdateState);
+    if (mounted) {
+      Navigator.of(context).pop();
+    }
   }
 
   void _showDeleteConfirmDialog(BuildContext ncontext) {
@@ -383,15 +378,10 @@ class _SaveButtonState extends State<SaveButton> {
     double newAmount = double.parse(widget.inputAmount);
     BudgetDetail updBudDet = BudgetDetail(id: widget.budDet.id,id_budget: widget.budDet.id_budget, amount: newAmount, category: widget.budDet.category);
     context.read<BudgetDetailBloc>().add(UpdateBudgetDetailEvent(updBudDet));
-    context.read<BudgetDetailBloc>().stream.listen((state) async {
-      if (state is BudgetDetailUpdateState) {
-        print("Update budgetdetail successful");
-        await Future.delayed(Duration(milliseconds: 500));
-        if (mounted) {
-          Navigator.of(context).pop();
-        }
-      }
-    });
+    await context.read<BudgetDetailBloc>().stream.firstWhere((state) => state is BudgetDetailUpdateState);
+    if (mounted) {
+      Navigator.of(context).pop();
+    }
   }
 
   void _showErrorDialog(BuildContext context, String errorMessage) {

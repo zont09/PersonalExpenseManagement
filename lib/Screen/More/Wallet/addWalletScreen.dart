@@ -119,7 +119,7 @@ class _AddwalletscreenState extends State<Addwalletscreen> {
     });
   }
 
-  void _saveNewCurrency(BuildContext context, Wallet totalWallet) {
+  void _saveNewCurrency(BuildContext context, Wallet totalWallet) async {
     if (_controllerName.text.isEmpty) {
       ErrorDialog.showErrorDialog(context, "Chưa nhập tên ví");
     } else if (_selectCurerncy.id == -1) {
@@ -140,35 +140,16 @@ class _AddwalletscreenState extends State<Addwalletscreen> {
           note: _controllerNote.text);
 
       // Sử dụng Completer để đợi cập nhật hoàn tất
-      final completer = Completer<void>();
 
-      // Lắng nghe sự kiện cập nhật
-      late StreamSubscription<WalletState> subscription;
-      subscription = context.read<WalletBloc>().stream.listen((state) {
-        if (state is WalletUpdatedState) {
-          subscription.cancel();
-          completer.complete();
-        }
-      });
 
       // Cập nhật tổng số dư
       context.read<WalletBloc>().add(UpdateWalletEvent(newTotal));
-
-      // Đợi cập nhật hoàn tất trước khi thêm ví mới
-      completer.future.then((_) {
-        // Thêm ví mới
-        context.read<WalletBloc>().add(AddWalletEvent(newWal));
-
-        // Lắng nghe sự kiện thêm ví mới
-        context.read<WalletBloc>().stream.listen((state) {
-          if (state is WalletUpdatedState) {
-            // Kiểm tra xem widget còn mounted không trước khi pop
-            if (mounted) {
-              Navigator.of(context).pop();
-            }
-          }
-        });
-      });
+      await context.read<WalletBloc>().stream.firstWhere((walletState) => walletState is WalletUpdatedState);
+      context.read<WalletBloc>().add(AddWalletEvent(newWal));
+      await context.read<WalletBloc>().stream.firstWhere((walletState) => walletState is WalletUpdatedState);
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
     }
   }
 
