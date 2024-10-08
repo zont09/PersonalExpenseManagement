@@ -26,7 +26,7 @@ dependencies:
   google_ml_kit: ^0.18.1
   cupertino_icons: ^1.0.6
   shared_preferences: ^2.3.2
-
+  flutter_local_notifications: ^17.2.3
 dev_dependencies:
   flutter_test:
     sdk: flutter

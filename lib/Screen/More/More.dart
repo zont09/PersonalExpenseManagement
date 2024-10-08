@@ -11,6 +11,7 @@ import 'package:personal_expense_management/Screen/More/SavingScreen/SavingScree
 import 'package:personal_expense_management/Screen/More/Wallet/WalletScreen.dart';
 import 'package:personal_expense_management/Screen/More/testAI.dart';
 import 'package:personal_expense_management/Screen/More/testScan/testScan.dart';
+import 'package:personal_expense_management/Service/NotificationService.dart';
 import 'package:personal_expense_management/bloc/category_bloc/category_bloc.dart';
 import 'package:personal_expense_management/bloc/currency_bloc/currency_bloc.dart';
 import 'package:personal_expense_management/bloc/parameter_bloc/parameter_bloc.dart';
@@ -187,6 +188,12 @@ class More extends StatelessWidget {
                   _resetData()
                 },
                 child: OptionTag(name: "reset data", height: 60, width: maxW)
+              ),
+              GestureDetector(
+                  onTap: () async => {
+                    NotificationService().showNotification(title: "Nhắc nhở",body: "Đây là nội dung")
+                  },
+                  child: OptionTag(name: "Test notification", height: 60, width: maxW)
               ),
             ],
           ),

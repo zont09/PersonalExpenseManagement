@@ -23,6 +23,7 @@ import 'package:month_year_picker/month_year_picker.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:personal_expense_management/Screen/Transaction/addTransaction.dart';
+import 'package:personal_expense_management/Service/NotificationService.dart';
 import 'package:personal_expense_management/bloc/budget_bloc/budget_bloc.dart';
 import 'package:personal_expense_management/bloc/budget_detail_bloc/budget_detail_bloc.dart';
 import 'package:personal_expense_management/bloc/category_bloc/category_bloc.dart';
@@ -42,6 +43,7 @@ void main() async {
   initializeDateFormatting(Intl.defaultLocale);
   WidgetsFlutterBinding.ensureInitialized();
   await checkFirstRun();
+  NotificationService().initNotification();
   runApp(const MyApp());
 }
 
