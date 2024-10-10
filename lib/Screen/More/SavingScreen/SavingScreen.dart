@@ -6,6 +6,7 @@ import 'package:personal_expense_management/Resources/AppColor.dart';
 import 'package:personal_expense_management/Resources/global_function.dart';
 import 'package:personal_expense_management/Screen/More/SavingScreen/addSavingScreen.dart';
 import 'package:personal_expense_management/Screen/More/SavingScreen/detailSavingScreen.dart';
+import 'package:personal_expense_management/bloc/currency_bloc/currency_bloc.dart';
 import 'package:personal_expense_management/bloc/parameter_bloc/parameter_bloc.dart';
 import 'package:personal_expense_management/bloc/parameter_bloc/parameter_state.dart';
 import 'package:personal_expense_management/bloc/saving_bloc/saving_bloc.dart';
@@ -86,6 +87,9 @@ class _SavingscreenState extends State<Savingscreen> {
                             BlocProvider.value(
                               value: BlocProvider.of<WalletBloc>(context),
                             ),
+                            BlocProvider.value(
+                              value: BlocProvider.of<CurrencyBloc>(context),
+                            ),
                           ],
                           child: Addsavingscreen(),
                         ),
@@ -139,6 +143,10 @@ class _SavingscreenState extends State<Savingscreen> {
                                                   BlocProvider.value(
                                                     value: BlocProvider.of<
                                                         WalletBloc>(context),
+                                                  ),
+                                                  BlocProvider.value(
+                                                    value: BlocProvider.of<
+                                                        CurrencyBloc>(context),
                                                   ),
                                                 ],
                                                 child:
@@ -206,7 +214,7 @@ class _SavingscreenState extends State<Savingscreen> {
                                                                       .formatCurrency(
                                                                       item
                                                                           .target_amount * item.currency.value / currencyGB.value,
-                                                                      2)}",
+                                                                      2)} ${item.currency.name}",
                                                                   style: TextStyle(
                                                                       fontSize:
                                                                       14,

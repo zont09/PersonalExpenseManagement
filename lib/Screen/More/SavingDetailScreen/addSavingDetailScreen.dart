@@ -135,7 +135,7 @@ class _AddsavingdetailscreenState extends State<Addsavingdetailscreen> {
     }
     else {
       Wallet updWallet = Wallet(id: _selectWallet.id,name: _selectWallet.name, amount: _selectWallet.amount - double.parse(_inputAmount), currency: _selectWallet.currency, note: _selectWallet.note);
-      Saving updSaving = Saving(id: widget.sav.id,name: widget.sav.name, target_amount: widget.sav.target_amount, target_date: widget.sav.target_date, current_amount: widget.sav.current_amount + double.parse(_inputAmount), is_finished: widget.sav.current_amount + double.parse(_inputAmount) >= widget.sav.target_amount ? 1 : 0, currency: widget.sav.currency);
+      Saving updSaving = Saving(id: widget.sav.id,name: widget.sav.name, target_amount: widget.sav.target_amount, target_date: widget.sav.target_date, current_amount: widget.sav.current_amount + double.parse(_inputAmount) * _selectWallet.currency.value / widget.sav.currency.value, is_finished: widget.sav.current_amount + double.parse(_inputAmount) >= widget.sav.target_amount ? 1 : 0, currency: widget.sav.currency);
       SavingDetail newSavDet = SavingDetail(id_saving: widget.sav, amount: double.parse(_inputAmount), wallet: _selectWallet, note: _controllerNote.text);
 
       // Step 1: Add the new saving detail

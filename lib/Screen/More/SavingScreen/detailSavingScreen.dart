@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:personal_expense_management/Model/Currency.dart';
 import 'package:personal_expense_management/Model/Saving.dart';
 import 'package:personal_expense_management/Resources/AppColor.dart';
 import 'package:personal_expense_management/Resources/global_function.dart';
@@ -31,14 +32,18 @@ class _DetailsavingscreenState extends State<Detailsavingscreen> {
   final TextEditingController _controllerName = TextEditingController();
   final TextEditingController _controllerAmount = TextEditingController();
   final TextEditingController _controllerDate = TextEditingController();
+  final TextEditingController _controllerCurrency = TextEditingController();
   String _inputAmount = '0';
   bool _isEditable = false;
+  Currency selectCurrency = Currency(id: -1, name: "", value: 0);
 
   @override
   void initState() {
     _controllerDate.text =
         DateFormat('dd/MM/yyyy').format(DateTime.parse(widget.sav.target_date));
     _inputAmount = widget.sav.target_amount.toString();
+    selectCurrency = widget.sav.currency;
+    _controllerCurrency.text = widget.sav.currency.name;
     _controllerAmount.text = GlobalFunction.formatCurrency2(_inputAmount);
     _controllerName.text = widget.sav.name;
     _controllerAmount.addListener(() {
@@ -78,8 +83,6 @@ class _DetailsavingscreenState extends State<Detailsavingscreen> {
     if (_controllerName.text.length <= 0) {
       ErrorDialog.showErrorDialog(context, "Chưa nhập tên khoản tiết kiệm");
     } else {
-      final para = await DatabaseHelper().getParameters();
-      final currencyGB = para.first.currency;
       Saving newSav = Saving(
           id: widget.sav.id,
           name: _controllerName.text,
@@ -87,10 +90,13 @@ class _DetailsavingscreenState extends State<Detailsavingscreen> {
           target_date: DateFormat('yyyy-MM-dd')
               .format(DateFormat('dd/MM/yyyy').parse(_controllerDate.text)),
           current_amount: 0,
-          currency: currencyGB,
+          currency: selectCurrency,
           is_finished: 0);
       context.read<SavingBloc>().add(UpdateSavingEvent(newSav));
-      await context.read<SavingBloc>().stream.firstWhere((walletState) => walletState is SavingUpdateState);
+      await context
+          .read<SavingBloc>()
+          .stream
+          .firstWhere((walletState) => walletState is SavingUpdateState);
       if (mounted) {
         Navigator.of(context).pop();
       }
@@ -99,7 +105,10 @@ class _DetailsavingscreenState extends State<Detailsavingscreen> {
 
   void _removeSavingDetail(BuildContext context) async {
     context.read<SavingBloc>().add(RemoveSavingEvent(widget.sav));
-    await context.read<SavingBloc>().stream.firstWhere((walletState) => walletState is SavingUpdateState);
+    await context
+        .read<SavingBloc>()
+        .stream
+        .firstWhere((walletState) => walletState is SavingUpdateState);
     if (mounted) {
       Navigator.of(context).pop();
     }
@@ -213,6 +222,40 @@ class _DetailsavingscreenState extends State<Detailsavingscreen> {
                       child: Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
+                            "Tiền tệ",
+                            style: TextStyle(fontSize: 16),
+                          )),
+                    ),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => {},
+                        child: AbsorbPointer(
+                          child: TextField(
+                            enabled: false,
+                              controller: _controllerCurrency,
+                              decoration: InputDecoration(
+                                  border: UnderlineInputBorder(),
+                                  labelText: "Tiền tệ"),
+                              onChanged: (value) {}),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              Container(
+                color: AppColors.Nen,
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 8,
+                    ),
+                    Container(
+                      height: 50,
+                      width: 80,
+                      child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
                             "Số tiền",
                             style: TextStyle(fontSize: 16),
                           )),
@@ -260,179 +303,200 @@ class _DetailsavingscreenState extends State<Detailsavingscreen> {
                   ],
                 ),
               ),
-              if(!_isEditable)
-              Container(
-                margin: EdgeInsets.only(
-                  top: 16,
-                ),
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                height: 40,
-                width: maxW,
-                child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.XanhLaDam,
-                      side: BorderSide(
-                        color: AppColors.XanhLaDam,
-                        width: 2.0,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius:
-                        BorderRadius.circular(12), // Độ bo góc của viền
-                      ),
-                    ),
-                    onPressed: () => {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (newContext) => MultiBlocProvider(
-                            providers: [
-                              BlocProvider.value(
-                                value: BlocProvider.of<SavingBloc>(
-                                    context),
-                              ),
-                              BlocProvider.value(
-                                value:
-                                BlocProvider.of<SavingDetailBloc>(context),
-                              ),
-                              BlocProvider.value(
-                                value:
-                                BlocProvider.of<WalletBloc>(context),
-                              ),
-
-                            ],
-                            child: Addsavingdetailscreen(sav: widget.sav),
-                          ),
+              if (!_isEditable)
+                Container(
+                  margin: EdgeInsets.only(
+                    top: 16,
+                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  height: 40,
+                  width: maxW,
+                  child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.XanhLaDam,
+                        side: BorderSide(
+                          color: AppColors.XanhLaDam,
+                          width: 2.0,
                         ),
-                      )
-                    },
-                    child: Center(
-                      child: Text(
-                        "Thêm tiền vào khoản tiết kiệm",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500),
+                        shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(12), // Độ bo góc của viền
+                        ),
                       ),
-                    )),
-              ),
-              if(!_isEditable)
-              Expanded(
-                child: Container(
-                  child: SingleChildScrollView(
-                    child: BlocBuilder<SavingDetailBloc, SavingDetailState>(
-                      builder: (context, state) {
-                        if (state is SavingDetailUpdateState) {
-                          final listSavDet = state.updSavDet.where(
-                              (item) => item.id_saving.id == widget.sav.id);
-                          return Column(
-                            children: listSavDet
-                                .map((item) => Column(
-                                  children: [
-                                    SizedBox(height: 10,),
-                                    GestureDetector(
-                                      onTap: () => {
-                                        Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder: (newContext) => MultiBlocProvider(
-                                              providers: [
-                                                BlocProvider.value(
-                                                  value: BlocProvider.of<SavingBloc>(
-                                                      context),
-                                                ),
-                                                BlocProvider.value(
-                                                  value:
-                                                  BlocProvider.of<SavingDetailBloc>(context),
-                                                ),
-                                                BlocProvider.value(
-                                                  value:
-                                                  BlocProvider.of<WalletBloc>(context),
-                                                ),
-
-                                              ],
-                                              child: Detailsavingdetailscreen(sav: widget.sav, savDet: item,),
-                                            ),
-                                          ),
-                                        )
-                                      },
-                                      child: Container(
-                                            height: 80,
-                                            width: maxW,
-                                            color: AppColors.Nen,
-                                            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-                                            child: Column(
-                                              children: [
-                                                Expanded(
-                                                    flex: 1,
-                                                    child: Row(
-                                                      children: [
-                                                        Expanded(
-                                                            flex: 1,
-                                                            child: Text(
-                                                              item.note,
-                                                              style: TextStyle(
-                                                                  fontSize: 16,
-                                                                  fontWeight:
-                                                                      FontWeight.w500,
-                                                                  overflow:
-                                                                      TextOverflow
-                                                                          .ellipsis),
-                                                            )),
-                                                        Expanded(
-                                                            flex: 1,
-                                                            child: Align(
-                                                              alignment: Alignment.centerRight,
-                                                              child: Text(
-                                                                item.wallet.name,
-                                                                style: TextStyle(
-                                                                    fontSize: 16,
-                                                                    color: Color(0xFF787878),
-                                                                    fontWeight:
-                                                                    FontWeight.w500,
-                                                                    overflow:
-                                                                    TextOverflow
-                                                                        .ellipsis),
-                                                              ))),
-                                                      ],
-                                                    )),
-                                                Expanded(
-                                                    flex: 1,
-                                                    child: Row(
-                                                      children: [
-                                                        Expanded(
-                                                            flex: 1,
-                                                            child: Align(
-                                                              alignment: Alignment.centerLeft,
-                                                              child: FittedBox(
-                                                                fit: BoxFit.scaleDown,
-                                                                child: Text(
-                                                                  '${GlobalFunction.formatCurrency(item.amount, 2)} ${item.wallet.currency.name}',
-                                                                  style: TextStyle(
-                                                                      fontSize: 16,
-                                                                      color: AppColors.XanhLaDam,
-                                                                      fontWeight:
-                                                                      FontWeight.w500,
-                                                                      overflow:
-                                                                      TextOverflow
-                                                                          .ellipsis),
-                                                                ),
-                                                              ),
-                                                            ))
-                                                      ],
-                                                    )),
-                                              ],
-                                            ),
-                                          ),
+                      onPressed: () => {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (newContext) => MultiBlocProvider(
+                                  providers: [
+                                    BlocProvider.value(
+                                      value:
+                                          BlocProvider.of<SavingBloc>(context),
+                                    ),
+                                    BlocProvider.value(
+                                      value: BlocProvider.of<SavingDetailBloc>(
+                                          context),
+                                    ),
+                                    BlocProvider.value(
+                                      value:
+                                          BlocProvider.of<WalletBloc>(context),
                                     ),
                                   ],
-                                ))
-                                .toList(),
-                          );
-                        } else
-                          return Text("");
-                      },
+                                  child: Addsavingdetailscreen(sav: widget.sav),
+                                ),
+                              ),
+                            )
+                          },
+                      child: Center(
+                        child: Text(
+                          "Thêm tiền vào khoản tiết kiệm",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500),
+                        ),
+                      )),
+                ),
+              if (!_isEditable)
+                Expanded(
+                  child: Container(
+                    child: SingleChildScrollView(
+                      child: BlocBuilder<SavingDetailBloc, SavingDetailState>(
+                        builder: (context, state) {
+                          if (state is SavingDetailUpdateState) {
+                            final listSavDet = state.updSavDet.where(
+                                (item) => item.id_saving.id == widget.sav.id);
+                            return Column(
+                              children: listSavDet
+                                  .map((item) => Column(
+                                        children: [
+                                          SizedBox(
+                                            height: 10,
+                                          ),
+                                          GestureDetector(
+                                            onTap: () => {
+                                              Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                  builder: (newContext) =>
+                                                      MultiBlocProvider(
+                                                    providers: [
+                                                      BlocProvider.value(
+                                                        value: BlocProvider.of<
+                                                                SavingBloc>(
+                                                            context),
+                                                      ),
+                                                      BlocProvider.value(
+                                                        value: BlocProvider.of<
+                                                                SavingDetailBloc>(
+                                                            context),
+                                                      ),
+                                                      BlocProvider.value(
+                                                        value: BlocProvider.of<
+                                                                WalletBloc>(
+                                                            context),
+                                                      ),
+                                                    ],
+                                                    child:
+                                                        Detailsavingdetailscreen(
+                                                      sav: widget.sav,
+                                                      savDet: item,
+                                                    ),
+                                                  ),
+                                                ),
+                                              )
+                                            },
+                                            child: Container(
+                                              height: 80,
+                                              width: maxW,
+                                              color: AppColors.Nen,
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: 8, vertical: 5),
+                                              child: Column(
+                                                children: [
+                                                  Expanded(
+                                                      flex: 1,
+                                                      child: Row(
+                                                        children: [
+                                                          Expanded(
+                                                              flex: 1,
+                                                              child: Text(
+                                                                item.note,
+                                                                style: TextStyle(
+                                                                    fontSize:
+                                                                        16,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w500,
+                                                                    overflow:
+                                                                        TextOverflow
+                                                                            .ellipsis),
+                                                              )),
+                                                          Expanded(
+                                                              flex: 1,
+                                                              child: Align(
+                                                                  alignment:
+                                                                      Alignment
+                                                                          .centerRight,
+                                                                  child: Text(
+                                                                    item.wallet
+                                                                        .name,
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            16,
+                                                                        color: Color(
+                                                                            0xFF787878),
+                                                                        fontWeight:
+                                                                            FontWeight
+                                                                                .w500,
+                                                                        overflow:
+                                                                            TextOverflow.ellipsis),
+                                                                  ))),
+                                                        ],
+                                                      )),
+                                                  Expanded(
+                                                      flex: 1,
+                                                      child: Row(
+                                                        children: [
+                                                          Expanded(
+                                                              flex: 1,
+                                                              child: Align(
+                                                                alignment: Alignment
+                                                                    .centerLeft,
+                                                                child:
+                                                                    FittedBox(
+                                                                  fit: BoxFit
+                                                                      .scaleDown,
+                                                                  child: Text(
+                                                                    '${GlobalFunction.formatCurrency(item.amount, 2)} ${item.wallet.currency.name}',
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            16,
+                                                                        color: AppColors
+                                                                            .XanhLaDam,
+                                                                        fontWeight:
+                                                                            FontWeight
+                                                                                .w500,
+                                                                        overflow:
+                                                                            TextOverflow.ellipsis),
+                                                                  ),
+                                                                ),
+                                                              ))
+                                                        ],
+                                                      )),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ))
+                                  .toList(),
+                            );
+                          } else
+                            return Text("");
+                        },
+                      ),
                     ),
                   ),
-                ),
-              )
+                )
             ],
           ),
         ),
