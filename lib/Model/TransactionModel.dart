@@ -42,4 +42,45 @@ class TransactionModel {
     }
     return data;
   }
+
+  TransactionModel copyWithID({
+    int? id,
+    String? date,
+    double? amount,
+    Wallet? wallet,
+    Category? category,
+    String? note,
+    String? description,
+    RepeatOption? repeat_option,
+  }) {
+    return TransactionModel(
+      id: id ?? this.id,
+      date: date ?? this.date,
+      amount: amount ?? this.amount,
+      wallet: wallet ?? this.wallet,
+      category: category ?? this.category,
+      note: note ?? this.note,
+      description: description ?? this.description,
+      repeat_option: repeat_option ?? this.repeat_option,
+    );
+  }
+  TransactionModel copyWithoutID({
+    String? date,
+    double? amount,
+    Wallet? wallet,
+    Category? category,
+    String? note,
+    String? description,
+    RepeatOption? repeat_option,
+  }) {
+    return TransactionModel(
+      date: date ?? this.date,
+      amount: amount ?? this.amount,
+      wallet: wallet ?? this.wallet,
+      category: category ?? this.category,
+      note: note ?? this.note,
+      description: description ?? this.description,
+      repeat_option: repeat_option ?? this.repeat_option,
+    );
+  }
 }

@@ -28,45 +28,6 @@ class BudgetScreen extends StatefulWidget {
 class _BudgetScreenState extends State<BudgetScreen> {
   DateTime _dateTime = DateTime.now();
 
-  Future<void> _selectDate(BuildContext context, String? locale,) async {
-    final localeObj = locale != null ? Locale(locale) : null;
-    final selected = await showMonthYearPicker(
-      context: context,
-      initialDate: _dateTime ?? DateTime.now(),
-      firstDate: DateTime(2019),
-      lastDate: DateTime(2030),
-      locale: localeObj,
-      builder: (context, child) {
-        return Theme(
-          data: ThemeData.light().copyWith(
-            textTheme: TextTheme(
-              bodyLarge: TextStyle(
-                fontSize: 12,
-              ), // Center text
-              titleLarge: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          child: Center(
-            child: Container(
-              width: MediaQuery.of(context).size.width * 0.8,
-              height: MediaQuery.of(context).size.height * 0.6,
-              child: child,
-            ),
-          ),
-        );
-      },
-    );
-
-    if (selected != null) {
-      setState(() {
-        _dateTime = selected;
-      });
-    }
-  }
-
   Map<String, double> calculateCategoryTotals(List<TransactionModel> transactions, Currency currencyGB) {
     Map<String, double> categoryTotals = {};
     for (var transaction in transactions) {
@@ -325,7 +286,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                                                                                   child: FittedBox(
                                                                                                     fit: BoxFit.scaleDown,
                                                                                                     child: Text(
-                                                                                                      GlobalFunction.formatCurrency(item.amount, 2),
+                                                                                                      "${GlobalFunction.formatCurrency(item.amount * item.currency.value / currencyGB.value, 2)} ${currencyGB.name}",
                                                                                                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.XanhDuong),
                                                                                                     ),
                                                                                                   ),
@@ -355,7 +316,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                                                                       ),
                                                                                       Center(
                                                                                         child: Text(
-                                                                                          GlobalFunction.formatCurrency(mapsOutcome[item.category.name] ?? 0, 2),
+                                                                                          "${GlobalFunction.formatCurrency(mapsOutcome[item.category.name] ?? 0, 2)} ${currencyGB.name}",
                                                                                           style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                                                                                         ),
                                                                                       )

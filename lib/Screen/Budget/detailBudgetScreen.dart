@@ -21,6 +21,8 @@ import 'package:personal_expense_management/bloc/budget_detail_bloc/budget_detai
 import 'package:personal_expense_management/bloc/category_bloc/category_bloc.dart';
 import 'package:personal_expense_management/bloc/category_bloc/category_state.dart';
 
+import '../../Database/database_helper.dart';
+
 class Detailbudgetscreen extends StatefulWidget {
   final DateTime dateTime;
   final BudgetDetail budDt;
@@ -376,7 +378,9 @@ class _SaveButtonState extends State<SaveButton> {
 
   void _updateBudgetDetail(BuildContext context, List<Budget> listBud, List<BudgetDetail> listBudDt) async {
     double newAmount = double.parse(widget.inputAmount);
-    BudgetDetail updBudDet = BudgetDetail(id: widget.budDet.id,id_budget: widget.budDet.id_budget, amount: newAmount, category: widget.budDet.category);
+    final para = await DatabaseHelper().getParameters();
+    final currencyGB = para.first.currency;
+    BudgetDetail updBudDet = BudgetDetail(id: widget.budDet.id,id_budget: widget.budDet.id_budget, amount: newAmount, category: widget.budDet.category, currency: currencyGB, is_repeat: 0);
     context.read<BudgetDetailBloc>().add(UpdateBudgetDetailEvent(updBudDet));
     await context.read<BudgetDetailBloc>().stream.firstWhere((state) => state is BudgetDetailUpdateState);
     if (mounted) {

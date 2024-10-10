@@ -214,6 +214,7 @@ class _DetailsavingdetailscreenState extends State<Detailsavingdetailscreen> {
               _selectSav.target_amount
           ? 1
           : 0,
+        currency: widget.sav.currency
     );
 
     SavingDetail newSavDet = SavingDetail(

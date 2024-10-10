@@ -78,6 +78,8 @@ class _DetailsavingscreenState extends State<Detailsavingscreen> {
     if (_controllerName.text.length <= 0) {
       ErrorDialog.showErrorDialog(context, "Chưa nhập tên khoản tiết kiệm");
     } else {
+      final para = await DatabaseHelper().getParameters();
+      final currencyGB = para.first.currency;
       Saving newSav = Saving(
           id: widget.sav.id,
           name: _controllerName.text,
@@ -85,6 +87,7 @@ class _DetailsavingscreenState extends State<Detailsavingscreen> {
           target_date: DateFormat('yyyy-MM-dd')
               .format(DateFormat('dd/MM/yyyy').parse(_controllerDate.text)),
           current_amount: 0,
+          currency: currencyGB,
           is_finished: 0);
       context.read<SavingBloc>().add(UpdateSavingEvent(newSav));
       await context.read<SavingBloc>().stream.firstWhere((walletState) => walletState is SavingUpdateState);

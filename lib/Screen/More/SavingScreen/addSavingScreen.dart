@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:personal_expense_management/Database/database_helper.dart';
 import 'package:personal_expense_management/Model/Saving.dart';
 import 'package:personal_expense_management/Resources/AppColor.dart';
 import 'package:personal_expense_management/bloc/budget_bloc/budget_bloc.dart';
@@ -58,7 +59,9 @@ class _AddsavingscreenState extends State<Addsavingscreen> {
       ErrorDialog.showErrorDialog(context, "Chưa nhập tên khoản tiết kiệm");
     }
     else {
-      Saving newSav = Saving(name: _controllerName.text, target_amount: double.parse(_inputAmount), target_date: DateFormat('yyyy-MM-dd').format(DateFormat('dd/MM/yyyy').parse(_controllerDate.text)), current_amount: 0, is_finished: 0);
+      final para = await DatabaseHelper().getParameters();
+      final currencyGB = para.first.currency;
+      Saving newSav = Saving(name: _controllerName.text, target_amount: double.parse(_inputAmount), target_date: DateFormat('yyyy-MM-dd').format(DateFormat('dd/MM/yyyy').parse(_controllerDate.text)), current_amount: 0, is_finished: 0, currency: currencyGB);
       context.read<SavingBloc>().add(AddSavingEvent(newSav));
       await context.read<SavingBloc>().stream.firstWhere((walletState) => walletState is SavingUpdateState);
       if (mounted) {

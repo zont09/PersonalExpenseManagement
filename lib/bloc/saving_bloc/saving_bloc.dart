@@ -19,6 +19,7 @@ class SavingBloc extends Bloc<SavingEvent, SavingState> {
           target_amount: event.newSav.target_amount,
           target_date: event.newSav.target_date,
           current_amount: event.newSav.current_amount,
+          currency: event.newSav.currency,
           is_finished: event.newSav.is_finished);
       savings.add(updateSaving);
       emit(SavingUpdateState(List.from(savings)));

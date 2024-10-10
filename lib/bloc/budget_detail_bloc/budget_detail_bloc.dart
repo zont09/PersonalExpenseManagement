@@ -11,7 +11,7 @@ class BudgetDetailBloc extends Bloc<BudgetDetailEvent, BudgetDetailState> {
   BudgetDetailBloc(this.budgetDets) : super(BudgetDetailUpdateState(budgetDets)) {
     on<AddBudgetDetailEvent>((event, emit) async {
       int id = await DatabaseHelper().insertBudgetDetail(event.newBudDet);
-      BudgetDetail newBuddet = BudgetDetail(id: id,id_budget: event.newBudDet.id_budget, amount: event.newBudDet.amount, category: event.newBudDet.category);
+      BudgetDetail newBuddet = BudgetDetail(id: id,id_budget: event.newBudDet.id_budget, amount: event.newBudDet.amount, category: event.newBudDet.category, currency: event.newBudDet.currency, is_repeat: event.newBudDet.is_repeat);
       budgetDets.add(newBuddet);
       emit(BudgetDetailUpdateState(List.from(budgetDets)));
     });

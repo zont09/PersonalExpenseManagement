@@ -12,6 +12,8 @@ import 'package:personal_expense_management/bloc/reminder_bloc/reminder_state.da
 import 'package:personal_expense_management/bloc/repeat_option_bloc/repeat_option_bloc.dart';
 import 'package:personal_expense_management/bloc/repeat_option_bloc/repeat_option_state.dart';
 
+import '../../../Service/NotificationService.dart';
+
 class Addreminderscreen extends StatefulWidget {
   const Addreminderscreen({super.key});
 
@@ -115,7 +117,22 @@ class _AddreminderscreenState extends State<Addreminderscreen> {
     else {
       Reminder newRem = Reminder(date: DateFormat('yyyy-MM-dd').format(DateFormat('dd/MM/yyyy').parse(_controllerDate.text)), description: _controllerDescription.text, repeat_option: _selectRepeat);
       context.read<ReminderBloc>().add(AddReminderEvent(newRem));
-      await context.read<ReminderBloc>().stream.firstWhere((state) => state is ReminderUpdateState);
+      int idRem = -1;
+      await context.read<ReminderBloc>().stream.firstWhere((state) {
+        if (state is ReminderUpdateState) {
+          idRem = state.updRem.last.id ?? -1;
+          return true;
+        }
+        return false;
+      });
+      print("ID Reminder: $idRem");
+      if(idRem != -1)
+      await NotificationService().scheduleNotification(
+        id: idRem,
+        title: 'Lời nhắc',
+        body: _controllerDescription.text,
+        scheduledDate: DateFormat("dd/MM/yyyy").parse(_controllerDate.text),
+      );
       if (mounted) {
         Navigator.of(context).pop();
       }

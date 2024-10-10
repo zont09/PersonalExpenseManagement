@@ -146,9 +146,12 @@ class DatabaseHelper {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         id_budget INTEGER,
         category INTEGER,
+        currency INTEGER,
         amount REAL,
+        is_repeat INTEGER,
         FOREIGN KEY (category) REFERENCES $_categoryTable (id) ON DELETE SET NULL ON UPDATE CASCADE,
-        FOREIGN KEY (id_budget) REFERENCES $_budgetTable (id) ON DELETE SET NULL ON UPDATE CASCADE
+        FOREIGN KEY (id_budget) REFERENCES $_budgetTable (id) ON DELETE SET NULL ON UPDATE CASCADE,
+        FOREIGN KEY (currency) REFERENCES $_currencyTable (id) ON DELETE SET NULL ON UPDATE CASCADE
       )
     ''');
 
@@ -159,7 +162,9 @@ class DatabaseHelper {
         target_amount REAL,
         target_date TEXT,
         current_amount REAL,
-        is_finished INTEGER
+        is_finished INTEGER,
+        currency INTEGER,
+        FOREIGN KEY (currency) REFERENCES $_currencyTable (id) ON DELETE SET NULL ON UPDATE CASCADE
       )
     ''');
 
@@ -478,29 +483,38 @@ class DatabaseHelper {
     final db = await database;
 
     final List<Map<String, dynamic>> maps = await db.rawQuery('''
-      SELECT z.id as Zid, z.id_budget, z.category, z.amount,
+      SELECT z.id as Zid, z.id_budget, z.category, z.amount, z.currency, z.is_repeat,
             q.id as Qid, q.date,
-            w.id as Wid, w.name, w.type
+            w.id as Wid, w.name as WName, w.type,
+            e.id as Eid, e.name as EName, e.value as EValue
       FROM $_budgetDetailTable z 
       INNER JOIN $_budgetTable q ON z.id_budget = q.id
       INNER JOIN $_categoryTable w ON z.category = w.id
+      INNER JOIN $_currencyTable e ON z.currency = e.id
     ''');
 
     return List.generate(maps.length, (i) {
       final category = Category(
         id: maps[i]['Wid'],
-        name: maps[i]['name'],
+        name: maps[i]['WName'],
         type: maps[i]['type'],
       );
       final budget = Budget(
         id: maps[i]['Qid'],
         date: maps[i]['date']
       );
+      final currency = Currency(
+          id: maps[i]['Eid'],
+          name: maps[i]['EName'],
+          value: maps[i]['EValue']
+      );
       return BudgetDetail(
         id: maps[i]['Zid'],
         amount: maps[i]['amount'],
+        is_repeat: maps[i]['is_repeat'],
         category: category,
-        id_budget: budget
+        id_budget: budget,
+        currency: currency,
       );
     });
   }
@@ -533,9 +547,28 @@ class DatabaseHelper {
 
   Future<List<Saving>> getSaving() async {
     final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(_savingTable);
+    final List<Map<String, dynamic>> maps = await db.rawQuery('''
+      SELECT z.id as Zid, z.name as ZName, z.target_amount, z.target_date, z.current_amount, z.is_finished, z.currency,
+            q.id as Qid, q.name as QName, q.value
+      FROM $_savingTable z 
+      INNER JOIN $_currencyTable q ON z.currency = q.id
+    ''');
+    print("get Saving: ${maps.length}");
     return List.generate(maps.length, (i) {
-      return Saving.fromMap(maps[i]);
+      final currency = Currency(
+          id: maps[i]['Qid'],
+          name: maps[i]['QName'],
+          value: maps[i]['value']
+      );
+      return Saving(
+          id: maps[i]['Zid'],
+          name: maps[i]['ZName'],
+          target_amount: maps[i]['target_amount'],
+          target_date: maps[i]['target_date'],
+          current_amount: maps[i]['current_amount'],
+          is_finished: maps[i]['is_finished'],
+          currency: currency
+      );
     });
   }
 
@@ -570,20 +603,28 @@ class DatabaseHelper {
 
     final List<Map<String, dynamic>> maps = await db.rawQuery('''
       SELECT z.id as Zid, z.id_saving, z.wallet, z.amount as ZAmount, z.note as ZNote,
-            q.id as Qid, q.name as QName, q.target_amount, q.target_date, q.current_amount, q.is_finished,
-            w.id as Wid, w.name as WName, w.amount as WAmount, w.currency, w.note as WNote,
-            e.id as Eid, e.name as EName, e.value
+            q.id as Qid, q.name as QName, q.target_amount, q.target_date, q.current_amount, q.is_finished, q.currency as QCur,
+            w.id as Wid, w.name as WName, w.amount as WAmount, w.currency as WCur, w.note as WNote,
+            e.id as Eid, e.name as EName, e.value as EValue,
+            r.id as Rid, r.name as RName, r.value as RValue
       FROM $_savingDetailTable z 
       INNER JOIN $_savingTable q ON z.id_saving = q.id
       INNER JOIN $_walletTable w ON z.wallet = w.id
       INNER JOIN $_currencyTable e ON w.currency = e.id
+      INNER JOIN $_currencyTable r ON q.currency = r.id
     ''');
 
     return List.generate(maps.length, (i) {
       final currency = Currency(
           id: maps[i]['Eid'],
           name: maps[i]['EName'],
-          value: maps[i]['value']
+          value: maps[i]['EValue']
+      );
+
+      final currencySv = Currency(
+          id: maps[i]['Rid'],
+          name: maps[i]['RName'],
+          value: maps[i]['RValue']
       );
 
       final saving = Saving(
@@ -592,7 +633,8 @@ class DatabaseHelper {
           target_amount: maps[i]['target_amount'],
           target_date: maps[i]['target_date'],
           current_amount: maps[i]['current_amount'],
-          is_finished: maps[i]['is_finished']
+          is_finished: maps[i]['is_finished'],
+          currency: currencySv,
       );
 
       final wallet = Wallet(

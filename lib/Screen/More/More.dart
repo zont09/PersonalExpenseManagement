@@ -129,6 +129,10 @@ class More extends StatelessWidget {
                             value: BlocProvider.of<WalletBloc>(
                                 context),
                           ),
+                          BlocProvider.value(
+                            value:
+                            BlocProvider.of<ParameterBloc>(context),
+                          ),
                         ],
                         child: Savingscreen(),
                       ),

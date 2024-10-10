@@ -133,12 +133,13 @@ class Initdata {
     Category cat4 = Category(id: 4,name: "Tiền lương", type: 1);
     Category cat5 = Category(id: 5,name: "Trợ cấp", type: 1);
     Category cat6 = Category(id: 6,name: "Cướp", type: 1);
-    BudgetDetail bde1 = BudgetDetail(id_budget: bud1, amount: 5000000, category: cat1z);
-    BudgetDetail bde2 = BudgetDetail(id_budget: bud1, amount: 2000000, category: cat2z);
-    BudgetDetail bde3 = BudgetDetail(id_budget: bud1, amount: 3000000, category: cat3z);
-    BudgetDetail bde4 = BudgetDetail(id_budget: bud2, amount: 2000000, category: cat1z);
-    BudgetDetail bde5 = BudgetDetail(id_budget: bud2, amount: 5000000, category: cat2z);
-    BudgetDetail bde6 = BudgetDetail(id_budget: bud2, amount: 3000000, category: cat3z);
+    Currency cur1 = Currency(id: 1,name: "VND", value: 1);
+    BudgetDetail bde1 = BudgetDetail(id_budget: bud1, amount: 5000000, category: cat1z, currency: cur1, is_repeat: 0);
+    BudgetDetail bde2 = BudgetDetail(id_budget: bud1, amount: 2000000, category: cat2z, currency: cur1, is_repeat: 0);
+    BudgetDetail bde3 = BudgetDetail(id_budget: bud1, amount: 3000000, category: cat3z, currency: cur1, is_repeat: 0);
+    BudgetDetail bde4 = BudgetDetail(id_budget: bud2, amount: 2000000, category: cat1z, currency: cur1, is_repeat: 0);
+    BudgetDetail bde5 = BudgetDetail(id_budget: bud2, amount: 5000000, category: cat2z, currency: cur1, is_repeat: 0);
+    BudgetDetail bde6 = BudgetDetail(id_budget: bud2, amount: 3000000, category: cat3z, currency: cur1, is_repeat: 0);
     await db.insertBudgetDetail(bde1);
     await db.insertBudgetDetail(bde2);
     await db.insertBudgetDetail(bde3);
@@ -150,9 +151,10 @@ class Initdata {
 
   static Future<void> addSaving() async {
     DatabaseHelper db = DatabaseHelper();
-    Saving sav1 = Saving(name: "Mua xe", target_amount: 3000000000, target_date: "2025-09-30", current_amount: 0, is_finished: 0);
-    Saving sav2 = Saving(name: "Mua nhà", target_amount: 7200000000, target_date: "2027-09-30", current_amount: 0, is_finished: 0);
-    Saving sav3 = Saving(name: "Mua PC", target_amount: 50000000, target_date: "2025-02-30", current_amount: 50000, is_finished: 0);
+    Currency cur1 = Currency(id: 1,name: "VND", value: 1);
+    Saving sav1 = Saving(name: "Mua xe", target_amount: 3000000000, target_date: "2025-09-30", current_amount: 0, is_finished: 0, currency: cur1);
+    Saving sav2 = Saving(name: "Mua nhà", target_amount: 7200000000, target_date: "2027-09-30", current_amount: 0, is_finished: 0, currency: cur1);
+    Saving sav3 = Saving(name: "Mua PC", target_amount: 50000000, target_date: "2025-02-30", current_amount: 50000, is_finished: 0, currency: cur1);
     await db.insertSaving(sav1);
     await db.insertSaving(sav2);
     int id = await db.insertSaving(sav3);
@@ -161,12 +163,12 @@ class Initdata {
 
   static Future<void> addSavingDetail() async {
     DatabaseHelper db = DatabaseHelper();
-    Saving sav1 = Saving(id: 1,name: "Mua xe", target_amount: 3000000000, target_date: "2025-09-30", current_amount: 200000, is_finished: 0);
-    Saving sav2 = Saving(id: 2,name: "Mua nhà", target_amount: 7200000000, target_date: "2027-09-30", current_amount: 700000, is_finished: 0);
-    Saving sav3 = Saving(id: 3,name: "Mua PC", target_amount: 50000000, target_date: "2025-02-30", current_amount: 50000, is_finished: 0);
     Currency cur1 = Currency(id: 1,name: "VND", value: 1);
     Currency cur2 = Currency(id: 2,name: "USD", value: 25000);
     Currency cur3 = Currency(id: 3,name: "BTC", value: 1400000000);
+    Saving sav1 = Saving(id: 1,name: "Mua xe", target_amount: 3000000000, target_date: "2025-09-30", current_amount: 200000, is_finished: 0, currency: cur1);
+    Saving sav2 = Saving(id: 2,name: "Mua nhà", target_amount: 7200000000, target_date: "2027-09-30", current_amount: 700000, is_finished: 0, currency: cur1);
+    Saving sav3 = Saving(id: 3,name: "Mua PC", target_amount: 50000000, target_date: "2025-02-30", current_amount: 50000, is_finished: 0, currency: cur1);
     Wallet wal1 = Wallet(id: 1,name: "Tiền mặt", amount: 2000000, currency: cur1, note: "Ví này giữ tiền mặt");
     Wallet wal2 = Wallet(id: 2,name: "Vietcombank", amount: 50000000, currency: cur1, note: "Ví này giữ tiền ở ngần hàng VCB");
     Wallet wal3 = Wallet(id: 3,name: "BIDV", amount: 20, currency: cur3, note: "Ví này giữ tiền điện tử");

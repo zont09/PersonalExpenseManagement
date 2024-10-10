@@ -12,6 +12,7 @@ import 'package:personal_expense_management/Model/Saving.dart';
 import 'package:personal_expense_management/Model/SavingDetail.dart';
 import 'package:personal_expense_management/Model/TransactionModel.dart';
 import 'package:personal_expense_management/Model/Wallet.dart';
+import 'package:personal_expense_management/Resources/global_function.dart';
 import 'package:personal_expense_management/Screen/Budget/BudgetScreen.dart';
 import 'package:personal_expense_management/Screen/More/More.dart';
 import 'package:personal_expense_management/Resources/AppColor.dart';
@@ -120,9 +121,13 @@ class _HomeScreenState extends State<HomeScreen> {
   ];
 
   @override
-  void initState() {
+  void initState()  {
     super.initState();
-    _initializeData();
+     _initialize();
+  }
+  Future<void> _initialize() async {
+    await _addTransactionRepeat();
+    await _initializeData();
   }
 
   void _onItemTapped(int index) {
@@ -140,6 +145,43 @@ class _HomeScreenState extends State<HomeScreen> {
                     dbHelper.getRepeatOptions(), dbHelper.getBudgets(), dbHelper.getBudgetDetail(), dbHelper.getCurrencys(),
                     dbHelper.getSaving(), dbHelper.getSavingDetails(), dbHelper.getReminders()]);
   }
+  bool compareDateTime(DateTime date1, DateTime date2) {
+    return (date1.day == date2.day && date1.month == date2.month && date1.year == date2.year);
+  }
+
+  Future<void> _addTransactionRepeat() async {
+    DatabaseHelper db = DatabaseHelper();
+    DateTime datenow = DateTime.now();
+    final List<TransactionModel> listTran = await db.getTransactions();
+    List<TransactionModel> listProcess = listTran.where((element) {
+      DateTime date = DateTime.parse(element.date);
+      return  ((compareDateTime(date, DateTime(datenow.year -1, datenow.month, datenow.day)) && element.repeat_option.id == 5) ||
+              (compareDateTime(date, DateTime(datenow.month == 1 ? datenow.year - 1 : datenow.year, datenow.month == 1 ? 12 : datenow.month-1, datenow.day)) && element.repeat_option.id == 4) ||
+              (compareDateTime(date, DateTime.now().subtract(Duration(days: 7))) && element.repeat_option.id == 3) ||
+              (compareDateTime(date, DateTime.now().subtract(Duration(days: 1))) && element.repeat_option.id == 2));
+    }).toList();
+    print("ZCHECK: ${listProcess.length}");
+    final listWal = await db.getWallet();
+    for(var tran in listProcess) {
+      final wal = listWal.where((item) => item.id == tran.wallet.id).first;
+      print("ZCHECK: ${wal.name} ${wal.amount}");
+      if(wal != null && wal.amount >= tran.amount) {
+        print("ZCHECK: OK?");
+        await DatabaseHelper().insertTransaction(tran.copyWithoutID(
+            date: DateFormat('yyyy-MM-dd').format(DateTime.now()),
+            ));
+        await DatabaseHelper().updateTransaction(tran.copyWithID(repeat_option: RepeatOption(id: 1,option_name: "Không")));
+        print("Add transaction id = ${tran.id}");
+        await DatabaseHelper().updateWallet(wal.copyWith(amount: wal.amount - tran.amount));
+        await DatabaseHelper().updateWallet(listWal.first.copyWith(amount: listWal.first.amount - tran.amount));
+        int index = listWal.indexWhere((item) => item.id == wal.id);
+        if (index != -1) {
+          listWal[index].amount = wal.amount - tran.amount;
+        }
+        print("Update wallet id = ${wal.id}");
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -154,7 +196,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Text("Error: ${snapshot.error}")); // Error handling
       } else if (snapshot.hasData) {
         final List<Wallet> wallets = snapshot.data![0] ?? [];
-        final List<TransactionModel> transactions = snapshot.data![1] ?? [];
+         List<TransactionModel> transactions = snapshot.data![1] ?? [];
         final List<Parameter> parameters = snapshot.data![2] ?? [];
         final List<Category> categories = snapshot.data![3] ?? [];
         final List<RepeatOption> repeat_options = snapshot.data![4] ?? [];

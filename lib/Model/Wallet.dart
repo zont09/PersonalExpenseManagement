@@ -31,4 +31,19 @@ class Wallet {
     }
     return data;
   }
+  Wallet copyWith({
+    int? id,
+    String? name,
+    double? amount,
+    Currency? currency,
+    String? note,
+  }) {
+    return Wallet(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      amount: amount ?? this.amount,
+      currency: currency ?? this.currency,
+      note: note ?? this.note,
+    );
+  }
 }

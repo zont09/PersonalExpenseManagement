@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:month_year_picker/month_year_picker.dart';
 import 'package:personal_expense_management/Components/add_dropdown.dart';
 import 'package:personal_expense_management/Components/amount_textfield.dart';
+import 'package:personal_expense_management/Database/database_helper.dart';
 import 'package:personal_expense_management/Model/Budget.dart';
 import 'package:personal_expense_management/Model/BudgetDetail.dart';
 import 'package:personal_expense_management/Model/Category.dart';
@@ -272,6 +273,8 @@ class _SaveButtonState extends State<SaveButton> {
 
   void _saveNewTransaction(BuildContext context, List<Budget> listBud, List<BudgetDetail> listBudDt) async {
     DateTime dateBud = DateFormat('MM/yyyy').parse(widget.controllerDate.text);
+    final para = await DatabaseHelper().getParameters();
+    final currencyGB = para.first.currency;
     if(widget.controllerCategory.text.isEmpty) {
       _showErrorDialog(context ,"Thiếu thông tin loại giao dịch");
     }
@@ -283,7 +286,7 @@ class _SaveButtonState extends State<SaveButton> {
         _showErrorDialog(context ,"Loại giao dịch ${widget.controllerCategory.text} đã tồn tại trong tháng này");
       }
       else {
-        BudgetDetail budDet = BudgetDetail(id_budget: _budget, amount: double.parse(_inputAmount), category: widget.selectItem);
+        BudgetDetail budDet = BudgetDetail(id_budget: _budget, amount: double.parse(_inputAmount), category: widget.selectItem, currency: currencyGB, is_repeat: 0);
         context.read<BudgetDetailBloc>().add(AddBudgetDetailEvent(budDet));
         await context.read<BudgetDetailBloc>().stream.firstWhere((state) => state is BudgetDetailUpdateState);
         if (mounted) {

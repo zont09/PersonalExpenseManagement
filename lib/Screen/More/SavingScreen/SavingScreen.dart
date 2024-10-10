@@ -6,6 +6,8 @@ import 'package:personal_expense_management/Resources/AppColor.dart';
 import 'package:personal_expense_management/Resources/global_function.dart';
 import 'package:personal_expense_management/Screen/More/SavingScreen/addSavingScreen.dart';
 import 'package:personal_expense_management/Screen/More/SavingScreen/detailSavingScreen.dart';
+import 'package:personal_expense_management/bloc/parameter_bloc/parameter_bloc.dart';
+import 'package:personal_expense_management/bloc/parameter_bloc/parameter_state.dart';
 import 'package:personal_expense_management/bloc/saving_bloc/saving_bloc.dart';
 import 'package:personal_expense_management/bloc/saving_bloc/saving_state.dart';
 import 'package:personal_expense_management/bloc/saving_detail_bloc/saving_detail_bloc.dart';
@@ -20,6 +22,7 @@ class Savingscreen extends StatefulWidget {
 
 class _SavingscreenState extends State<Savingscreen> {
   DateTime _dateTime = DateTime.now();
+
   String calculateDateDifference(DateTime startDate, DateTime endDate) {
     int years = endDate.year - startDate.year;
     int months = endDate.month - startDate.month;
@@ -36,109 +39,52 @@ class _SavingscreenState extends State<Savingscreen> {
       months -= 1;
       // Tính lại số ngày dựa vào tháng trước đó
       DateTime previousMonth = DateTime(endDate.year, endDate.month - 1);
-      days += DateTime(previousMonth.year, previousMonth.month + 1, 0).day; // Lấy ngày cuối cùng của tháng trước đó
+      days += DateTime(previousMonth.year, previousMonth.month + 1, 0)
+          .day; // Lấy ngày cuối cùng của tháng trước đó
     }
-    if(years == 0) {
-      if(months == 0) return '$days ngày';
+    if (years == 0) {
+      if (months == 0) return '$days ngày';
       return '$months tháng, $days ngày';
     }
     return '$years năm, $months tháng, $days ngày';
   }
-  Future<void> _selectDate(BuildContext context,
-      String? locale,) async {
-    final localeObj = locale != null ? Locale(locale) : null;
-    final selected = await showMonthYearPicker(
-      context: context,
-      initialDate: _dateTime ?? DateTime.now(),
-      firstDate: DateTime(2019),
-      lastDate: DateTime(2030),
-      locale: localeObj,
-      builder: (context, child) {
-        return Theme(
-          data: ThemeData.light().copyWith(
-            textTheme: TextTheme(
-              bodyLarge: TextStyle(
-                fontSize: 12,
-              ), // Center text
-              titleLarge: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          child: Center(
-            child: Container(
-              width: MediaQuery
-                  .of(context)
-                  .size
-                  .width * 0.8,
-              height: MediaQuery
-                  .of(context)
-                  .size
-                  .height * 0.6,
-              child: child,
-            ),
-          ),
-        );
-      },
-    );
-
-    if (selected != null) {
-      setState(() {
-        _dateTime = selected;
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
-    final maxH = MediaQuery
-        .of(context)
-        .size
-        .height;
-    final maxW = MediaQuery
-        .of(context)
-        .size
-        .width;
+    final maxH = MediaQuery.of(context).size.height;
+    final maxW = MediaQuery.of(context).size.width;
     return SafeArea(
         child: Scaffold(
-          appBar: AppBar(
-            flexibleSpace: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Color(0xFf339DD4),
-                    Color(0xFF00D0CC)
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment
-                      .bottomRight, // Điểm kết thúc của gradient
-                ),
-              ),
+      appBar: AppBar(
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFf339DD4), Color(0xFF00D0CC)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight, // Điểm kết thúc của gradient
             ),
-            title: const Text(
-              "Khoản tiết kiệm",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-            ),
-            actions: [
-              TextButton(
-                  onPressed: () =>
-                  {
+          ),
+        ),
+        title: const Text(
+          "Khoản tiết kiệm",
+          style: TextStyle(
+              fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => {
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (newContext) => MultiBlocProvider(
                           providers: [
                             BlocProvider.value(
-                              value: BlocProvider.of<SavingBloc>(
-                                  context),
+                              value: BlocProvider.of<SavingBloc>(context),
                             ),
                             BlocProvider.value(
-                              value:
-                              BlocProvider.of<SavingDetailBloc>(context),
+                              value: BlocProvider.of<SavingDetailBloc>(context),
                             ),
                             BlocProvider.value(
-                              value:
-                              BlocProvider.of<WalletBloc>(context),
+                              value: BlocProvider.of<WalletBloc>(context),
                             ),
                           ],
                           child: Addsavingscreen(),
@@ -146,174 +92,227 @@ class _SavingscreenState extends State<Savingscreen> {
                       ),
                     )
                   },
-                  child: Text(
-                    "Thêm",
-                    style: TextStyle(fontSize: 16, color: Colors.white),
-                  ))
-            ],
-          ),
-          body: Container(
-            height: maxH,
-            width: maxW,
-            color: Colors.white,
-            padding: EdgeInsets.only(top: 10),
-            child: Column(
-              children: [
-                
-
-                Expanded(
-                  child: BlocBuilder<SavingBloc, SavingState>(
-                    builder: (context, state) {
-                      if (state is SavingUpdateState) {
-                        final listSaving = state.updSaving;
-                        return SingleChildScrollView(
-                          child: Column(
-                            children: listSaving.map((item) =>
-                                GestureDetector(
-                                  onTap: () => {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (newContext) => MultiBlocProvider(
-                                          providers: [
-                                            BlocProvider.value(
-                                              value: BlocProvider.of<SavingBloc>(
-                                                  context),
-                                            ),
-                                            BlocProvider.value(
-                                              value:
-                                              BlocProvider.of<SavingDetailBloc>(context),
-                                            ),
-                                            BlocProvider.value(
-                                              value:
-                                              BlocProvider.of<WalletBloc>(context),
-                                            ),
-                                          ],
-                                          child: Detailsavingscreen(sav: item),
+              child: Text(
+                "Thêm",
+                style: TextStyle(fontSize: 16, color: Colors.white),
+              ))
+        ],
+      ),
+      body: Container(
+        height: maxH,
+        width: maxW,
+        color: Colors.white,
+        padding: EdgeInsets.only(top: 10),
+        child: Column(
+          children: [
+            Expanded(
+              child: BlocBuilder<SavingBloc, SavingState>(
+                builder: (context, state) {
+                  if (state is SavingUpdateState) {
+                    final listSaving = state.updSaving;
+                    print(listSaving.length);
+                    return BlocBuilder<ParameterBloc, ParameterState>(
+                      builder: (context, state) {
+                        if(state is ParameterUpdateState) {
+                          final currencyGB = state.updPar.currency;
+                          return SingleChildScrollView(
+                            child: Column(
+                              children: listSaving
+                                  .map((item) =>
+                                  GestureDetector(
+                                    onTap: () =>
+                                    {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (newContext) =>
+                                              MultiBlocProvider(
+                                                providers: [
+                                                  BlocProvider.value(
+                                                    value: BlocProvider.of<
+                                                        SavingBloc>(context),
+                                                  ),
+                                                  BlocProvider.value(
+                                                    value: BlocProvider.of<
+                                                        SavingDetailBloc>(
+                                                        context),
+                                                  ),
+                                                  BlocProvider.value(
+                                                    value: BlocProvider.of<
+                                                        WalletBloc>(context),
+                                                  ),
+                                                ],
+                                                child:
+                                                Detailsavingscreen(sav: item),
+                                              ),
                                         ),
-                                      ),
-                                    )
-                                  },
-                                  child: Column(
-                                    children: [
-                                      SizedBox(height: 20,),
-                                      Container(
-                                        height: 100,
-                                        width: maxW,
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.grey.withOpacity(0.5), // Màu của shadow
-                                              spreadRadius: 1, // Độ lan rộng của shadow
-                                              blurRadius: 3, // Độ mờ của shadow
-                                              offset: const Offset(0, 3), // Vị trí của shadow
-                                            ),
-                                          ],
+                                      )
+                                    },
+                                    child: Column(
+                                      children: [
+                                        SizedBox(
+                                          height: 20,
                                         ),
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 10, vertical: 8),
-                                        child: Column(
-                                          children: [
-                                            Expanded(
+                                        Container(
+                                          height: 100,
+                                          width: maxW,
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.grey
+                                                    .withOpacity(0.5),
+                                                // Màu của shadow
+                                                spreadRadius: 1,
+                                                // Độ lan rộng của shadow
+                                                blurRadius: 3,
+                                                // Độ mờ của shadow
+                                                offset: const Offset(0,
+                                                    3), // Vị trí của shadow
+                                              ),
+                                            ],
+                                          ),
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 10, vertical: 8),
+                                          child: Column(
+                                            children: [
+                                              Expanded(
+                                                  flex: 1,
+                                                  child: Row(
+                                                    children: [
+                                                      Expanded(
+                                                          flex: 1,
+                                                          child: Text(
+                                                            item.name,
+                                                            style: TextStyle(
+                                                                fontSize: 16,
+                                                                fontWeight:
+                                                                FontWeight
+                                                                    .bold),
+                                                          )),
+                                                      Expanded(
+                                                          flex: 1,
+                                                          child: Align(
+                                                            alignment: Alignment
+                                                                .centerRight,
+                                                            child: FittedBox(
+                                                                fit: BoxFit
+                                                                    .scaleDown,
+                                                                child: Text(
+                                                                  "${GlobalFunction
+                                                                      .formatCurrency(
+                                                                      item
+                                                                          .current_amount * item.currency.value / currencyGB.value,
+                                                                      2)}/${GlobalFunction
+                                                                      .formatCurrency(
+                                                                      item
+                                                                          .target_amount * item.currency.value / currencyGB.value,
+                                                                      2)}",
+                                                                  style: TextStyle(
+                                                                      fontSize:
+                                                                      14,
+                                                                      fontWeight:
+                                                                      FontWeight
+                                                                          .w500,
+                                                                      color: AppColors
+                                                                          .XanhDuong),
+                                                                )),
+                                                          )),
+                                                    ],
+                                                  )),
+                                              Expanded(
+                                                  flex: 1,
+                                                  child: Row(
+                                                    children: [
+                                                      Expanded(
+                                                          flex: 1,
+                                                          child: Text(
+                                                            DateFormat(
+                                                                'dd/MM/yyyy')
+                                                                .format(DateTime
+                                                                .parse(item
+                                                                .target_date)),
+                                                            style: TextStyle(
+                                                                fontSize: 16,
+                                                                fontWeight:
+                                                                FontWeight
+                                                                    .w500),
+                                                          )),
+                                                      Expanded(
+                                                          flex: 1,
+                                                          child: Align(
+                                                            alignment: Alignment
+                                                                .centerRight,
+                                                            child: FittedBox(
+                                                                fit: BoxFit
+                                                                    .scaleDown,
+                                                                child: Text(
+                                                                  item
+                                                                      .is_finished ==
+                                                                      1
+                                                                      ? "Đã xong"
+                                                                      : calculateDateDifference(
+                                                                      DateTime
+                                                                          .now(),
+                                                                      DateTime
+                                                                          .parse(
+                                                                          item
+                                                                              .target_date)),
+                                                                  style:
+                                                                  TextStyle(
+                                                                    fontSize:
+                                                                    16,
+                                                                  ),
+                                                                )),
+                                                          )),
+                                                    ],
+                                                  )),
+                                              Expanded(
                                                 flex: 1,
-                                                child: Row(
-                                                  children: [
-                                                    Expanded(
-                                                        flex: 1,
-                                                        child: Text(
-                                                          item.name, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),)
+                                                child: Container(
+                                                  height: 10,
+                                                  child: ClipRRect(
+                                                    borderRadius:
+                                                    BorderRadius.circular(
+                                                        10),
+                                                    child:
+                                                    LinearProgressIndicator(
+                                                      value: item
+                                                          .current_amount /
+                                                          item.target_amount,
+                                                      backgroundColor:
+                                                      Colors.grey[200],
+                                                      valueColor:
+                                                      AlwaysStoppedAnimation<
+                                                          Color>(
+                                                        Colors.blue,
+                                                      ),
+                                                      minHeight: 10,
                                                     ),
-                                                    Expanded(
-                                                        flex: 1,
-                                                        child: Align(
-                                                          alignment: Alignment
-                                                              .centerRight,
-                                                          child: FittedBox(
-                                                              fit: BoxFit
-                                                                  .scaleDown,
-                                                              child: Text(
-                                                                "${GlobalFunction
-                                                                    .formatCurrency(
-                                                                    item
-                                                                        .current_amount,
-                                                                    2)}/${GlobalFunction
-                                                                    .formatCurrency(
-                                                                    item
-                                                                        .target_amount,
-                                                                    2)}",
-                                                                style: TextStyle(
-                                                                    fontSize: 14,
-                                                                    fontWeight: FontWeight.w500,
-                                                                    color: AppColors
-                                                                        .XanhDuong),)),
-                                                        )
-                                                    ),
-                                                  ],
-                                                )),
-                                            Expanded(
-                                                flex: 1,
-                                                child: Row(
-                                                  children: [
-                                                    Expanded(
-                                                        flex: 1,
-                                                        child: Text(
-                                                          DateFormat('dd/MM/yyyy').format(DateTime.parse(item.target_date)), style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),)
-                                                    ),
-                                                    Expanded(
-                                                        flex: 1,
-                                                        child: Align(
-                                                          alignment: Alignment
-                                                              .centerRight,
-                                                          child: FittedBox(
-                                                              fit: BoxFit
-                                                                  .scaleDown,
-                                                              child: Text(
-                                                                item.is_finished == 1 ? "Đã xong" :
-                                                                calculateDateDifference(DateTime.now(), DateTime.parse(item.target_date)),
-                                                                style: TextStyle(
-                                                                    fontSize: 16,
-                                                                    ),)),
-                                                        )
-                                                    ),
-                                                  ],
-                                                )),
-                                            Expanded(
-                                              flex: 1,
-                                              child: Container(
-                                                height: 10,
-                                                child: ClipRRect(
-                                                  borderRadius: BorderRadius
-                                                      .circular(10),
-                                                  child: LinearProgressIndicator(
-                                                    value: item.current_amount/item.target_amount,
-                                                    backgroundColor: Colors
-                                                        .grey[200],
-                                                    valueColor: AlwaysStoppedAnimation<
-                                                        Color>(
-                                                      Colors.blue,
-                                                    ),
-                                                    minHeight: 10,
                                                   ),
                                                 ),
-                                              ),)
-                                          ],
+                                              )
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                            ).toList(),
-                          ),
-                        );
-                      } else {
-                        return Text("");
-                      }
-                    },
-                  ),
-                ),
-              ],
+                                      ],
+                                    ),
+                                  ))
+                                  .toList(),
+                            ),
+                          );
+                        }
+                        else return Text("");
+                      },
+                    );
+                  } else {
+                    return Text("");
+                  }
+                },
+              ),
             ),
-          ),
-        ));
+          ],
+        ),
+      ),
+    ));
   }
 }
