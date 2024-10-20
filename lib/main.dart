@@ -126,7 +126,9 @@ class _HomeScreenState extends State<HomeScreen> {
      _initialize();
   }
   Future<void> _initialize() async {
+    // print("OK1");
     await _addTransactionRepeat();
+    print("OK2");
     await _initializeData();
   }
 

@@ -179,7 +179,7 @@ class _SavingscreenState extends State<Savingscreen> {
                                               ),
                                             ],
                                           ),
-                                          padding: EdgeInsets.symmetric(
+                                          padding: const EdgeInsets.symmetric(
                                               horizontal: 10, vertical: 8),
                                           child: Column(
                                             children: [
@@ -191,7 +191,7 @@ class _SavingscreenState extends State<Savingscreen> {
                                                           flex: 1,
                                                           child: Text(
                                                             item.name,
-                                                            style: TextStyle(
+                                                            style: const TextStyle(
                                                                 fontSize: 16,
                                                                 fontWeight:
                                                                 FontWeight
@@ -209,13 +209,13 @@ class _SavingscreenState extends State<Savingscreen> {
                                                                   "${GlobalFunction
                                                                       .formatCurrency(
                                                                       item
-                                                                          .current_amount * item.currency.value / currencyGB.value,
+                                                                          .current_amount,
                                                                       2)}/${GlobalFunction
                                                                       .formatCurrency(
                                                                       item
-                                                                          .target_amount * item.currency.value / currencyGB.value,
+                                                                          .target_amount,
                                                                       2)} ${item.currency.name}",
-                                                                  style: TextStyle(
+                                                                  style: const TextStyle(
                                                                       fontSize:
                                                                       14,
                                                                       fontWeight:

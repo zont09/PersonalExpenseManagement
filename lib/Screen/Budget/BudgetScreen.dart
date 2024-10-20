@@ -69,291 +69,290 @@ class _BudgetScreenState extends State<BudgetScreen> {
   Widget build(BuildContext context) {
     double maxH = MediaQuery.of(context).size.height;
     double maxW = MediaQuery.of(context).size.height;
-    return SafeArea(
-        child: Scaffold(
-            appBar: AppBar(
-              flexibleSpace: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Color(0xFf339DD4),
-                      Color(0xFF00D0CC)
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment
-                        .bottomRight, // Điểm kết thúc của gradient
-                  ),
+    return Scaffold(
+        appBar: AppBar(
+          flexibleSpace: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color(0xFf339DD4),
+                  Color(0xFF00D0CC)
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment
+                    .bottomRight, // Điểm kết thúc của gradient
+              ),
+            ),
+          ),
+          title: Text(
+            "Ngân sách",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
+          ),
+          actions: [
+            TextButton(
+                onPressed: () => {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (newContext) => MultiBlocProvider(
+                            providers: [
+                              BlocProvider.value(
+                                value: BlocProvider.of<TransactionBloc>(
+                                    context),
+                              ),
+                              BlocProvider.value(
+                                value:
+                                    BlocProvider.of<ParameterBloc>(context),
+                              ),
+                              BlocProvider.value(
+                                value:
+                                BlocProvider.of<CategoryBloc>(context),
+                              ),
+                              BlocProvider.value(
+                                value:
+                                BlocProvider.of<BudgetBloc>(context),
+                              ),
+                              BlocProvider.value(
+                                value:
+                                BlocProvider.of<BudgetDetailBloc>(context),
+                              ),
+                            ],
+                            child: Addbudgetscreen(dateTime: _dateTime),
+                          ),
+                        ),
+                      )
+                    },
+                child: Text(
+                  "Thêm",
+                  style: TextStyle(fontSize: 16, color: Colors.white),
+                ))
+          ],
+        ),
+        body: Container(
+          height: maxH,
+          width: maxW,
+          color: Colors.white,
+          child: Column(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.2), // Màu của shadow
+                      spreadRadius: 2,                     // Độ lan rộng của shadow
+                      blurRadius: 7,                       // Độ mờ của shadow
+                      offset: Offset(5, 5),                // Vị trí của shadow
+                    ),
+                  ],
+                ),
+                child: SelectTime(dateOption: _dateTime, changed: (newDate) {
+                  setState(() {
+                    _dateTime = newDate;
+                  });
+                }),
+              ),
+              Expanded(
+                child: BlocBuilder<BudgetBloc, BudgetState>(
+                  builder: (context, state) {
+                    if (state is BudgetUpdateState) {
+                      final _budgetSelect = state.updBudget
+                          .where((item) =>
+                              DateTime.parse(item.date).month ==
+                                  _dateTime.month &&
+                              DateTime.parse(item.date).year ==
+                                  _dateTime.year)
+                          .firstOrNull;
+                      return BlocBuilder<TransactionBloc, TransactionState>(
+                        builder: (context, state) {
+                          if (state is TransactionChangedState) {
+                            final listTran = state.newTransaction;
+                            final listTrans = listTran.where((item) {
+                              DateTime tranDate = DateTime.parse(item.date);
+                              return (tranDate.year == _dateTime.year &&
+                                  tranDate.month == _dateTime.month);
+                            }).toList();
+
+                            final listTransOutcome = listTrans
+                                .where((item) => item.category.type == 0)
+                                .toList();
+
+                            return BlocBuilder<ParameterBloc,
+                                ParameterState>(
+                              builder: (context, state) {
+                                if (state is ParameterUpdateState) {
+                                  final currencyGB = state.updPar.currency;
+                                  Map<String, double> mapsOutcome =
+                                      calculateCategoryTotals(
+                                          listTransOutcome, currencyGB);
+
+                                  return BlocBuilder<BudgetDetailBloc,
+                                      BudgetDetailState>(
+                                    builder: (context, state) {
+                                      if (state
+                                          is BudgetDetailUpdateState) {
+                                        final _budgetdetList = state
+                                            .updBudgetDet
+                                            .where((item) =>
+                                                (_budgetSelect != null &&
+                                                    item.id_budget.id ==
+                                                        _budgetSelect.id));
+                                        return SingleChildScrollView(
+                                          child: Column(
+                                              children:
+                                                  (_budgetSelect == null || _budgetdetList.isEmpty)
+                                                      ? [
+                                                        SizedBox(height: 20,),
+                                                          Center(
+                                                              child: Text(
+                                                                  "Không có dữ liệu ngân sách tháng này"))
+                                                        ]
+                                                      : _budgetdetList
+                                                          .map(
+                                                              (item) =>
+                                                                  InkWell(
+                                                                    onTap: () => {
+                                                                      Navigator.of(context).push(
+                                                                        MaterialPageRoute(
+                                                                          builder: (newContext) => MultiBlocProvider(
+                                                                            providers: [
+                                                                              BlocProvider.value(
+                                                                                value: BlocProvider.of<TransactionBloc>(
+                                                                                    context),
+                                                                              ),
+                                                                              BlocProvider.value(
+                                                                                value:
+                                                                                BlocProvider.of<ParameterBloc>(context),
+                                                                              ),
+                                                                              BlocProvider.value(
+                                                                                value:
+                                                                                BlocProvider.of<CategoryBloc>(context),
+                                                                              ),
+                                                                              BlocProvider.value(
+                                                                                value: BlocProvider.of<BudgetBloc>(context),
+                                                                              ),
+                                                                              BlocProvider.value(
+                                                                                value: BlocProvider.of<BudgetDetailBloc>(
+                                                                                    context),
+                                                                              ),
+                                                                            ],
+                                                                            child: Detailbudgetscreen(dateTime: _dateTime, budDt: item,),
+                                                                          ),
+                                                                        ),
+                                                                      )
+                                                                    },
+                                                                    child: Column(
+                                                                      children: [
+                                                                        SizedBox(
+                                                                          height:
+                                                                              15,
+                                                                        ),
+                                                                        Container(
+                                                                            padding: EdgeInsets.all(8),
+                                                                            width: maxW,
+                                                                            height: 100,
+                                                                            decoration: BoxDecoration(
+                                                                              color: Colors.white,
+                                                                              boxShadow: [
+                                                                                BoxShadow(
+                                                                                  color: Colors.grey.withOpacity(0.2), // Màu của shadow
+                                                                                  spreadRadius: 2,                     // Độ lan rộng của shadow
+                                                                                  blurRadius: 7,                       // Độ mờ của shadow
+                                                                                  offset: Offset(5, 5),                // Vị trí của shadow
+                                                                                ),
+                                                                              ],
+                                                                            ),
+                                                                            child: Column(children: [
+                                                                              Column(
+                                                                                children: [
+                                                                                  // SizedBox(height: 20,),
+                                                                                  Container(
+                                                                                    height: 25,
+                                                                                    child: Row(
+                                                                                      children: [
+                                                                                        Expanded(
+                                                                                            flex: 1,
+                                                                                            child: Align(
+                                                                                              alignment: Alignment.centerLeft,
+                                                                                              child: Text(
+                                                                                                item.category.name,
+                                                                                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis),
+                                                                                              ),
+                                                                                            )),
+                                                                                        Expanded(
+                                                                                            flex: 1,
+                                                                                            child: Align(
+                                                                                              alignment: Alignment.centerRight,
+                                                                                              child: FittedBox(
+                                                                                                fit: BoxFit.scaleDown,
+                                                                                                child: Text(
+                                                                                                  "${GlobalFunction.formatCurrency(item.amount * item.currency.value / currencyGB.value, 2)} ${currencyGB.name}",
+                                                                                                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.XanhDuong),
+                                                                                                ),
+                                                                                              ),
+                                                                                            ))
+                                                                                      ],
+                                                                                    ),
+                                                                                  ),
+                                                                                  SizedBox(
+                                                                                    height: 5,
+                                                                                  ),
+                                                                                  Container(
+                                                                                    height: 20,
+                                                                                    child: ClipRRect(
+                                                                                      borderRadius: BorderRadius.circular(10),
+                                                                                      child: LinearProgressIndicator(
+                                                                                        value: (mapsOutcome[item.category.name] ?? 0) / (item.amount * item.currency.value / currencyGB.value),
+                                                                                        backgroundColor: Colors.grey[200],
+                                                                                        valueColor: AlwaysStoppedAnimation<Color>(
+                                                                                          getColorForValue((mapsOutcome[item.category.name] ?? 0) / (item.amount * item.currency.value / currencyGB.value)),
+                                                                                        ),
+                                                                                        minHeight: 10,
+                                                                                      ),
+                                                                                    ),
+                                                                                  ),
+                                                                                  const SizedBox(
+                                                                                    height: 5,
+                                                                                  ),
+                                                                                  Center(
+                                                                                    child: Text(
+                                                                                      "${GlobalFunction.formatCurrency(mapsOutcome[item.category.name] ?? 0, 2)} ${currencyGB.name}",
+                                                                                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                                                                                    ),
+                                                                                  )
+                                                                                ],
+                                                                              )
+                                                                            ]))
+                                                                      ],
+                                                                    ),
+                                                                  ))
+                                                          .toList()),
+                                        );
+                                      } else {
+                                        return Text(
+                                            "Failed to load budget detail in budget");
+                                      }
+                                    },
+                                  );
+                                } else {
+                                  return Text(
+                                      "Failed to load parameter in budget");
+                                }
+                              },
+                            );
+                          } else {
+                            return Text(
+                                "Failed to load Transacion in Budget");
+                          }
+                        },
+                      );
+                    } else {
+                      return Text("");
+                    }
+                  },
                 ),
               ),
-              title: Text(
-                "Ngân sách",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
-              ),
-              actions: [
-                TextButton(
-                    onPressed: () => {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (newContext) => MultiBlocProvider(
-                                providers: [
-                                  BlocProvider.value(
-                                    value: BlocProvider.of<TransactionBloc>(
-                                        context),
-                                  ),
-                                  BlocProvider.value(
-                                    value:
-                                        BlocProvider.of<ParameterBloc>(context),
-                                  ),
-                                  BlocProvider.value(
-                                    value:
-                                    BlocProvider.of<CategoryBloc>(context),
-                                  ),
-                                  BlocProvider.value(
-                                    value:
-                                    BlocProvider.of<BudgetBloc>(context),
-                                  ),
-                                  BlocProvider.value(
-                                    value:
-                                    BlocProvider.of<BudgetDetailBloc>(context),
-                                  ),
-                                ],
-                                child: Addbudgetscreen(dateTime: _dateTime),
-                              ),
-                            ),
-                          )
-                        },
-                    child: Text(
-                      "Thêm",
-                      style: TextStyle(fontSize: 16, color: Colors.white),
-                    ))
-              ],
-            ),
-            body: Container(
-              height: maxH,
-              width: maxW,
-              color: Colors.white,
-              child: Column(
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.2), // Màu của shadow
-                          spreadRadius: 2,                     // Độ lan rộng của shadow
-                          blurRadius: 7,                       // Độ mờ của shadow
-                          offset: Offset(5, 5),                // Vị trí của shadow
-                        ),
-                      ],
-                    ),
-                    child: SelectTime(dateOption: _dateTime, changed: (newDate) {
-                      setState(() {
-                        _dateTime = newDate;
-                      });
-                    }),
-                  ),
-                  Expanded(
-                    child: BlocBuilder<BudgetBloc, BudgetState>(
-                      builder: (context, state) {
-                        if (state is BudgetUpdateState) {
-                          final _budgetSelect = state.updBudget
-                              .where((item) =>
-                                  DateTime.parse(item.date).month ==
-                                      _dateTime.month &&
-                                  DateTime.parse(item.date).year ==
-                                      _dateTime.year)
-                              .firstOrNull;
-                          return BlocBuilder<TransactionBloc, TransactionState>(
-                            builder: (context, state) {
-                              if (state is TransactionChangedState) {
-                                final listTran = state.newTransaction;
-                                final listTrans = listTran.where((item) {
-                                  DateTime tranDate = DateTime.parse(item.date);
-                                  return (tranDate.year == _dateTime.year &&
-                                      tranDate.month == _dateTime.month);
-                                }).toList();
-
-                                final listTransOutcome = listTrans
-                                    .where((item) => item.category.type == 0)
-                                    .toList();
-
-                                return BlocBuilder<ParameterBloc,
-                                    ParameterState>(
-                                  builder: (context, state) {
-                                    if (state is ParameterUpdateState) {
-                                      final currencyGB = state.updPar.currency;
-                                      Map<String, double> mapsOutcome =
-                                          calculateCategoryTotals(
-                                              listTransOutcome, currencyGB);
-
-                                      return BlocBuilder<BudgetDetailBloc,
-                                          BudgetDetailState>(
-                                        builder: (context, state) {
-                                          if (state
-                                              is BudgetDetailUpdateState) {
-                                            final _budgetdetList = state
-                                                .updBudgetDet
-                                                .where((item) =>
-                                                    (_budgetSelect != null &&
-                                                        item.id_budget.id ==
-                                                            _budgetSelect.id));
-                                            return SingleChildScrollView(
-                                              child: Column(
-                                                  children:
-                                                      (_budgetSelect == null || _budgetdetList.isEmpty)
-                                                          ? [
-                                                            SizedBox(height: 20,),
-                                                              Center(
-                                                                  child: Text(
-                                                                      "Không có dữ liệu ngân sách tháng này"))
-                                                            ]
-                                                          : _budgetdetList
-                                                              .map(
-                                                                  (item) =>
-                                                                      InkWell(
-                                                                        onTap: () => {
-                                                                          Navigator.of(context).push(
-                                                                            MaterialPageRoute(
-                                                                              builder: (newContext) => MultiBlocProvider(
-                                                                                providers: [
-                                                                                  BlocProvider.value(
-                                                                                    value: BlocProvider.of<TransactionBloc>(
-                                                                                        context),
-                                                                                  ),
-                                                                                  BlocProvider.value(
-                                                                                    value:
-                                                                                    BlocProvider.of<ParameterBloc>(context),
-                                                                                  ),
-                                                                                  BlocProvider.value(
-                                                                                    value:
-                                                                                    BlocProvider.of<CategoryBloc>(context),
-                                                                                  ),
-                                                                                  BlocProvider.value(
-                                                                                    value: BlocProvider.of<BudgetBloc>(context),
-                                                                                  ),
-                                                                                  BlocProvider.value(
-                                                                                    value: BlocProvider.of<BudgetDetailBloc>(
-                                                                                        context),
-                                                                                  ),
-                                                                                ],
-                                                                                child: Detailbudgetscreen(dateTime: _dateTime, budDt: item,),
-                                                                              ),
-                                                                            ),
-                                                                          )
-                                                                        },
-                                                                        child: Column(
-                                                                          children: [
-                                                                            SizedBox(
-                                                                              height:
-                                                                                  15,
-                                                                            ),
-                                                                            Container(
-                                                                                padding: EdgeInsets.all(8),
-                                                                                width: maxW,
-                                                                                height: 100,
-                                                                                decoration: BoxDecoration(
-                                                                                  color: Colors.white,
-                                                                                  boxShadow: [
-                                                                                    BoxShadow(
-                                                                                      color: Colors.grey.withOpacity(0.2), // Màu của shadow
-                                                                                      spreadRadius: 2,                     // Độ lan rộng của shadow
-                                                                                      blurRadius: 7,                       // Độ mờ của shadow
-                                                                                      offset: Offset(5, 5),                // Vị trí của shadow
-                                                                                    ),
-                                                                                  ],
-                                                                                ),
-                                                                                child: Column(children: [
-                                                                                  Column(
-                                                                                    children: [
-                                                                                      // SizedBox(height: 20,),
-                                                                                      Container(
-                                                                                        height: 25,
-                                                                                        child: Row(
-                                                                                          children: [
-                                                                                            Expanded(
-                                                                                                flex: 1,
-                                                                                                child: Align(
-                                                                                                  alignment: Alignment.centerLeft,
-                                                                                                  child: Text(
-                                                                                                    item.category.name,
-                                                                                                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis),
-                                                                                                  ),
-                                                                                                )),
-                                                                                            Expanded(
-                                                                                                flex: 1,
-                                                                                                child: Align(
-                                                                                                  alignment: Alignment.centerRight,
-                                                                                                  child: FittedBox(
-                                                                                                    fit: BoxFit.scaleDown,
-                                                                                                    child: Text(
-                                                                                                      "${GlobalFunction.formatCurrency(item.amount * item.currency.value / currencyGB.value, 2)} ${currencyGB.name}",
-                                                                                                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.XanhDuong),
-                                                                                                    ),
-                                                                                                  ),
-                                                                                                ))
-                                                                                          ],
-                                                                                        ),
-                                                                                      ),
-                                                                                      SizedBox(
-                                                                                        height: 5,
-                                                                                      ),
-                                                                                      Container(
-                                                                                        height: 20,
-                                                                                        child: ClipRRect(
-                                                                                          borderRadius: BorderRadius.circular(10),
-                                                                                          child: LinearProgressIndicator(
-                                                                                            value: (mapsOutcome[item.category.name] ?? 0) / item.amount,
-                                                                                            backgroundColor: Colors.grey[200],
-                                                                                            valueColor: AlwaysStoppedAnimation<Color>(
-                                                                                              getColorForValue((mapsOutcome[item.category.name] ?? 0) / item.amount),
-                                                                                            ),
-                                                                                            minHeight: 10,
-                                                                                          ),
-                                                                                        ),
-                                                                                      ),
-                                                                                      SizedBox(
-                                                                                        height: 5,
-                                                                                      ),
-                                                                                      Center(
-                                                                                        child: Text(
-                                                                                          "${GlobalFunction.formatCurrency(mapsOutcome[item.category.name] ?? 0, 2)} ${currencyGB.name}",
-                                                                                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                                                                                        ),
-                                                                                      )
-                                                                                    ],
-                                                                                  )
-                                                                                ]))
-                                                                          ],
-                                                                        ),
-                                                                      ))
-                                                              .toList()),
-                                            );
-                                          } else {
-                                            return Text(
-                                                "Failed to load budget detail in budget");
-                                          }
-                                        },
-                                      );
-                                    } else {
-                                      return Text(
-                                          "Failed to load parameter in budget");
-                                    }
-                                  },
-                                );
-                              } else {
-                                return Text(
-                                    "Failed to load Transacion in Budget");
-                              }
-                            },
-                          );
-                        } else {
-                          return Text("");
-                        }
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            )));
+            ],
+          ),
+        ));
   }
 }

@@ -126,13 +126,14 @@ class _AddreminderscreenState extends State<Addreminderscreen> {
         return false;
       });
       print("ID Reminder: $idRem");
-      if(idRem != -1)
-      await NotificationService().scheduleNotification(
+      if(idRem != -1) {
+        await NotificationService().scheduleNotification(
         id: idRem,
         title: 'Lời nhắc',
         body: _controllerDescription.text,
         scheduledDate: DateFormat("dd/MM/yyyy").parse(_controllerDate.text),
       );
+      }
       if (mounted) {
         Navigator.of(context).pop();
       }

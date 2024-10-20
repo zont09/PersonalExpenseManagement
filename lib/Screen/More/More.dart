@@ -10,6 +10,7 @@ import 'package:personal_expense_management/Screen/More/ReminderScreen/ReminderS
 import 'package:personal_expense_management/Screen/More/SavingScreen/SavingScreen.dart';
 import 'package:personal_expense_management/Screen/More/Wallet/WalletScreen.dart';
 import 'package:personal_expense_management/Screen/More/testAI.dart';
+import 'package:personal_expense_management/Screen/More/testScan/testInvoiceBill.dart';
 import 'package:personal_expense_management/Screen/More/testScan/testScan.dart';
 import 'package:personal_expense_management/Service/NotificationService.dart';
 import 'package:personal_expense_management/bloc/category_bloc/category_bloc.dart';
@@ -204,15 +205,13 @@ class More extends StatelessWidget {
                   child: OptionTag(name: "Test notification", height: 60, width: maxW)
               ),
               GestureDetector(
-                  onTap: () async => {
-                  await NotificationService().scheduleNotification(
-                    id: 1,
-                    title: 'Thông báo',
-                    body: 'Đây là nội dung của thông báo 2',
-                    scheduledDate: DateTime(2024, 10, 8, 15, 02, 00),
-                  )
+                  onTap: () async =>
+                  {
+                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => ScanBillPage()))
+
+
                   },
-                  child: OptionTag(name: "Test notification with time", height: 60, width: maxW)
+                  child: OptionTag(name: "Scan bills", height: 60, width: maxW)
               ),
             ],
           ),

@@ -50,6 +50,7 @@ class _TransactionState extends State<Transaction> {
   void initState() {
     super.initState();
     _initializeData();
+    print("on transacvtnion");
   }
 
   Future<void> _initializeData() async {
@@ -124,8 +125,7 @@ class _TransactionState extends State<Transaction> {
     );
   }
 
-  Future<void> _openBottomSheet(BuildContext context,
-      Map<String, bool> mapIncome, Map<String, bool> mapOutcome, int type) {
+  Future<void> _openBottomSheet(BuildContext context, Map<String, bool> mapIncome, Map<String, bool> mapOutcome, int type) {
     bool isAllChecked = true;
     final Completer<void> completer = Completer<void>();
 
@@ -406,7 +406,7 @@ class _TransactionState extends State<Transaction> {
                                               child: FittedBox(
                                                   fit: BoxFit.scaleDown,
                                                   child: Text(
-                                                    "${GlobalFunction.formatCurrency(totalWallet.amount, 2)} ${totalWallet.currency.name}",
+                                                    "${GlobalFunction.formatCurrency(totalWallet.amount * totalWallet.currency.value / currencyGB.value, 2)} ${currencyGB.name}",
                                                     style: const TextStyle(
                                                         fontSize: 18,
                                                         fontWeight:

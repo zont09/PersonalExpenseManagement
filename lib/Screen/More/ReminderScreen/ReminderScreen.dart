@@ -32,7 +32,7 @@ class _ReminderscreenState extends State<Reminderscreen> {
           ),
         ),
         title: Text(
-          "Quản lý ví",
+          "Quản lý lời nhắc",
           style: TextStyle(
               fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
         ),

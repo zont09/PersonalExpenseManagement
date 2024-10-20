@@ -76,7 +76,7 @@ class _DetailreminderscreenState extends State<Detailreminderscreen> {
                         return Padding(
                           padding: const EdgeInsets.only(left: 8, right: 8),
                           child: Container(
-                            decoration: BoxDecoration(
+                            decoration: const BoxDecoration(
                               border: Border(
                                 bottom: BorderSide(
                                   color: Colors.black26,
@@ -189,7 +189,7 @@ class _DetailreminderscreenState extends State<Detailreminderscreen> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-            "Thêm lời nhắc",
+            "Chi tiết lời nhắc",
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
           ),
           backgroundColor: AppColors.Nen,

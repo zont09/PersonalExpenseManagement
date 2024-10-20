@@ -414,455 +414,454 @@ class _AddtransactionState extends State<Addtransaction> {
     double maxH = MediaQuery.of(context).size.height;
     double maxW = MediaQuery.of(context).size.width;
 
-    return SafeArea(
-        child: GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-      },
-      child: Scaffold(
-          resizeToAvoidBottomInset: true,
-          appBar: AppBar(
-            title: Text(
-              "Thêm giao dịch",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+    return GestureDetector(
+          onTap: () {
+    FocusScope.of(context).unfocus();
+          },
+          child: Scaffold(
+      resizeToAvoidBottomInset: true,
+      appBar: AppBar(
+        title: Text(
+          "Thêm giao dịch",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+        ),
+        backgroundColor: AppColors.Nen,
+        leading: TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: Text(
+            "Hủy",
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 16,
             ),
-            backgroundColor: AppColors.Nen,
-            leading: TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text(
-                "Hủy",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 16,
-                ),
-              ),
-            ),
-          ),
-          body: Column(
-            children: [
-              Expanded(
-                  child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Container(
-                      margin: EdgeInsets.only(top: 20),
-                      // height: 100,
-                      color: AppColors.Nen,
-                      child: Column(
-                        children: [
-                          SizedBox(
-                            height: 8,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Container(
-                                height: 40,
-                                width: 150,
-                                child: InkWell(
-                                  child: Center(
-                                    child: Text(
-                                      "Chi",
-                                      style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500,
-                                          color: selectCategory == 0
-                                              ? Colors.white
-                                              : Colors.black),
-                                    ),
-                                  ),
-                                  onTap: () => {onTapCategory(0)},
-                                ),
-                                decoration: BoxDecoration(
-                                  color: selectCategory == 0
-                                      ? AppColors.Cam
-                                      : AppColors.Nen, // Màu nền
-                                  border: Border.all(
-                                    color: AppColors.Cam,
-                                    width: 2.5,
-                                  ),
-                                  borderRadius:
-                                      BorderRadius.circular(8), // Bo góc
-                                ),
-                              ),
-                              Container(
-                                height: 40,
-                                width: 150,
-                                child: InkWell(
-                                  child: Center(
-                                    child: Text(
-                                      "Thu",
-                                      style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500,
-                                          color: selectCategory == 1
-                                              ? Colors.white
-                                              : Colors.black),
-                                    ),
-                                  ),
-                                  onTap: () => {onTapCategory(1)},
-                                ),
-                                decoration: BoxDecoration(
-                                  color: selectCategory == 1
-                                      ? AppColors.XanhLaDam
-                                      : AppColors.Nen,
-                                  // Màu nền
-                                  border: Border.all(
-                                    color: AppColors.XanhLaDam,
-                                    // Màu viền
-                                    width: 2.5, // Độ dày viền
-                                  ),
-                                  borderRadius:
-                                      BorderRadius.circular(8), // Bo góc
-                                ),
-                              )
-                            ],
-                          ),
-                          SizedBox(
-                            height: 8,
-                          ),
-                          Row(
-                            children: [
-                              SizedBox(
-                                width: 8,
-                              ),
-                              Container(
-                                height: 50,
-                                width: 80,
-                                child: Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      "Số tiền",
-                                      style: TextStyle(fontSize: 16),
-                                    )),
-                              ),
-                              Expanded(
-                                child: TextField(
-                                  focusNode: _focusNode,
-                                  controller: _controllerAmount,
-                                  keyboardType: TextInputType.numberWithOptions(
-                                      decimal: true),
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.allow(RegExp(
-                                        !_isEnterDot ? r'[0-9,]' : r'[0-9]')),
-                                    // Cho phép số và dấu phẩy
-                                  ],
-                                  decoration: InputDecoration(
-                                    border: UnderlineInputBorder(),
-                                    labelText: 'Nhập số tiền',
-                                  ),
-                                  onChanged: (value) {
-                                    // Xử lý giá trị hiển thị trong TextField
-                                    if (value.length < _preTextAmount.length) {
-                                      if (_preTextAmount[
-                                              _preTextAmount.length - 1] ==
-                                          ',') {
-                                        setState(() {
-                                          _isEnterDot = false;
-                                        });
-                                      }
-                                    }
-                                    late String formatted = formatCurrency2(
-                                        value
-                                            .replaceAll('.', '')
-                                            .replaceAll(',', '.'));
-                                    print(
-                                        "Value: $value  -  Formated: $formatted");
-                                    _controllerAmount.value = TextEditingValue(
-                                      text: formatted,
-                                      selection: TextSelection.collapsed(
-                                          offset: formatted.length),
-                                    );
-                                    _preTextAmount = value;
-                                  },
-                                ),
-                              )
-                            ],
-                          ),
-                          SizedBox(
-                            height: 8,
-                          ),
-                          BlocBuilder<CategoryBloc, CategoryState>(
-                            builder: (context, state) {
-                              if (state is CategoryUpdateState) {
-                                final List<Category> listCat =
-                                    state.updCategory;
-
-                                return Row(
-                                  children: [
-                                    SizedBox(
-                                      width: 8,
-                                    ),
-                                    Container(
-                                      height: 50,
-                                      width: 80,
-                                      child: Align(
-                                          alignment: Alignment.centerLeft,
-                                          child: Text(
-                                            "Thể loại",
-                                            style: TextStyle(fontSize: 16),
-                                          )),
-                                    ),
-                                    Expanded(
-                                      child: GestureDetector(
-                                        onTap: () => {
-                                          _showCategoryOption(
-                                              context, listCat, selectCategory)
-                                        },
-                                        child: AbsorbPointer(
-                                          child: TextField(
-                                              controller: _controllerCategory,
-                                              decoration: InputDecoration(
-                                                  border:
-                                                      UnderlineInputBorder(),
-                                                  labelText: "Thể loại"),
-                                              onChanged: (value) {}),
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                );
-                              } else {
-                                return Text(
-                                    "Failed to load Category in add transaction");
-                              }
-                            },
-                          ),
-                          SizedBox(height: 8,),
-                          Row(
-                            children: [
-                              SizedBox(
-                                width: 8,
-                              ),
-                              Container(
-                                height: 50,
-                                width: 80,
-                                child: Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      "Ngày",
-                                      style: TextStyle(fontSize: 16),
-                                    )),
-                              ),
-                              Expanded(
-                                child: GestureDetector(
-                                  onTap: () => {
-                                    _selectDate(context)
-                                  },
-                                  child: AbsorbPointer(
-                                    child: TextField(
-                                        controller: _controllerDate,
-                                        decoration: InputDecoration(
-                                            border: UnderlineInputBorder(),
-                                            labelText: "Ngày thực hiện"),
-                                        onChanged: (value) {}),
-                                  ),
-                                ),
-                              )
-                            ],
-                          ),
-                          SizedBox(height: 8,),
-                          BlocBuilder<WalletBloc, WalletState>(
-                            builder: (context, state) {
-                              if (state is WalletUpdatedState) {
-                                final List<Wallet> listWal =
-                                    state.updatedWallet;
-
-                                return Row(
-                                  children: [
-                                    SizedBox(
-                                      width: 8,
-                                    ),
-                                    Container(
-                                      height: 50,
-                                      width: 80,
-                                      child: Align(
-                                          alignment: Alignment.centerLeft,
-                                          child: Text(
-                                            "Ví",
-                                            style: TextStyle(fontSize: 16),
-                                          )),
-                                    ),
-                                    Expanded(
-                                      child: GestureDetector(
-                                        onTap: () => {
-                                          _showWalletOption(
-                                              context, listWal)
-                                        },
-                                        child: AbsorbPointer(
-                                          child: TextField(
-                                              controller: _controllerWallet,
-                                              decoration: InputDecoration(
-                                                  border:
-                                                  UnderlineInputBorder(),
-                                                  labelText: "Ví"),
-                                              onChanged: (value) {}),
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                );
-                              } else {
-                                return Text(
-                                    "Failed to load Category in add transaction");
-                              }
-                            },
-                          ),
-                          SizedBox(
-                            height: 8,
-                          ),
-                          Row(
-                            children: [
-                              SizedBox(
-                                width: 8,
-                              ),
-                              Container(
-                                height: 50,
-                                width: 80,
-                                child: Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      "Ghi chú",
-                                      style: TextStyle(fontSize: 16),
-                                    )),
-                              ),
-                              Expanded(
-                                child: TextField(
-                                  controller: _controllerNote,
-                                  decoration: InputDecoration(
-                                    border: UnderlineInputBorder(),
-                                    labelText: 'Ghi chú',
-                                  ),
-                                  onChanged: (value) {
-                                  },
-                                ),
-                              )
-                            ],
-                          ),
-                          SizedBox(height: 8,),
-                          BlocBuilder<RepeatOptionBloc, RepeatOptionState>(
-                            builder: (context, state) {
-                              if (state is RepeatOptionUpdateState) {
-                                final List<RepeatOption> listRep =
-                                    state.updRep;
-
-                                return Row(
-                                  children: [
-                                    SizedBox(
-                                      width: 8,
-                                    ),
-                                    Container(
-                                      height: 50,
-                                      width: 80,
-                                      child: Align(
-                                          alignment: Alignment.centerLeft,
-                                          child: Text(
-                                            "Lặp lại",
-                                            style: TextStyle(fontSize: 16),
-                                          )),
-                                    ),
-                                    Expanded(
-                                      child: GestureDetector(
-                                        onTap: () => {
-                                          _showRepeatOption(
-                                              context, listRep)
-                                        },
-                                        child: AbsorbPointer(
-                                          child: TextField(
-                                              controller: _controllerRepeat,
-                                              decoration: InputDecoration(
-                                                  border:
-                                                  UnderlineInputBorder(),
-                                                  labelText: "Lặp lại"),
-                                              onChanged: (value) {}),
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                );
-                              } else {
-                                return Text(
-                                    "Failed to load Category in add transaction");
-                              }
-                            },
-                          ),
-                          SizedBox(
-                            height: 8,
-                          ),
-                          Row(
-                            children: [
-                              SizedBox(
-                                width: 8,
-                              ),
-                              Container(
-                                height: 50,
-                                width: 80,
-                                child: Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      "Mô tả",
-                                      style: TextStyle(fontSize: 16),
-                                    )),
-                              ),
-                              Expanded(
-                                child: TextField(
-                                  controller: _controllerDescription,
-                                  maxLines: null,
-                                  minLines: 1,
-                                  decoration: InputDecoration(
-                                    border: UnderlineInputBorder(),
-                                    labelText: 'Nhập mô tả',
-                                  ),
-                                  onChanged: (value) {
-                                  },
-                                ),
-                              )
-                            ],
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-              )),
-
-            ],
-          ),
-        bottomNavigationBar: BottomAppBar(
-          color: Colors.transparent,
-          child: Container(
-            margin: EdgeInsets.only(bottom: 10,),
-            height: 50,
-            width: maxW,
-            child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.XanhDuong,
-                  side: BorderSide(
-                    color: AppColors.XanhDuong,
-                    width: 2.0,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius:
-                    BorderRadius.circular(12), // Độ bo góc của viền
-                  ),
-                ),
-                onPressed: () => {
-                  _saveNewTransaction(context)
-                },
-                child: Center(
-                  child: Text(
-                    "Lưu",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500),
-                  ),
-                )),
           ),
         ),
       ),
-    ));
+      body: Column(
+        children: [
+          Expanded(
+              child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Container(
+                  margin: EdgeInsets.only(top: 20),
+                  // height: 100,
+                  color: AppColors.Nen,
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: 8,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Container(
+                            height: 40,
+                            width: 150,
+                            child: InkWell(
+                              child: Center(
+                                child: Text(
+                                  "Chi",
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      color: selectCategory == 0
+                                          ? Colors.white
+                                          : Colors.black),
+                                ),
+                              ),
+                              onTap: () => {onTapCategory(0)},
+                            ),
+                            decoration: BoxDecoration(
+                              color: selectCategory == 0
+                                  ? AppColors.Cam
+                                  : AppColors.Nen, // Màu nền
+                              border: Border.all(
+                                color: AppColors.Cam,
+                                width: 2.5,
+                              ),
+                              borderRadius:
+                                  BorderRadius.circular(8), // Bo góc
+                            ),
+                          ),
+                          Container(
+                            height: 40,
+                            width: 150,
+                            child: InkWell(
+                              child: Center(
+                                child: Text(
+                                  "Thu",
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      color: selectCategory == 1
+                                          ? Colors.white
+                                          : Colors.black),
+                                ),
+                              ),
+                              onTap: () => {onTapCategory(1)},
+                            ),
+                            decoration: BoxDecoration(
+                              color: selectCategory == 1
+                                  ? AppColors.XanhLaDam
+                                  : AppColors.Nen,
+                              // Màu nền
+                              border: Border.all(
+                                color: AppColors.XanhLaDam,
+                                // Màu viền
+                                width: 2.5, // Độ dày viền
+                              ),
+                              borderRadius:
+                                  BorderRadius.circular(8), // Bo góc
+                            ),
+                          )
+                        ],
+                      ),
+                      SizedBox(
+                        height: 8,
+                      ),
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: 8,
+                          ),
+                          Container(
+                            height: 50,
+                            width: 80,
+                            child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  "Số tiền",
+                                  style: TextStyle(fontSize: 16),
+                                )),
+                          ),
+                          Expanded(
+                            child: TextField(
+                              focusNode: _focusNode,
+                              controller: _controllerAmount,
+                              keyboardType: TextInputType.numberWithOptions(
+                                  decimal: true),
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(RegExp(
+                                    !_isEnterDot ? r'[0-9,]' : r'[0-9]')),
+                                // Cho phép số và dấu phẩy
+                              ],
+                              decoration: InputDecoration(
+                                border: UnderlineInputBorder(),
+                                labelText: 'Nhập số tiền',
+                              ),
+                              onChanged: (value) {
+                                // Xử lý giá trị hiển thị trong TextField
+                                if (value.length < _preTextAmount.length) {
+                                  if (_preTextAmount[
+                                          _preTextAmount.length - 1] ==
+                                      ',') {
+                                    setState(() {
+                                      _isEnterDot = false;
+                                    });
+                                  }
+                                }
+                                late String formatted = formatCurrency2(
+                                    value
+                                        .replaceAll('.', '')
+                                        .replaceAll(',', '.'));
+                                print(
+                                    "Value: $value  -  Formated: $formatted");
+                                _controllerAmount.value = TextEditingValue(
+                                  text: formatted,
+                                  selection: TextSelection.collapsed(
+                                      offset: formatted.length),
+                                );
+                                _preTextAmount = value;
+                              },
+                            ),
+                          )
+                        ],
+                      ),
+                      SizedBox(
+                        height: 8,
+                      ),
+                      BlocBuilder<CategoryBloc, CategoryState>(
+                        builder: (context, state) {
+                          if (state is CategoryUpdateState) {
+                            final List<Category> listCat =
+                                state.updCategory;
+
+                            return Row(
+                              children: [
+                                SizedBox(
+                                  width: 8,
+                                ),
+                                Container(
+                                  height: 50,
+                                  width: 80,
+                                  child: Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        "Thể loại",
+                                        style: TextStyle(fontSize: 16),
+                                      )),
+                                ),
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: () => {
+                                      _showCategoryOption(
+                                          context, listCat, selectCategory)
+                                    },
+                                    child: AbsorbPointer(
+                                      child: TextField(
+                                          controller: _controllerCategory,
+                                          decoration: InputDecoration(
+                                              border:
+                                                  UnderlineInputBorder(),
+                                              labelText: "Thể loại"),
+                                          onChanged: (value) {}),
+                                    ),
+                                  ),
+                                )
+                              ],
+                            );
+                          } else {
+                            return Text(
+                                "Failed to load Category in add transaction");
+                          }
+                        },
+                      ),
+                      SizedBox(height: 8,),
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: 8,
+                          ),
+                          Container(
+                            height: 50,
+                            width: 80,
+                            child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  "Ngày",
+                                  style: TextStyle(fontSize: 16),
+                                )),
+                          ),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () => {
+                                _selectDate(context)
+                              },
+                              child: AbsorbPointer(
+                                child: TextField(
+                                    controller: _controllerDate,
+                                    decoration: InputDecoration(
+                                        border: UnderlineInputBorder(),
+                                        labelText: "Ngày thực hiện"),
+                                    onChanged: (value) {}),
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                      SizedBox(height: 8,),
+                      BlocBuilder<WalletBloc, WalletState>(
+                        builder: (context, state) {
+                          if (state is WalletUpdatedState) {
+                            final List<Wallet> listWal =
+                                state.updatedWallet;
+
+                            return Row(
+                              children: [
+                                SizedBox(
+                                  width: 8,
+                                ),
+                                Container(
+                                  height: 50,
+                                  width: 80,
+                                  child: Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        "Ví",
+                                        style: TextStyle(fontSize: 16),
+                                      )),
+                                ),
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: () => {
+                                      _showWalletOption(
+                                          context, listWal)
+                                    },
+                                    child: AbsorbPointer(
+                                      child: TextField(
+                                          controller: _controllerWallet,
+                                          decoration: InputDecoration(
+                                              border:
+                                              UnderlineInputBorder(),
+                                              labelText: "Ví"),
+                                          onChanged: (value) {}),
+                                    ),
+                                  ),
+                                )
+                              ],
+                            );
+                          } else {
+                            return Text(
+                                "Failed to load Category in add transaction");
+                          }
+                        },
+                      ),
+                      SizedBox(
+                        height: 8,
+                      ),
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: 8,
+                          ),
+                          Container(
+                            height: 50,
+                            width: 80,
+                            child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  "Ghi chú",
+                                  style: TextStyle(fontSize: 16),
+                                )),
+                          ),
+                          Expanded(
+                            child: TextField(
+                              controller: _controllerNote,
+                              decoration: InputDecoration(
+                                border: UnderlineInputBorder(),
+                                labelText: 'Ghi chú',
+                              ),
+                              onChanged: (value) {
+                              },
+                            ),
+                          )
+                        ],
+                      ),
+                      SizedBox(height: 8,),
+                      BlocBuilder<RepeatOptionBloc, RepeatOptionState>(
+                        builder: (context, state) {
+                          if (state is RepeatOptionUpdateState) {
+                            final List<RepeatOption> listRep =
+                                state.updRep;
+
+                            return Row(
+                              children: [
+                                SizedBox(
+                                  width: 8,
+                                ),
+                                Container(
+                                  height: 50,
+                                  width: 80,
+                                  child: Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        "Lặp lại",
+                                        style: TextStyle(fontSize: 16),
+                                      )),
+                                ),
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: () => {
+                                      _showRepeatOption(
+                                          context, listRep)
+                                    },
+                                    child: AbsorbPointer(
+                                      child: TextField(
+                                          controller: _controllerRepeat,
+                                          decoration: InputDecoration(
+                                              border:
+                                              UnderlineInputBorder(),
+                                              labelText: "Lặp lại"),
+                                          onChanged: (value) {}),
+                                    ),
+                                  ),
+                                )
+                              ],
+                            );
+                          } else {
+                            return Text(
+                                "Failed to load Category in add transaction");
+                          }
+                        },
+                      ),
+                      SizedBox(
+                        height: 8,
+                      ),
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: 8,
+                          ),
+                          Container(
+                            height: 50,
+                            width: 80,
+                            child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  "Mô tả",
+                                  style: TextStyle(fontSize: 16),
+                                )),
+                          ),
+                          Expanded(
+                            child: TextField(
+                              controller: _controllerDescription,
+                              maxLines: null,
+                              minLines: 1,
+                              decoration: InputDecoration(
+                                border: UnderlineInputBorder(),
+                                labelText: 'Nhập mô tả',
+                              ),
+                              onChanged: (value) {
+                              },
+                            ),
+                          )
+                        ],
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          )),
+
+        ],
+      ),
+    bottomNavigationBar: BottomAppBar(
+      color: Colors.transparent,
+      child: Container(
+        margin: EdgeInsets.only(bottom: 10,),
+        height: 50,
+        width: maxW,
+        child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.XanhDuong,
+              side: BorderSide(
+                color: AppColors.XanhDuong,
+                width: 2.0,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius:
+                BorderRadius.circular(12), // Độ bo góc của viền
+              ),
+            ),
+            onPressed: () => {
+              _saveNewTransaction(context)
+            },
+            child: Center(
+              child: Text(
+                "Lưu",
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500),
+              ),
+            )),
+      ),
+    ),
+          ),
+        );
   }
 }
