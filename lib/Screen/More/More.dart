@@ -10,6 +10,7 @@ import 'package:personal_expense_management/Screen/More/ReminderScreen/ReminderS
 import 'package:personal_expense_management/Screen/More/SavingScreen/SavingScreen.dart';
 import 'package:personal_expense_management/Screen/More/Wallet/WalletScreen.dart';
 import 'package:personal_expense_management/Screen/More/testAI.dart';
+import 'package:personal_expense_management/Screen/More/testScan/scanbill2.dart';
 import 'package:personal_expense_management/Screen/More/testScan/testInvoiceBill.dart';
 import 'package:personal_expense_management/Screen/More/testScan/testScan.dart';
 import 'package:personal_expense_management/Service/NotificationService.dart';
@@ -207,7 +208,7 @@ class More extends StatelessWidget {
               GestureDetector(
                   onTap: () async =>
                   {
-                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => ScanBillPage()))
+                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => ReceiptScannerScreen()))
 
 
                   },

@@ -36,6 +36,8 @@
     <string>We need access to your photo library to choose images</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+        <string>Ứng dụng cần quyền lưu ảnh vào thư viện</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
