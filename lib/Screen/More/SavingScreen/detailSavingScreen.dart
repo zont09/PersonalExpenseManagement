@@ -158,7 +158,7 @@ class _DetailsavingscreenState extends State<Detailsavingscreen> {
         appBar: AppBar(
           backgroundColor: AppColors.Nen,
           title: Text(
-            "Thêm khoản tiết kiệm",
+            "Chi tiết khoản tiết kiệm",
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           actions: [

@@ -193,27 +193,27 @@ class More extends StatelessWidget {
                 },
                 child: OptionTag(name: "Quản lý tiền tệ", height: 60, width: maxW)
               ),
-              GestureDetector(
-                onTap: () async => {
-                  _resetData()
-                },
-                child: OptionTag(name: "reset data", height: 60, width: maxW)
-              ),
-              GestureDetector(
-                  onTap: () async => {
-                    NotificationService().showNotification(title: "Nhắc nhở",body: "Đây là nội dung")
-                  },
-                  child: OptionTag(name: "Test notification", height: 60, width: maxW)
-              ),
-              GestureDetector(
-                  onTap: () async =>
-                  {
-                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => ReceiptScannerScreen()))
-
-
-                  },
-                  child: OptionTag(name: "Scan bills", height: 60, width: maxW)
-              ),
+              // GestureDetector(
+              //   onTap: () async => {
+              //     _resetData()
+              //   },
+              //   child: OptionTag(name: "reset data", height: 60, width: maxW)
+              // ),
+              // GestureDetector(
+              //     onTap: () async => {
+              //       NotificationService().showNotification(title: "Nhắc nhở",body: "Đây là nội dung")
+              //     },
+              //     child: OptionTag(name: "Test notification", height: 60, width: maxW)
+              // ),
+              // GestureDetector(
+              //     onTap: () async =>
+              //     {
+              //       Navigator.of(context).push(MaterialPageRoute(builder: (context) => ReceiptScannerScreen()))
+              //
+              //
+              //     },
+              //     child: OptionTag(name: "Scan bills", height: 60, width: maxW)
+              // ),
             ],
           ),
         ),

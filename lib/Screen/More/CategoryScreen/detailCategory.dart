@@ -126,7 +126,7 @@ class _Detailcategory extends State<Detailcategory> {
         appBar: AppBar(
           backgroundColor: AppColors.Nen,
           title: Text(
-            "Thêm loại giao dịch",
+            "Chi tiết loại giao dịch",
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           actions: [

@@ -52,7 +52,7 @@ Future<void> checkFirstRun() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool isFirstRun = prefs.getBool('isFirstRun') ?? true;
   if (isFirstRun) {
-    await DatabaseHelper().deleteDatabasee();
+    // await DatabaseHelper().deleteDatabasee();
     await Initdata.addDefaultData();
     // await Initdata.addAllSampleData();
     await prefs.setBool('isFirstRun', false);
@@ -127,7 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
   Future<void> _initialize() async {
     // print("OK1");
-    await _addTransactionRepeat();
+    // await _addTransactionRepeat();
     print("OK2");
     await _initializeData();
   }

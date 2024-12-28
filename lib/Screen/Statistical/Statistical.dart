@@ -6,11 +6,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_inset_box_shadow/flutter_inset_box_shadow.dart'
     as inset_box_shadow;
 import 'package:personal_expense_management/Components/select_time.dart';
-import 'package:personal_expense_management/Model/Category.dart';
 import 'package:personal_expense_management/Model/Currency.dart';
 import 'package:personal_expense_management/Model/TransactionModel.dart';
 import 'package:personal_expense_management/Resources/AppColor.dart';
-import 'package:month_year_picker/month_year_picker.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:personal_expense_management/Resources/global_function.dart';
 import 'package:personal_expense_management/bloc/parameter_bloc/parameter_bloc.dart';
@@ -114,10 +112,10 @@ class _StatisticalState extends State<Statistical> {
     double maxW = MediaQuery.of(context).size.width;
     return SafeArea(
         child: Container(
-          color: Colors.white,
-          child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
+      color: Colors.white,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
           Align(
             alignment: Alignment.center,
             child: Container(
@@ -190,695 +188,768 @@ class _StatisticalState extends State<Statistical> {
               boxShadow: [
                 BoxShadow(
                   color: Colors.grey.withOpacity(0.2), // Màu của shadow
-                  spreadRadius: 2,                     // Độ lan rộng của shadow
-                  blurRadius: 7,                       // Độ mờ của shadow
-                  offset: Offset(5, 5),                // Vị trí của shadow
+                  spreadRadius: 2, // Độ lan rộng của shadow
+                  blurRadius: 7, // Độ mờ của shadow
+                  offset: Offset(5, 5), // Vị trí của shadow
                 ),
               ],
             ),
-            child: SelectTime(dateOption: _dateOption,dateOptionView: _dateOptionView, changed: (newDate) {
-              setState(() {
-                _dateOption = newDate;
-              });
-            }),
+            child: SelectTime(
+                dateOption: _dateOption,
+                dateOptionView: _dateOptionView,
+                changed: (newDate) {
+                  setState(() {
+                    _dateOption = newDate;
+                  });
+                }),
           ),
-          const SizedBox(
-            height: 12,
-          ),
+          const SizedBox(height: 12),
           Expanded(
-            child: SingleChildScrollView(
-              child: BlocBuilder<TransactionBloc, TransactionState>(
-                builder: (context, state) {
-                  if (state is TransactionChangedState) {
-                    final listTran = state.newTransaction;
-                    final listTrans = listTran.where((item) {
-                      DateTime tranDate = DateTime.parse(item.date);
-                      return (tranDate.year == _dateOption.year &&
-                          (_dateOptionView == 1 ||
-                              tranDate.month == _dateOption.month));
-                    }).toList();
+            child: Stack(
+              children: [
+                Center(
+                    child: Image.asset(
+                  'assets/icon/ic_logo.png',
+                  fit: BoxFit.fitWidth,
+                  color: Colors.grey[100],
+                )),
+                SingleChildScrollView(
+                  child: BlocBuilder<TransactionBloc, TransactionState>(
+                    builder: (context, state) {
+                      if (state is TransactionChangedState) {
+                        final listTran = state.newTransaction;
+                        final listTrans = listTran.where((item) {
+                          DateTime tranDate = DateTime.parse(item.date);
+                          return (tranDate.year == _dateOption.year &&
+                              (_dateOptionView == 1 ||
+                                  tranDate.month == _dateOption.month));
+                        }).toList();
 
-                    return BlocBuilder<ParameterBloc, ParameterState>(
-                      builder: (context, state) {
-                        if (state is ParameterUpdateState) {
-                          final currencyGB = state.updPar.currency;
-                          final listTransIncome = listTrans
-                              .where((item) => item.category.type == 1)
-                              .toList();
-                          final listTransOutcome = listTrans
-                              .where((item) => item.category.type == 0)
-                              .toList();
-                          Map<String, double> mapsIncome =
-                              calculateCategoryTotals(
-                                  listTransIncome, currencyGB);
-                          Map<String, double> mapsOutcome =
-                              calculateCategoryTotals(
-                                  listTransOutcome, currencyGB);
-                          double totalIncome = mapsIncome.isNotEmpty
-                              ? mapsIncome.values.reduce((a, b) => a + b)
-                              : 0.0;
-                          double totalOutcome = mapsOutcome.isNotEmpty
-                              ? mapsOutcome.values.reduce((a, b) => a + b)
-                              : 0.0;
-                          List<MapEntry<String, double>> listIncome =
-                              mapsIncome.entries.toList();
-                          List<MapEntry<String, double>> listOutcome =
-                              mapsOutcome.entries.toList();
+                        return BlocBuilder<ParameterBloc, ParameterState>(
+                          builder: (context, state) {
+                            if (state is ParameterUpdateState) {
+                              final currencyGB = state.updPar.currency;
+                              final listTransIncome = listTrans
+                                  .where((item) => item.category.type == 1)
+                                  .toList();
+                              final listTransOutcome = listTrans
+                                  .where((item) => item.category.type == 0)
+                                  .toList();
+                              Map<String, double> mapsIncome =
+                                  calculateCategoryTotals(
+                                      listTransIncome, currencyGB);
+                              Map<String, double> mapsOutcome =
+                                  calculateCategoryTotals(
+                                      listTransOutcome, currencyGB);
+                              double totalIncome = mapsIncome.isNotEmpty
+                                  ? mapsIncome.values.reduce((a, b) => a + b)
+                                  : 0.0;
+                              double totalOutcome = mapsOutcome.isNotEmpty
+                                  ? mapsOutcome.values.reduce((a, b) => a + b)
+                                  : 0.0;
+                              List<MapEntry<String, double>> listIncome =
+                                  mapsIncome.entries.toList();
+                              List<MapEntry<String, double>> listOutcome =
+                                  mapsOutcome.entries.toList();
 
-                          Map<int, double> listIncomeRp =
-                              calculateDateTotals(listTrans, currencyGB, 1);
-                          Map<int, double> listOutcomeRp =
-                              calculateDateTotals(listTrans, currencyGB, 0);
-                          double maxValue = 0;
+                              Map<int, double> listIncomeRp =
+                                  calculateDateTotals(listTrans, currencyGB, 1);
+                              Map<int, double> listOutcomeRp =
+                                  calculateDateTotals(listTrans, currencyGB, 0);
+                              double maxValue = 0;
 
-                          listOutcomeRp.forEach((key, value) {
-                            maxValue = max(value, maxValue);
-                          });
-                          listIncomeRp.forEach((key, value) {
-                            maxValue = max(value, maxValue);
-                          });
-                          return Column(
-                            children: [
-                              Container(
-                                height: 0.5 * maxH,
-                                width: maxW,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  border: Border(
-                                    bottom: BorderSide(width: 1, color: Color(0xFF9CADBC))
-                                  )
-                                ),
-                                child: Column(
-                                  children: [
-                                    SizedBox(
-                                      height: 5,
-                                    ),
-                                    Text(
-                                      "Báo cáo thu chi",
-                                      style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600),
-                                    ),
-                                    Expanded(
-                                        child: Padding(
-                                      padding: const EdgeInsets.all(16.0),
-                                      child: Row(
-                                        children: [
-                                          Container(
-                                            margin: EdgeInsets.only(bottom: 20),
-                                            width: 30,
-                                            child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.spaceBetween,
-                                              children: List.generate(
-                                                6,
-                                                (index) {
-                                                  // Các giá trị trục Y (từ 0 đến maxY)
-                                                  final value = (5 - index) *
-                                                      (maxValue / 5).floor();
-                                                  return Text(
-                                                    GlobalFunction.shortMoney(
-                                                        value.toDouble()),
-                                                    style: TextStyle(
-                                                        fontSize: 11,
-                                                        color: Colors.black),
-                                                  );
-                                                },
-                                              ),
-                                            ),
-                                          ),
-                                          Expanded(
-                                            child: SingleChildScrollView(
-                                              scrollDirection: Axis.horizontal,
-                                              child: Container(
-                                                width: _dateOptionView == 0
-                                                    ? GlobalFunction
-                                                            .getDaysInMonth(
-                                                                _dateOption.year,
-                                                                _dateOption
-                                                                    .month) *
-                                                        40.0
-                                                    : 480,
-                                                height: 0.4 * maxH,
-                                                child: BarChart(
-                                                  BarChartData(
-                                                    barGroups: listIncomeRp
-                                                        .entries
-                                                        .map((item) {
-                                                      return BarChartGroupData(
-                                                        x: item.key,
-                                                        barRods: [
-                                                          BarChartRodData(
-                                                            toY: item.value,
-                                                            color: AppColors
-                                                                .XanhLaDam,
-                                                            width: 15,
-                                                            borderRadius:
-                                                                BorderRadius.zero,
-                                                          ),
-                                                          BarChartRodData(
-                                                            toY: listOutcomeRp[
-                                                                item.key]!,
-                                                            color: AppColors.Cam,
-                                                            width: 15,
-                                                            borderRadius:
-                                                                BorderRadius.zero,
-                                                          ),
-                                                        ],
+                              listOutcomeRp.forEach((key, value) {
+                                maxValue = max(value, maxValue);
+                              });
+                              listIncomeRp.forEach((key, value) {
+                                maxValue = max(value, maxValue);
+                              });
+                              return Column(
+                                children: [
+                                  Container(
+                                    height: 0.5 * maxH,
+                                    width: maxW,
+                                    decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        border: Border(
+                                            bottom: BorderSide(
+                                                width: 1,
+                                                color: Color(0xFF9CADBC)))),
+                                    child: Column(
+                                      children: [
+                                        SizedBox(
+                                          height: 5,
+                                        ),
+                                        Text(
+                                          "Báo cáo thu chi",
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600),
+                                        ),
+                                        Expanded(
+                                            child: Padding(
+                                          padding: const EdgeInsets.all(16.0),
+                                          child: Row(
+                                            children: [
+                                              Container(
+                                                margin:
+                                                    EdgeInsets.only(bottom: 20),
+                                                width: 30,
+                                                child: Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: List.generate(
+                                                    6,
+                                                    (index) {
+                                                      // Các giá trị trục Y (từ 0 đến maxY)
+                                                      final value =
+                                                          (5 - index) *
+                                                              (maxValue / 5)
+                                                                  .floor();
+                                                      return Text(
+                                                        GlobalFunction
+                                                            .shortMoney(value
+                                                                .toDouble()),
+                                                        style: TextStyle(
+                                                            fontSize: 11,
+                                                            color:
+                                                                Colors.black),
                                                       );
-                                                    }).toList(),
-                                                    titlesData: FlTitlesData(
-                                                      leftTitles: AxisTitles(
-                                                        sideTitles: SideTitles(
-                                                            showTitles: false),
-                                                      ),
-                                                      rightTitles: AxisTitles(
-                                                        sideTitles: SideTitles(
-                                                            showTitles: false),
-                                                      ),
-                                                      topTitles: AxisTitles(
-                                                        sideTitles: SideTitles(
-                                                            showTitles: false),
-                                                      ),
-                                                      bottomTitles: AxisTitles(
-                                                        sideTitles: SideTitles(
-                                                          showTitles: true,
-                                                          getTitlesWidget: (double
-                                                                  value,
-                                                              TitleMeta meta) {
-                                                            return Text(value
-                                                                .toInt()
-                                                                .toString());
-                                                          },
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    borderData: FlBorderData(
-                                                      show: true,
-                                                      border: Border(
-                                                        left: BorderSide(
-                                                          color: Colors.black,
-                                                          // Màu của đường viền bên trái
-                                                          width:
-                                                              1, // Độ dày của đường viền
-                                                        ),
-                                                        bottom: BorderSide(
-                                                          color: Colors.black,
-                                                          // Màu của đường viền dưới cùng
-                                                          width:
-                                                              1, // Độ dày của đường viền
-                                                        ),
-                                                        right: BorderSide.none,
-                                                        // Ẩn viền bên phải
-                                                        top: BorderSide
-                                                            .none, // Ẩn viền trên
-                                                      ),
-                                                    ),
-                                                    gridData: FlGridData(
-                                                      show: true,
-                                                      drawVerticalLine: true,
-                                                      drawHorizontalLine: true,
-                                                      getDrawingHorizontalLine:
-                                                          (value) {
-                                                        return FlLine(
-                                                          color: Colors.grey,
-                                                          strokeWidth: 0.5,
-                                                        );
-                                                      },
-                                                      getDrawingVerticalLine:
-                                                          (value) {
-                                                        return FlLine(
-                                                          color: Colors.grey,
-                                                          strokeWidth: 0.5,
-                                                        );
-                                                      },
-                                                    ),
-                                                    barTouchData: BarTouchData(
-                                                      touchTooltipData:
-                                                          BarTouchTooltipData(
-                                                        getTooltipColor: (group) {
-                                                          return AppColors
-                                                              .XanhDuong;
-                                                        },
-                                                        tooltipMargin: 8,
-                                                        // Khoảng cách giữa tooltip và cột
-                                                        fitInsideHorizontally:
-                                                            true,
-                                                        // Đảm bảo tooltip không vượt ra ngoài màn hình theo chiều ngang
-                                                        fitInsideVertically: true,
-                                                        // Đảm bảo tooltip không vượt ra ngoài màn hình theo chiều dọc
-                                                        getTooltipItem: (group,
-                                                            groupIndex,
-                                                            rod,
-                                                            rodIndex) {
-                                                          return BarTooltipItem(
-                                                            GlobalFunction
-                                                                    .formatCurrency(
-                                                                        rod.toY,
-                                                                        2) +
-                                                                " " +
-                                                                currencyGB.name,
-                                                            TextStyle(
-                                                                color:
-                                                                    Colors.white),
-                                                          );
-                                                        },
-                                                      ),
-                                                      touchCallback:
-                                                          (event, response) {
-                                                        if (response != null &&
-                                                            response.spot !=
-                                                                null) {
-                                                          print(
-                                                              'Touched spot at x: ${response.spot!.touchedBarGroupIndex}, y: ${response.spot!.touchedRodData.toY}');
-                                                        }
-                                                      },
-                                                    ),
+                                                    },
                                                   ),
                                                 ),
                                               ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ))
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              IntrinsicHeight(
-                                child: Container(
-                                  width: maxW,
-                                  // color: AppColors.Nen,
-                                  // color: Colors.amber,
-                                  decoration: const BoxDecoration(
-                                      color: Colors.white,
-                                      border: Border(
-                                          bottom: BorderSide(width: 1, color: Color(0xFF9CADBC))
-                                      )
-                                  ),
-                                  child: Column(
-                                    children: [
-                                      SizedBox(
-                                        height: 5,
-                                      ),
-                                      Text(
-                                        "Thống kê thu",
-                                        style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w600),
-                                      ),
-                                      Container(
-                                        height: 0.4 * maxH,
-                                        child: Stack(
-                                            alignment: Alignment.center,
-                                            children: [
-                                              listIncome.isEmpty
-                                                  ? Center(
-                                                      child: Text(
-                                                          "Không có dữ liệu"),
-                                                    )
-                                                  : Container(
-
-                                                    child: Padding(
-                                                        padding:
-                                                            const EdgeInsets.only(
-                                                                left: 40,
-                                                                right: 40,
-                                                                top: 20,
-                                                                bottom: 20),
-                                                        child: PieChart(
-                                                          PieChartData(
-                                                            sections: getSections(
-                                                                mapsIncome,
-                                                                touchedIndexIn),
-                                                            pieTouchData:
-                                                                PieTouchData(
-                                                              touchCallback:
-                                                                  (FlTouchEvent
-                                                                          event,
-                                                                      pieTouchResponse) {
-                                                                setState(() {
-                                                                  if (!event
-                                                                          .isInterestedForInteractions ||
-                                                                      pieTouchResponse ==
-                                                                          null ||
-                                                                      pieTouchResponse
-                                                                              .touchedSection ==
-                                                                          null) {
-                                                                    touchedIndexIn =
-                                                                        -1;
-                                                                    return;
-                                                                  }
-                                                                  touchedIndexIn =
-                                                                      pieTouchResponse
-                                                                          .touchedSection!
-                                                                          .touchedSectionIndex;
-                                                                });
+                                              Expanded(
+                                                child: SingleChildScrollView(
+                                                  scrollDirection:
+                                                      Axis.horizontal,
+                                                  child: Container(
+                                                    width: _dateOptionView == 0
+                                                        ? GlobalFunction
+                                                                .getDaysInMonth(
+                                                                    _dateOption
+                                                                        .year,
+                                                                    _dateOption
+                                                                        .month) *
+                                                            40.0
+                                                        : 480,
+                                                    height: 0.4 * maxH,
+                                                    child: BarChart(
+                                                      BarChartData(
+                                                        barGroups: listIncomeRp
+                                                            .entries
+                                                            .map((item) {
+                                                          return BarChartGroupData(
+                                                            x: item.key,
+                                                            barRods: [
+                                                              BarChartRodData(
+                                                                toY: item.value,
+                                                                color: AppColors
+                                                                    .XanhLaDam,
+                                                                width: 15,
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .zero,
+                                                              ),
+                                                              BarChartRodData(
+                                                                toY: listOutcomeRp[
+                                                                    item.key]!,
+                                                                color: AppColors
+                                                                    .Cam,
+                                                                width: 15,
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .zero,
+                                                              ),
+                                                            ],
+                                                          );
+                                                        }).toList(),
+                                                        titlesData:
+                                                            FlTitlesData(
+                                                          leftTitles:
+                                                              AxisTitles(
+                                                            sideTitles:
+                                                                SideTitles(
+                                                                    showTitles:
+                                                                        false),
+                                                          ),
+                                                          rightTitles:
+                                                              AxisTitles(
+                                                            sideTitles:
+                                                                SideTitles(
+                                                                    showTitles:
+                                                                        false),
+                                                          ),
+                                                          topTitles: AxisTitles(
+                                                            sideTitles:
+                                                                SideTitles(
+                                                                    showTitles:
+                                                                        false),
+                                                          ),
+                                                          bottomTitles:
+                                                              AxisTitles(
+                                                            sideTitles:
+                                                                SideTitles(
+                                                              showTitles: true,
+                                                              getTitlesWidget:
+                                                                  (double value,
+                                                                      TitleMeta
+                                                                          meta) {
+                                                                return Text(value
+                                                                    .toInt()
+                                                                    .toString());
                                                               },
                                                             ),
                                                           ),
                                                         ),
-                                                      ),
-                                                  ),
-                                              listIncome.isEmpty
-                                                  ? Center(
-                                                      child: Text(
-                                                          "Không có dữ liệu"),
-                                                    )
-                                                  : Column(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .center,
-                                                      children: [
-                                                        SizedBox(
-                                                          width: 0.5 * maxW,
-                                                          child: FittedBox(
-                                                            fit: BoxFit.scaleDown,
-                                                            // Thu nhỏ chữ nếu vượt quá không gian
-                                                            child: Text(
-                                                              touchedIndexIn == -1
-                                                                  ? "Tổng"
-                                                                  : listIncome[
-                                                                          touchedIndexIn]
-                                                                      .key,
-                                                              style: TextStyle(
-                                                                fontSize: 18,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                              ),
+                                                        borderData:
+                                                            FlBorderData(
+                                                          show: true,
+                                                          border: Border(
+                                                            left: BorderSide(
+                                                              color:
+                                                                  Colors.black,
+                                                              // Màu của đường viền bên trái
+                                                              width:
+                                                                  1, // Độ dày của đường viền
                                                             ),
+                                                            bottom: BorderSide(
+                                                              color:
+                                                                  Colors.black,
+                                                              // Màu của đường viền dưới cùng
+                                                              width:
+                                                                  1, // Độ dày của đường viền
+                                                            ),
+                                                            right:
+                                                                BorderSide.none,
+                                                            // Ẩn viền bên phải
+                                                            top: BorderSide
+                                                                .none, // Ẩn viền trên
                                                           ),
                                                         ),
-                                                        SizedBox(
-                                                          width: 0.5 * maxW,
-                                                          child: FittedBox(
-                                                            fit: BoxFit.scaleDown,
-                                                            child: Text(
-                                                              touchedIndexIn == -1
-                                                                  ? GlobalFunction
-                                                                          .formatCurrency(
-                                                                              totalIncome,
-                                                                              2) +
-                                                                      ' ' +
-                                                                      currencyGB
-                                                                          .name
-                                                                  : '${GlobalFunction.formatCurrency(getSections(mapsIncome, touchedIndexIn)[touchedIndexIn].value, 2)}' +
-                                                                      ' ' +
-                                                                      currencyGB
-                                                                          .name,
-                                                              style: TextStyle(
-                                                                  fontSize: 18,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .normal),
-                                                            ),
-                                                          ),
+                                                        gridData: FlGridData(
+                                                          show: true,
+                                                          drawVerticalLine:
+                                                              true,
+                                                          drawHorizontalLine:
+                                                              true,
+                                                          getDrawingHorizontalLine:
+                                                              (value) {
+                                                            return FlLine(
+                                                              color:
+                                                                  Colors.grey,
+                                                              strokeWidth: 0.5,
+                                                            );
+                                                          },
+                                                          getDrawingVerticalLine:
+                                                              (value) {
+                                                            return FlLine(
+                                                              color:
+                                                                  Colors.grey,
+                                                              strokeWidth: 0.5,
+                                                            );
+                                                          },
                                                         ),
-                                                      ],
-                                                    ),
-                                            ]),
-                                      ),
-                                      ...listIncome.asMap().entries.map((item) =>
-                                          Padding(
-                                            padding: EdgeInsets.only(
-                                                top: 0,
-                                                bottom: 16,
-                                                left: 16,
-                                                right: 16),
-                                            child: Row(
-                                              children: [
-                                                Expanded(
-                                                    flex: 1,
-                                                    child: Row(
-                                                      children: [
-                                                        Icon(
-                                                          Icons.square,
-                                                          color: AppColors
-                                                                  .chartColors[
-                                                              item.key],
-                                                        ),
-                                                        SizedBox(
-                                                          width: 5,
-                                                        ),
-                                                        Text(
-                                                          item.value.key,
-                                                          style: TextStyle(
-                                                              fontSize: 16,
-                                                              fontWeight:
-                                                                  FontWeight.w500,
-                                                              overflow:
-                                                                  TextOverflow
-                                                                      .ellipsis),
-                                                        )
-                                                      ],
-                                                    )),
-                                                SizedBox(
-                                                  width: 5,
-                                                ),
-                                                Expanded(
-                                                    flex: 1,
-                                                    child: Align(
-                                                      alignment:
-                                                          Alignment.centerLeft,
-                                                      child: FittedBox(
-                                                          fit: BoxFit.scaleDown,
-                                                          child: Text(
-                                                            GlobalFunction
-                                                                    .formatCurrency(
-                                                                        item.value
-                                                                            .value,
-                                                                        2) +
-                                                                ' ' +
-                                                                currencyGB.name,
-                                                            style: TextStyle(
-                                                                fontSize: 15),
-                                                          )),
-                                                    )),
-
-                                              ],
-                                            ),
-                                          ))
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              SizedBox(
-                                height: 40,
-                              ),
-                              IntrinsicHeight(
-                                child: Container(
-                                  width: maxW,
-                                  color: AppColors.Nen,
-                                  child: Column(
-                                    children: [
-                                      SizedBox(
-                                        height: 5,
-                                      ),
-                                      Text(
-                                        "Thống kê chi",
-                                        style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w600),
-                                      ),
-                                      Container(
-                                        height: 0.4 * maxH,
-                                        child: Stack(
-                                            alignment: Alignment.center,
-                                            children: [
-                                              listOutcome.isEmpty
-                                                  ? Center(
-                                                      child: Text(
-                                                          "Không có dữ liệu"),
-                                                    )
-                                                  : Padding(
-                                                      padding: EdgeInsets.all(16),
-                                                      child: PieChart(
-                                                        PieChartData(
-                                                          sections: getSections(
-                                                              mapsOutcome,
-                                                              touchedIndexOut),
-                                                          pieTouchData:
-                                                              PieTouchData(
-                                                            touchCallback:
-                                                                (FlTouchEvent
-                                                                        event,
-                                                                    pieTouchResponse) {
-                                                              setState(() {
-                                                                if (!event
-                                                                        .isInterestedForInteractions ||
-                                                                    pieTouchResponse ==
-                                                                        null ||
-                                                                    pieTouchResponse
-                                                                            .touchedSection ==
-                                                                        null) {
-                                                                  touchedIndexOut =
-                                                                      -1;
-                                                                  return;
-                                                                }
-                                                                touchedIndexOut =
-                                                                    pieTouchResponse
-                                                                        .touchedSection!
-                                                                        .touchedSectionIndex;
-                                                                print(
-                                                                    "touched index ${touchedIndexOut}");
-                                                                print(
-                                                                    "Value index ${touchedIndexOut != -1 ? getSections(mapsOutcome, touchedIndexOut)[touchedIndexOut].value : 00} ");
-                                                              });
+                                                        barTouchData:
+                                                            BarTouchData(
+                                                          touchTooltipData:
+                                                              BarTouchTooltipData(
+                                                            getTooltipColor:
+                                                                (group) {
+                                                              return AppColors
+                                                                  .XanhDuong;
+                                                            },
+                                                            tooltipMargin: 8,
+                                                            // Khoảng cách giữa tooltip và cột
+                                                            fitInsideHorizontally:
+                                                                true,
+                                                            // Đảm bảo tooltip không vượt ra ngoài màn hình theo chiều ngang
+                                                            fitInsideVertically:
+                                                                true,
+                                                            // Đảm bảo tooltip không vượt ra ngoài màn hình theo chiều dọc
+                                                            getTooltipItem:
+                                                                (group,
+                                                                    groupIndex,
+                                                                    rod,
+                                                                    rodIndex) {
+                                                              return BarTooltipItem(
+                                                                GlobalFunction
+                                                                        .formatCurrency(
+                                                                            rod
+                                                                                .toY,
+                                                                            2) +
+                                                                    " " +
+                                                                    currencyGB
+                                                                        .name,
+                                                                TextStyle(
+                                                                    color: Colors
+                                                                        .white),
+                                                              );
                                                             },
                                                           ),
+                                                          touchCallback: (event,
+                                                              response) {
+                                                            if (response !=
+                                                                    null &&
+                                                                response.spot !=
+                                                                    null) {
+                                                              print(
+                                                                  'Touched spot at x: ${response.spot!.touchedBarGroupIndex}, y: ${response.spot!.touchedRodData.toY}');
+                                                            }
+                                                          },
                                                         ),
                                                       ),
                                                     ),
-                                              listOutcome.isEmpty
-                                                  ? Center(
-                                                      child: Text(
-                                                          "Không có dữ liệu"),
-                                                    )
-                                                  : Column(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .center,
-                                                      children: [
-                                                        SizedBox(
-                                                          width: 0.5 * maxW,
-                                                          child: FittedBox(
-                                                            fit: BoxFit.scaleDown,
-                                                            // Thu nhỏ chữ nếu vượt quá không gian
-                                                            child: Text(
-                                                              touchedIndexOut ==
-                                                                      -1
-                                                                  ? "Tổng"
-                                                                  : listOutcome[
-                                                                          touchedIndexOut]
-                                                                      .key,
-                                                              style: TextStyle(
-                                                                fontSize: 18,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ))
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    height: 20,
+                                  ),
+                                  IntrinsicHeight(
+                                    child: Container(
+                                      width: maxW,
+                                      // color: AppColors.Nen,
+                                      // color: Colors.amber,
+                                      decoration: const BoxDecoration(
+                                          color: Colors.white,
+                                          border: Border(
+                                              bottom: BorderSide(
+                                                  width: 1,
+                                                  color: Color(0xFF9CADBC)))),
+                                      child: Column(
+                                        children: [
+                                          SizedBox(
+                                            height: 5,
+                                          ),
+                                          Text(
+                                            "Thống kê thu",
+                                            style: TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.w600),
+                                          ),
+                                          Container(
+                                            height: 0.4 * maxH,
+                                            child: Stack(
+                                                alignment: Alignment.center,
+                                                children: [
+                                                  listIncome.isEmpty
+                                                      ? Center(
+                                                          child: Text(
+                                                              "Không có dữ liệu"),
+                                                        )
+                                                      : Container(
+                                                          child: Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .only(
+                                                                    left: 40,
+                                                                    right: 40,
+                                                                    top: 20,
+                                                                    bottom: 20),
+                                                            child: PieChart(
+                                                              PieChartData(
+                                                                sections: getSections(
+                                                                    mapsIncome,
+                                                                    touchedIndexIn),
+                                                                pieTouchData:
+                                                                    PieTouchData(
+                                                                  touchCallback:
+                                                                      (FlTouchEvent
+                                                                              event,
+                                                                          pieTouchResponse) {
+                                                                    setState(
+                                                                        () {
+                                                                      if (!event
+                                                                              .isInterestedForInteractions ||
+                                                                          pieTouchResponse ==
+                                                                              null ||
+                                                                          pieTouchResponse.touchedSection ==
+                                                                              null) {
+                                                                        touchedIndexIn =
+                                                                            -1;
+                                                                        return;
+                                                                      }
+                                                                      touchedIndexIn = pieTouchResponse
+                                                                          .touchedSection!
+                                                                          .touchedSectionIndex;
+                                                                    });
+                                                                  },
+                                                                ),
                                                               ),
                                                             ),
                                                           ),
                                                         ),
-                                                        SizedBox(
-                                                          width: 0.5 * maxW,
-                                                          child: FittedBox(
-                                                            fit: BoxFit.scaleDown,
-                                                            child: Text(
-                                                              touchedIndexOut ==
-                                                                      -1
-                                                                  ? GlobalFunction
-                                                                          .formatCurrency(
-                                                                              totalOutcome,
-                                                                              2) +
-                                                                      ' ' +
-                                                                      currencyGB
-                                                                          .name
-                                                                  : '${GlobalFunction.formatCurrency(getSections(mapsOutcome, touchedIndexOut)[touchedIndexOut].value, 2)}' +
-                                                                      ' ' +
-                                                                      currencyGB
-                                                                          .name,
-                                                              style: TextStyle(
-                                                                  fontSize: 18,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .normal),
+                                                  listIncome.isEmpty
+                                                      ? Center(
+                                                          child: Text(
+                                                              "Không có dữ liệu"),
+                                                        )
+                                                      : Column(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            SizedBox(
+                                                              width: 0.5 * maxW,
+                                                              child: FittedBox(
+                                                                fit: BoxFit
+                                                                    .scaleDown,
+                                                                // Thu nhỏ chữ nếu vượt quá không gian
+                                                                child: Text(
+                                                                  touchedIndexIn ==
+                                                                          -1
+                                                                      ? "Tổng"
+                                                                      : listIncome[
+                                                                              touchedIndexIn]
+                                                                          .key,
+                                                                  style:
+                                                                      TextStyle(
+                                                                    fontSize:
+                                                                        18,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                  ),
+                                                                ),
+                                                              ),
                                                             ),
-                                                          ),
+                                                            SizedBox(
+                                                              width: 0.5 * maxW,
+                                                              child: FittedBox(
+                                                                fit: BoxFit
+                                                                    .scaleDown,
+                                                                child: Text(
+                                                                  touchedIndexIn ==
+                                                                          -1
+                                                                      ? GlobalFunction.formatCurrency(
+                                                                              totalIncome,
+                                                                              2) +
+                                                                          ' ' +
+                                                                          currencyGB
+                                                                              .name
+                                                                      : '${GlobalFunction.formatCurrency(getSections(mapsIncome, touchedIndexIn)[touchedIndexIn].value, 2)}' +
+                                                                          ' ' +
+                                                                          currencyGB
+                                                                              .name,
+                                                                  style: TextStyle(
+                                                                      fontSize:
+                                                                          18,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .normal),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
                                                         ),
-                                                      ],
-                                                    ),
-                                            ]),
-                                      ),
-                                      ...listOutcome.asMap().entries.map((item) =>
-                                          Padding(
-                                            padding: EdgeInsets.only(
-                                                top: 0,
-                                                bottom: 16,
-                                                left: 16,
-                                                right: 16),
-                                            child: Row(
-                                              children: [
-                                                Expanded(
-                                                    flex: 1,
+                                                ]),
+                                          ),
+                                          ...listIncome
+                                              .asMap()
+                                              .entries
+                                              .map((item) => Padding(
+                                                    padding: EdgeInsets.only(
+                                                        top: 0,
+                                                        bottom: 16,
+                                                        left: 16,
+                                                        right: 16),
                                                     child: Row(
                                                       children: [
-                                                        Icon(
-                                                          Icons.square,
-                                                          color: AppColors
-                                                                  .chartColors[
-                                                              item.key],
-                                                        ),
+                                                        Expanded(
+                                                            flex: 1,
+                                                            child: Row(
+                                                              children: [
+                                                                Icon(
+                                                                  Icons.square,
+                                                                  color: AppColors
+                                                                          .chartColors[
+                                                                      item.key],
+                                                                ),
+                                                                SizedBox(
+                                                                  width: 5,
+                                                                ),
+                                                                Text(
+                                                                  item.value
+                                                                      .key,
+                                                                  style: TextStyle(
+                                                                      fontSize:
+                                                                          16,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w500,
+                                                                      overflow:
+                                                                          TextOverflow
+                                                                              .ellipsis),
+                                                                )
+                                                              ],
+                                                            )),
                                                         SizedBox(
                                                           width: 5,
                                                         ),
-                                                        Text(
-                                                          item.value.key,
-                                                          style: TextStyle(
-                                                              fontSize: 16,
-                                                              fontWeight:
-                                                                  FontWeight.w500,
-                                                              overflow:
-                                                                  TextOverflow
-                                                                      .ellipsis),
-                                                        )
+                                                        Expanded(
+                                                            flex: 1,
+                                                            child: Align(
+                                                              alignment: Alignment
+                                                                  .centerLeft,
+                                                              child: FittedBox(
+                                                                  fit: BoxFit
+                                                                      .scaleDown,
+                                                                  child: Text(
+                                                                    GlobalFunction.formatCurrency(
+                                                                            item
+                                                                                .value.value,
+                                                                            2) +
+                                                                        ' ' +
+                                                                        currencyGB
+                                                                            .name,
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            15),
+                                                                  )),
+                                                            )),
                                                       ],
-                                                    )),
-                                                SizedBox(
-                                                  width: 5,
-                                                ),
-                                                Expanded(
-                                                    flex: 1,
-                                                    child: Align(
-                                                      alignment:
-                                                          Alignment.centerLeft,
-                                                      child: FittedBox(
-                                                          fit: BoxFit.scaleDown,
-                                                          child: Text(
-                                                            GlobalFunction
-                                                                    .formatCurrency(
-                                                                        item.value
-                                                                            .value,
-                                                                        2) +
-                                                                ' ' +
-                                                                currencyGB.name,
-                                                            style: TextStyle(
-                                                                fontSize: 15),
-                                                          )),
-                                                    ))
-                                              ],
-                                            ),
-                                          ))
-                                    ],
+                                                    ),
+                                                  ))
+                                        ],
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
-                              SizedBox(
-                                height: 30,
-                              )
-                            ],
-                          );
-                        } // to here
-                        else {
-                          return Text("Failed to load parameter in Statistical");
-                        }
-                      },
-                    );
-                  } else {
-                    return Text("Failed to load transaction in Statistical");
-                  }
-                }, // here
-              ),
+                                  SizedBox(
+                                    height: 40,
+                                  ),
+                                  IntrinsicHeight(
+                                    child: Container(
+                                      width: maxW,
+                                      color: AppColors.Nen,
+                                      child: Column(
+                                        children: [
+                                          SizedBox(
+                                            height: 5,
+                                          ),
+                                          Text(
+                                            "Thống kê chi",
+                                            style: TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.w600),
+                                          ),
+                                          Container(
+                                            height: 0.4 * maxH,
+                                            child: Stack(
+                                                alignment: Alignment.center,
+                                                children: [
+                                                  listOutcome.isEmpty
+                                                      ? Center(
+                                                          child: Text(
+                                                              "Không có dữ liệu"),
+                                                        )
+                                                      : Padding(
+                                                          padding:
+                                                              EdgeInsets.all(
+                                                                  16),
+                                                          child: PieChart(
+                                                            PieChartData(
+                                                              sections: getSections(
+                                                                  mapsOutcome,
+                                                                  touchedIndexOut),
+                                                              pieTouchData:
+                                                                  PieTouchData(
+                                                                touchCallback:
+                                                                    (FlTouchEvent
+                                                                            event,
+                                                                        pieTouchResponse) {
+                                                                  setState(() {
+                                                                    if (!event
+                                                                            .isInterestedForInteractions ||
+                                                                        pieTouchResponse ==
+                                                                            null ||
+                                                                        pieTouchResponse.touchedSection ==
+                                                                            null) {
+                                                                      touchedIndexOut =
+                                                                          -1;
+                                                                      return;
+                                                                    }
+                                                                    touchedIndexOut =
+                                                                        pieTouchResponse
+                                                                            .touchedSection!
+                                                                            .touchedSectionIndex;
+                                                                    print(
+                                                                        "touched index ${touchedIndexOut}");
+                                                                    print(
+                                                                        "Value index ${touchedIndexOut != -1 ? getSections(mapsOutcome, touchedIndexOut)[touchedIndexOut].value : 00} ");
+                                                                  });
+                                                                },
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                  listOutcome.isEmpty
+                                                      ? Center(
+                                                          child: Text(
+                                                              "Không có dữ liệu"),
+                                                        )
+                                                      : Column(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            SizedBox(
+                                                              width: 0.5 * maxW,
+                                                              child: FittedBox(
+                                                                fit: BoxFit
+                                                                    .scaleDown,
+                                                                // Thu nhỏ chữ nếu vượt quá không gian
+                                                                child: Text(
+                                                                  touchedIndexOut ==
+                                                                          -1
+                                                                      ? "Tổng"
+                                                                      : listOutcome[
+                                                                              touchedIndexOut]
+                                                                          .key,
+                                                                  style:
+                                                                      TextStyle(
+                                                                    fontSize:
+                                                                        18,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            SizedBox(
+                                                              width: 0.5 * maxW,
+                                                              child: FittedBox(
+                                                                fit: BoxFit
+                                                                    .scaleDown,
+                                                                child: Text(
+                                                                  touchedIndexOut ==
+                                                                          -1
+                                                                      ? GlobalFunction.formatCurrency(
+                                                                              totalOutcome,
+                                                                              2) +
+                                                                          ' ' +
+                                                                          currencyGB
+                                                                              .name
+                                                                      : '${GlobalFunction.formatCurrency(getSections(mapsOutcome, touchedIndexOut)[touchedIndexOut].value, 2)}' +
+                                                                          ' ' +
+                                                                          currencyGB
+                                                                              .name,
+                                                                  style: TextStyle(
+                                                                      fontSize:
+                                                                          18,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .normal),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                ]),
+                                          ),
+                                          ...listOutcome
+                                              .asMap()
+                                              .entries
+                                              .map((item) => Padding(
+                                                    padding: EdgeInsets.only(
+                                                        top: 0,
+                                                        bottom: 16,
+                                                        left: 16,
+                                                        right: 16),
+                                                    child: Row(
+                                                      children: [
+                                                        Expanded(
+                                                            flex: 1,
+                                                            child: Row(
+                                                              children: [
+                                                                Icon(
+                                                                  Icons.square,
+                                                                  color: AppColors
+                                                                          .chartColors[
+                                                                      item.key],
+                                                                ),
+                                                                SizedBox(
+                                                                  width: 5,
+                                                                ),
+                                                                Text(
+                                                                  item.value
+                                                                      .key,
+                                                                  style: TextStyle(
+                                                                      fontSize:
+                                                                          16,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w500,
+                                                                      overflow:
+                                                                          TextOverflow
+                                                                              .ellipsis),
+                                                                )
+                                                              ],
+                                                            )),
+                                                        SizedBox(
+                                                          width: 5,
+                                                        ),
+                                                        Expanded(
+                                                            flex: 1,
+                                                            child: Align(
+                                                              alignment: Alignment
+                                                                  .centerLeft,
+                                                              child: FittedBox(
+                                                                  fit: BoxFit
+                                                                      .scaleDown,
+                                                                  child: Text(
+                                                                    GlobalFunction.formatCurrency(
+                                                                            item
+                                                                                .value.value,
+                                                                            2) +
+                                                                        ' ' +
+                                                                        currencyGB
+                                                                            .name,
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            15),
+                                                                  )),
+                                                            ))
+                                                      ],
+                                                    ),
+                                                  ))
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 30,
+                                  )
+                                ],
+                              );
+                            } // to here
+                            else {
+                              return Text(
+                                  "Failed to load parameter in Statistical");
+                            }
+                          },
+                        );
+                      } else {
+                        return Text(
+                            "Failed to load transaction in Statistical");
+                      }
+                    }, // here
+                  ),
+                ),
+              ],
             ),
           ),
-
-                ],
-              ),
-        ));
+        ],
+      ),
+    ));
   }
 }
 

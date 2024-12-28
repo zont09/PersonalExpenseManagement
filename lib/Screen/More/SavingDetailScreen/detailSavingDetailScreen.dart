@@ -250,7 +250,7 @@ class _DetailsavingdetailscreenState extends State<Detailsavingdetailscreen> {
         appBar: AppBar(
           backgroundColor: AppColors.Nen,
           title: Text(
-            "Thêm tiền vào KTK",
+            "Chi tiết thêm tiền vào KTK",
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
         ),

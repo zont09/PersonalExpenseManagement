@@ -2,10 +2,14 @@ import 'dart:async';
 import 'dart:ffi';
 
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
+import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:personal_expense_management/Database/database_helper.dart';
+import 'package:personal_expense_management/Components/dialog_utils.dart';
 import 'package:personal_expense_management/Model/Category.dart';
 import 'package:personal_expense_management/Model/Currency.dart';
 import 'package:personal_expense_management/Model/RepeatOption.dart';
@@ -48,6 +52,9 @@ class _AddtransactionState extends State<Addtransaction> {
   Category _selectCattegoryType = Category(id: -1, name: "", type: 0);
   Wallet _selectWallet = Wallet(id: -1,name: "", amount: 0, currency: Currency(name: "", value: 0), note: "");
   RepeatOption _selectRepeat = RepeatOption(id: 1,option_name: "Không");
+  File? _image;
+  final ImagePicker _picker = ImagePicker();
+
 
   @override
   void initState() {
@@ -409,6 +416,112 @@ class _AddtransactionState extends State<Addtransaction> {
       }
   }
 
+  Future<dynamic> _processReceipt(String imagePath, BuildContext context) async {
+    try {
+      final url = Uri.parse('https://api.mindee.net/v1/products/mindee/expense_receipts/v5/predict');
+       DialogUtils.showLoadingDialog(context);
+      final request = http.MultipartRequest('POST', url)
+        ..headers['Authorization'] = 'Token d1250a3ec01bce694443f889d67c7f48'
+        ..files.add(await http.MultipartFile.fromPath('document', imagePath)); // Thêm tệp ảnh vào yêu cầu
+
+      final response = await request.send();
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        final responseData = await response.stream.bytesToString();
+        final data = jsonDecode(responseData);
+        if(context.mounted) {
+          Navigator.of(context).pop();
+        }
+        return data;
+      } else {
+        final errorData = await response.stream.bytesToString();
+        print('Error Data: $errorData');  // In phản hồi lỗi chi tiết
+        _showError('Lỗi xử lý hoá đơn: ${response.statusCode}');
+      }
+    } catch (e) {
+      _showError('Lỗi khi xử lý hoá đơn: $e');
+    }
+    if(context.mounted) {
+      Navigator.of(context).pop();
+    }
+    return null;
+  }
+  void _showError(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
+  Future<void> handlingScanBill(String imagePath, BuildContext context) async {
+    dynamic dataRaw = await _processReceipt(imagePath, context);
+    if(dataRaw == null) return;
+    final data = dataRaw!['document']['inference']['prediction'];
+    setState(() {
+      if(data['total_amount']['value'] != null) {
+        _controllerAmount.text =  GlobalFunction.formatCurrency(double.parse(data['total_amount']['value'].toString()) * 1000, 2);
+        print("=======> Amount: ${GlobalFunction.formatCurrency(double.parse(data['total_amount']['value'].toString()) * 1000, 2)}");
+      }
+      if(data['date'] != null && data['date']['value'] != null) {
+        _controllerDate.text = DateFormat("dd/MM/yyyy").format(DateTime.parse(data['date']['value'].toString()));
+        print("=======> Date: ${DateFormat("dd/MM/yyyy").format(DateTime.parse(data['date']['value'].toString()))}");
+      }
+    });
+  }
+
+  Future<void> _getImageFromCamera(BuildContext ctx) async {
+    try {
+      final XFile? photo = await _picker.pickImage(
+        source: ImageSource.camera,
+        preferredCameraDevice: CameraDevice.rear,
+        imageQuality: 100,
+      );
+
+      if (photo != null) {
+        setState(() {
+          _image = File(photo.path);
+        });
+        if(ctx.mounted) {
+          await handlingScanBill(photo.path, ctx);
+        }
+      }
+    } catch (e) {
+      print('Error taking picture: $e');
+      _showError('Không thể chụp ảnh: $e');
+    }
+  }
+
+  // Chọn ảnh từ thư viện
+  Future<void> _getImageFromGallery(BuildContext ctx) async {
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 100,
+      );
+
+      if (image != null) {
+        setState(() {
+          _image = File(image.path);
+        });
+        if(ctx.mounted) {
+          await handlingScanBill(image.path, ctx);
+        }
+      }
+    } catch (e) {
+      print('Error picking image: $e');
+      _showError('Không thể chọn ảnh: $e');
+    }
+  }
+
+  String formatVND(String? amountStr) {
+    if (amountStr == null) return 'N/A';
+    final amount = double.tryParse(amountStr) ?? 0;
+    // Nếu giá trị nhỏ hơn 1000, giả định rằng giá trị bị rút gọn, nhân với 1000 để chuyển sang VND
+    if (amount < 1000) {
+      return (amount * 1000).toStringAsFixed(0);
+    }
+    return amount.toString();
+  }
+
   @override
   Widget build(BuildContext context) {
     double maxH = MediaQuery.of(context).size.height;
@@ -438,6 +551,24 @@ class _AddtransactionState extends State<Addtransaction> {
             ),
           ),
         ),
+        actions: [
+          Row(
+            children: [
+              InkWell(
+                onTap: () {
+                  _getImageFromCamera(context);
+                },
+                  child: Icon(Icons.camera_alt)),
+              SizedBox(width: 15,),
+              InkWell(
+                onTap: () {
+                  _getImageFromGallery(context);
+                },
+                  child: Icon(Icons.image)),
+              SizedBox(width: 9,),
+            ],
+          )
+        ],
       ),
       body: Column(
         children: [

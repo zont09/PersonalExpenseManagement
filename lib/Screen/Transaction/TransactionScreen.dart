@@ -103,14 +103,15 @@ class _TransactionState extends State<Transaction> {
           ),
           actions: <Widget>[
             TextButton(
-              child: const Text('Hủy', style: TextStyle(color: Color(0xFF339DD4))),
+              child:
+                  const Text('Hủy', style: TextStyle(color: Color(0xFF339DD4))),
               onPressed: () {
                 Navigator.of(context).pop(); // Đóng dialog
               },
             ),
             TextButton(
-              child:
-                  const Text('Xác nhận', style: TextStyle(color: Color(0xFF339DD4))),
+              child: const Text('Xác nhận',
+                  style: TextStyle(color: Color(0xFF339DD4))),
               onPressed: () {
                 setState(() {
                   searchText = _textFieldController.text;
@@ -125,7 +126,8 @@ class _TransactionState extends State<Transaction> {
     );
   }
 
-  Future<void> _openBottomSheet(BuildContext context, Map<String, bool> mapIncome, Map<String, bool> mapOutcome, int type) {
+  Future<void> _openBottomSheet(BuildContext context,
+      Map<String, bool> mapIncome, Map<String, bool> mapOutcome, int type) {
     bool isAllChecked = true;
     final Completer<void> completer = Completer<void>();
 
@@ -142,12 +144,15 @@ class _TransactionState extends State<Transaction> {
     }
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white, // Make background transparent to apply custom radius
+      backgroundColor: Colors.white,
+      // Make background transparent to apply custom radius
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(15)), // Set border radius
+        borderRadius: BorderRadius.vertical(
+            top: Radius.circular(15)), // Set border radius
       ),
       transitionAnimationController: AnimationController(
-        duration: const Duration(milliseconds: 200), // Adjust the opening speed here
+        duration: const Duration(milliseconds: 200),
+        // Adjust the opening speed here
         vsync: Scaffold.of(context),
       ),
       builder: (BuildContext context) {
@@ -162,7 +167,8 @@ class _TransactionState extends State<Transaction> {
                   Center(
                     child: Text(
                       type == 1 ? 'Giao dịch thu' : 'Giao dịch chi',
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                   ),
                   SizedBox(height: 10),
@@ -171,7 +177,8 @@ class _TransactionState extends State<Transaction> {
                       children: checkboxValues.keys.map((key) {
                         return CheckboxListTile(
                           title: Text(key),
-                          activeColor: AppColors.XanhDuong, // Color when checked
+                          activeColor: AppColors.XanhDuong,
+                          // Color when checked
                           checkColor: Colors.white,
                           value: checkboxValues[key],
                           onChanged: (bool? value) {
@@ -197,7 +204,6 @@ class _TransactionState extends State<Transaction> {
                       }).toList(),
                     ),
                   ),
-
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
@@ -210,7 +216,10 @@ class _TransactionState extends State<Transaction> {
                           Navigator.pop(context);
                           completer.complete();
                         },
-                        child: Text('Hủy', style: TextStyle(),),
+                        child: Text(
+                          'Hủy',
+                          style: TextStyle(),
+                        ),
                       ),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
@@ -310,31 +319,63 @@ class _TransactionState extends State<Transaction> {
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceBetween,
                                           children: [
-                                            IconButton(
-                                              onPressed: () =>
-                                                  {_showSearchDialog(context)},
-                                              icon: Icon(
-                                                Icons.search,
-                                                size: 30,
+                                            // Container(
+                                            //   // color: Colors.red,
+                                            //   margin: const EdgeInsets.only(top: 10, left: 8, bottom: 10),
+                                            //   child: Image.asset('assets/icon/ic_logo.png', color: Colors.white, ),
+                                            // ),
+                                            // SizedBox(width: 10,),
+                                            Padding(
+                                              padding: const EdgeInsets.all(8.0),
+                                              child: Row(
+                                                children: [
+                                                  InkWell(
+                                                    onTap: () => _showSearchDialog(context),
+                                                    child: const Icon(
+                                                      Icons.search,
+                                                      size: 30,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
-                                            SelectTime(dateOption: dateTransaction, changed: (newDate) {
-                                              setState(() {
-                                                dateTransaction = newDate;
-                                              });
-                                            }),
+                                            SelectTime(
+                                                dateOption: dateTransaction,
+                                                changed: (newDate) {
+                                                  setState(() {
+                                                    dateTransaction = newDate;
+                                                  });
+                                                }),
+
+                                            // IconButton(
+                                            //   onPressed: () =>
+                                            //   {_showSearchDialog(context)},
+                                            //   icon: Icon(
+                                            //     Icons.search,
+                                            //     size: 30,
+                                            //   ),
+                                            // ),
                                             Theme(
                                               data: Theme.of(context).copyWith(
-                                                popupMenuTheme: const PopupMenuThemeData(
-                                                  color: Color(0xFFF2FBFF), // Đổi màu nền của PopupMenu
+                                                popupMenuTheme:
+                                                    const PopupMenuThemeData(
+                                                  color: Color(0xFFF2FBFF),
+                                                  // Đổi màu nền của PopupMenu
                                                   textStyle: TextStyle(
-                                                    color: Colors.white, // Đổi màu chữ của tất cả các mục
+                                                    color: Colors
+                                                        .white, // Đổi màu chữ của tất cả các mục
                                                   ),
                                                   shape: RoundedRectangleBorder(
-                                                    borderRadius: BorderRadius.all(Radius.circular(5.0)), // Bo góc cho PopupMenu
+                                                    borderRadius:
+                                                        BorderRadius.all(
+                                                            Radius.circular(
+                                                                5.0)),
+                                                    // Bo góc cho PopupMenu
                                                     side: BorderSide(
-                                                      color: Colors.white, // Màu viền của PopupMenu
-                                                      width: 2.0, // Độ dày của viền
+                                                      color: Colors.white,
+                                                      // Màu viền của PopupMenu
+                                                      width:
+                                                          2.0, // Độ dày của viền
                                                     ),
                                                   ),
                                                 ),
@@ -348,7 +389,6 @@ class _TransactionState extends State<Transaction> {
                                                         mapIncome,
                                                         mapOutcome,
                                                         1);
-                                                    print("ra 0");
                                                     context
                                                         .read<CategoryMapBloc>()
                                                         .add(
@@ -373,11 +413,13 @@ class _TransactionState extends State<Transaction> {
                                                 itemBuilder: (context) => [
                                                   PopupMenuItem<int>(
                                                     value: 0,
-                                                    child: Text("Giao dịch thu"),
+                                                    child:
+                                                        Text("Giao dịch thu"),
                                                   ),
                                                   PopupMenuItem<int>(
                                                     value: 1,
-                                                    child: Text("Giao dịch chi"),
+                                                    child:
+                                                        Text("Giao dịch chi"),
                                                   ),
                                                 ],
                                               ),
@@ -473,144 +515,149 @@ class _TransactionState extends State<Transaction> {
                                 ),
                                 // TransactionTag(tran: TransactionModel(date: "2024-09-30", amount: 5000000, wallet: Wallet(name: "tien mat", amount: 90, currency: Currency(name: "VND", value: 1), note: ""), category: Category(name: "An uong", type: 0), note: "", description: "", repeat_option: RepeatOption(option_name: ""))),
                                 Expanded(
-                                  child: SingleChildScrollView(
-                                    scrollDirection: Axis.vertical,
-                                    child: BlocBuilder<TransactionBloc,
-                                        TransactionState>(
-                                      builder: (context, state) {
-                                        if (state is TransactionChangedState) {
-                                          final transactions =
-                                              state.newTransaction;
-                                          return BlocBuilder<CategoryMapBloc,
-                                                  CategoryMapState>(
-                                              builder:
-                                                  (context, categoryState) {
-                                            if (categoryState
-                                                is CategoryMapUpdatedState) {
-                                              final mapIncome =
-                                                  categoryState.mapIncome;
-                                              final mapOutcome =
-                                                  categoryState.mapOutcome;
+                                  child: Stack(
+                                    children: [
+                                      Center(child: Image.asset('assets/icon/ic_logo.png', fit: BoxFit.fitWidth, color: Colors.grey[100],)),
+                                      SingleChildScrollView(
+                                        scrollDirection: Axis.vertical,
+                                        child: BlocBuilder<TransactionBloc,
+                                            TransactionState>(
+                                          builder: (context, state) {
+                                            if (state is TransactionChangedState) {
+                                              final transactions =
+                                                  state.newTransaction;
+                                              return BlocBuilder<CategoryMapBloc,
+                                                      CategoryMapState>(
+                                                  builder:
+                                                      (context, categoryState) {
+                                                if (categoryState
+                                                    is CategoryMapUpdatedState) {
+                                                  final mapIncome =
+                                                      categoryState.mapIncome;
+                                                  final mapOutcome =
+                                                      categoryState.mapOutcome;
 
-                                              return Column(
-                                                children:
-                                                    List.generate(31, (index) {
-                                                  final listTransaction =
-                                                      GlobalFunction
-                                                          .getTransactionByAll(
-                                                    transactions,
-                                                    DateTime(
-                                                        dateTransaction.year,
-                                                        dateTransaction.month,
-                                                        31 - index + 1),
-                                                    _walletSelect.id!,
-                                                    searchText,
-                                                    mapIncome,
-                                                    mapOutcome,
+                                                  return Column(
+                                                    children:
+                                                        List.generate(31, (index) {
+                                                      final listTransaction =
+                                                          GlobalFunction
+                                                              .getTransactionByAll(
+                                                        transactions,
+                                                        DateTime(
+                                                            dateTransaction.year,
+                                                            dateTransaction.month,
+                                                            31 - index + 1),
+                                                        _walletSelect.id!,
+                                                        searchText,
+                                                        mapIncome,
+                                                        mapOutcome,
+                                                      );
+                                                      if (listTransaction
+                                                          .isNotEmpty) {
+                                                        return Column(
+                                                          children: [
+                                                            // Container cho ngày
+                                                            SizedBox(
+                                                              height: 10,
+                                                            ),
+                                                            Container(
+                                                              padding:
+                                                                  EdgeInsets.only(
+                                                                      left: 10),
+                                                              margin:
+                                                                  EdgeInsets.only(
+                                                                      bottom: 5),
+                                                              height: 30,
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                      boxShadow: [
+                                                                    BoxShadow(
+                                                                      color: Colors
+                                                                          .grey
+                                                                          .withOpacity(
+                                                                              0.2),
+                                                                      // Màu của shadow
+                                                                      spreadRadius:
+                                                                          3,
+                                                                      // Độ lan rộng của shadow
+                                                                      blurRadius: 7,
+                                                                      // Độ mờ của shadow
+                                                                      offset: Offset(
+                                                                          0,
+                                                                          0), // Vị trí của shadow
+                                                                    ),
+                                                                  ],
+                                                                      color: Colors
+                                                                          .white),
+                                                              child: Row(
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .center,
+                                                                children: [
+                                                                  Text(
+                                                                    "Ngày ${(31 - index + 1)}",
+                                                                    // Hiển thị ngày
+                                                                    style: TextStyle(
+                                                                        fontWeight:
+                                                                            FontWeight
+                                                                                .bold,
+                                                                        fontSize:
+                                                                            18),
+                                                                  )
+                                                                ],
+                                                              ),
+                                                            ),
+                                                            SingleChildScrollView(
+                                                              scrollDirection:
+                                                                  Axis.horizontal,
+                                                              child: Row(
+                                                                children:
+                                                                    listTransaction
+                                                                        .reversed
+                                                                        .map(
+                                                                            (item) =>
+                                                                                Row(
+                                                                                  children: [
+                                                                                    TransactionTag(
+                                                                                      tran: item,
+                                                                                      cur: currencyGB,
+                                                                                    ),
+                                                                                    SizedBox(
+                                                                                      width: 8,
+                                                                                    )
+                                                                                  ],
+                                                                                ))
+                                                                        .toList(),
+                                                              ),
+                                                            )
+                                                            // ...listTransaction
+                                                            //     .reversed
+                                                            //     .map(
+                                                            //         (item) =>
+                                                            //             TransactionTag(tran: item, cur: currencyGB,)
+                                                            // ).toList(),
+                                                          ],
+                                                        );
+                                                      } else {
+                                                        // Nếu danh sách trống, trả về SizedBox hoặc widget rỗng
+                                                        return SizedBox.shrink();
+                                                      }
+                                                    }).toList(),
                                                   );
-                                                  if (listTransaction
-                                                      .isNotEmpty) {
-                                                    return Column(
-                                                      children: [
-                                                        // Container cho ngày
-                                                        SizedBox(
-                                                          height: 10,
-                                                        ),
-                                                        Container(
-                                                          padding:
-                                                              EdgeInsets.only(
-                                                                  left: 10),
-                                                          margin:
-                                                              EdgeInsets.only(
-                                                                  bottom: 5),
-                                                          height: 30,
-                                                          decoration:
-                                                              BoxDecoration(
-                                                                  boxShadow: [
-                                                                BoxShadow(
-                                                                  color: Colors
-                                                                      .grey
-                                                                      .withOpacity(
-                                                                          0.2),
-                                                                  // Màu của shadow
-                                                                  spreadRadius:
-                                                                      3,
-                                                                  // Độ lan rộng của shadow
-                                                                  blurRadius: 7,
-                                                                  // Độ mờ của shadow
-                                                                  offset: Offset(
-                                                                      0,
-                                                                      0), // Vị trí của shadow
-                                                                ),
-                                                              ],
-                                                                  color: Colors
-                                                                      .white),
-                                                          child: Row(
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .center,
-                                                            children: [
-                                                              Text(
-                                                                "Ngày ${(31 - index + 1)}",
-                                                                // Hiển thị ngày
-                                                                style: TextStyle(
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                    fontSize:
-                                                                        18),
-                                                              )
-                                                            ],
-                                                          ),
-                                                        ),
-                                                        SingleChildScrollView(
-                                                          scrollDirection:
-                                                              Axis.horizontal,
-                                                          child: Row(
-                                                            children:
-                                                                listTransaction
-                                                                    .reversed
-                                                                    .map(
-                                                                        (item) =>
-                                                                            Row(
-                                                                              children: [
-                                                                                TransactionTag(
-                                                                                  tran: item,
-                                                                                  cur: currencyGB,
-                                                                                ),
-                                                                                SizedBox(
-                                                                                  width: 8,
-                                                                                )
-                                                                              ],
-                                                                            ))
-                                                                    .toList(),
-                                                          ),
-                                                        )
-                                                        // ...listTransaction
-                                                        //     .reversed
-                                                        //     .map(
-                                                        //         (item) =>
-                                                        //             TransactionTag(tran: item, cur: currencyGB,)
-                                                        // ).toList(),
-                                                      ],
-                                                    );
-                                                  } else {
-                                                    // Nếu danh sách trống, trả về SizedBox hoặc widget rỗng
-                                                    return SizedBox.shrink();
-                                                  }
-                                                }).toList(),
-                                              );
-                                            } else
-                                              return Center(
-                                                child: Text(
-                                                    "Không có dữ liệu category"),
-                                              );
-                                          });
-                                        } else {
-                                          return Text("Không có dữ liệu");
-                                        }
-                                      },
-                                    ),
+                                                } else
+                                                  return Center(
+                                                    child: Text(
+                                                        "Không có dữ liệu category"),
+                                                  );
+                                              });
+                                            } else {
+                                              return Text("Không có dữ liệu");
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ],
